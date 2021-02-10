@@ -20,8 +20,8 @@ export default {
     }
   },
   components: {
-    Navbar
-  }
+    Navbar,
+  },
 };
 </script>
 
@@ -50,5 +50,16 @@ export default {
 
 #nav a.router-link-exact-active {
   color: #42b983;
+}
+.bold {
+  font-weight: bold;
+}
+.flex-end {
+  justify-content: flex-end;
+}
+.btnSubmit {
+  position: absolute;
+  bottom: 2vh;
+  right: 2vw;
 }
 </style>
