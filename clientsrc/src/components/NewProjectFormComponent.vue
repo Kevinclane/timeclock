@@ -123,28 +123,6 @@
 
       <!--END PAY TYPES-->
 
-      <!--SALARY OPTIONS-->
-
-      <div v-show="newProjectForm.PayType == 'Salary'" class="col-12 my-1">
-        <div class="row">
-          <div class="col-4 bold d-flex flex-end">Frequency:</div>
-          <div class="col-6 d-flex justify-content-left align-items-center">
-            <select
-              v-model="newProjectForm.SalaryFrequency"
-              name="SalaryFrequency"
-              id="SalaryFrequency"
-            >
-              <option value="" selected disabled hidden></option>
-              <option value="Daily">Daily</option>
-              <option value="Weekly">Weekly</option>
-              <option value="Monthly">Monthly</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!--END SALARY OPTIONS-->
-
       <!--RATE-->
 
       <div
@@ -169,6 +147,34 @@
       </div>
 
       <!--END RATE-->
+
+      <!--SALARY OPTIONS-->
+
+      <div
+        v-show="
+          newProjectForm.PayType == 'Salary' &&
+          newProjectForm.PayPeriod != 'Milestone'
+        "
+        class="col-12 my-1"
+      >
+        <div class="row">
+          <div class="col-4 bold d-flex flex-end">Every:</div>
+          <div class="col-6 d-flex justify-content-left align-items-center">
+            <select
+              v-model="newProjectForm.SalaryFrequency"
+              name="SalaryFrequency"
+              id="SalaryFrequency"
+            >
+              <option value="" selected disabled hidden></option>
+              <option value="Daily">Day</option>
+              <option value="Weekly">Week</option>
+              <option value="Monthly">Month</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!--END SALARY OPTIONS-->
 
       <button type="submit" class="btn btn-success btnSubmit">Add</button>
     </form>
