@@ -3,7 +3,7 @@
     <form @submit="addProject" class="row pb-4">
       <div class="col-12 my-1">
         <div class="row">
-          <div class="col-6 bold d-flex flex-end">Project Name:</div>
+          <div class="col-4 bold d-flex flex-end">Project Name:</div>
           <div class="col-6 d-flex">
             <input
               v-model="newProjectForm.Title"
@@ -17,7 +17,7 @@
       </div>
       <div class="col-12 my-1">
         <div class="row">
-          <div class="col-6 bold d-flex flex-end">Invoice Target:</div>
+          <div class="col-4 bold d-flex flex-end">Invoice Target:</div>
           <div class="col-6 d-flex">
             <input
               v-model="newProjectForm.Payee"
@@ -34,7 +34,7 @@
 
       <div class="col-12 my-1">
         <div class="row">
-          <div class="col-6 bold d-flex flex-end">Pay Period:</div>
+          <div class="col-4 bold d-flex flex-end">Pay Period:</div>
           <div class="col-6 d-flex flex-column justify-content-left">
             <select
               v-model="newProjectForm.PayPeriod"
@@ -65,7 +65,7 @@
         class="col-12 my-1"
       >
         <div class="row">
-          <div class="col-6 bold d-flex flex-end">Start:</div>
+          <div class="col-4 bold d-flex flex-end">Start:</div>
           <div class="col-6 d-flex justify-content-left align-items-center">
             <input
               v-model="newProjectForm.Start"
@@ -75,8 +75,10 @@
             />
           </div>
         </div>
-        <div v-show="newProjectForm.PayPeriod == 'Monthly'" class="row">
-          <div class="col-6 bold d-flex flex-end">Invoice Date</div>
+      </div>
+      <div v-show="newProjectForm.PayPeriod == 'Monthly'" class="col-12">
+        <div class="row">
+          <div class="col-4 bold d-flex flex-end">Invoice Date</div>
           <div class="col-6 d-flex justify-content-left align-items-center">
             <input
               v-model="newProjectForm.end"
@@ -87,6 +89,10 @@
           </div>
         </div>
       </div>
+      <div
+        v-show="newProjectForm.PayPeriod == 'Milestone'"
+        class="col-12"
+      ></div>
 
       <!--END  DATE SELECT-->
 
@@ -100,7 +106,7 @@
         class="col-12 my-1"
       >
         <div class="row">
-          <div class="col-6 bold d-flex flex-end">Pay Type:</div>
+          <div class="col-4 bold d-flex flex-end">Pay Type:</div>
           <div class="col-6 d-flex justify-content-left align-items-center">
             <select
               v-model="newProjectForm.PayType"
@@ -108,8 +114,8 @@
               id="PayType"
             >
               <option value="" selected disabled hidden></option>
-              <option value="hourly">Hourly</option>
-              <option value="salary">Salary</option>
+              <option value="Hourly">Hourly</option>
+              <option value="Salary">Salary</option>
             </select>
           </div>
         </div>
@@ -119,15 +125,19 @@
 
       <!--SALARY OPTIONS-->
 
-      <div v-show="newProjectForm.PayType == 'salary'" class="col-12 my-1">
+      <div v-show="newProjectForm.PayType == 'Salary'" class="col-12 my-1">
         <div class="row">
-          <div class="col-6 bold d-flex flex-end">Frequency:</div>
+          <div class="col-4 bold d-flex flex-end">Frequency:</div>
           <div class="col-6 d-flex justify-content-left align-items-center">
-            <select name="SalaryFrequency" id="SalaryFrequency">
+            <select
+              v-model="newProjectForm.SalaryFrequency"
+              name="SalaryFrequency"
+              id="SalaryFrequency"
+            >
               <option value="" selected disabled hidden></option>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
+              <option value="Daily">Daily</option>
+              <option value="Weekly">Weekly</option>
+              <option value="Monthly">Monthly</option>
             </select>
           </div>
         </div>
@@ -137,11 +147,16 @@
 
       <!--RATE-->
 
-      <div v-show="newProjectForm.PayPeriod != ''" class="col-12 my-1">
+      <div
+        v-show="
+          newProjectForm.PayPeriod != '' &&
+          (newProjectForm.PayType != '' ||
+            newProjectForm.PayPeriod == 'Milestone')
+        "
+        class="col-12 my-1"
+      >
         <div class="row">
-          <div class="col-6 bold d-flex flex-end">
-            {{ this.newProjectForm.PayType }} Rate:
-          </div>
+          <div class="col-4 bold d-flex flex-end">Rate:</div>
           <div class="col-6 d-flex justify-content-left align-items-center">
             <input
               v-model="newProjectForm.Rate"
