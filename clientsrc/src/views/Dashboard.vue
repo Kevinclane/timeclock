@@ -58,4 +58,9 @@ export default {
   max-height: 80vh;
   max-width: 80vw;
 }
+@media screen and (min-width: 992px) {
+  .modal-content {
+    max-width: 40vw;
+  }
+}
 </style>

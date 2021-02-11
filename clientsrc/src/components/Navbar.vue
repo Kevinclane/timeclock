@@ -1,7 +1,10 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <nav class="navbar navbar-expand-lg navbar-light bg-primary">
     <router-link class="navbar-brand" :to="{ name: 'home' }">Home</router-link>
-    <router-link class="navbar-brand" :to="{ name: 'dashboard' }"
+    <router-link
+      v-if="$auth.isAuthenticated"
+      class="navbar-brand"
+      :to="{ name: 'dashboard' }"
       >Dashboard</router-link
     >
     <button
@@ -22,7 +25,11 @@
             >Home</router-link
           >
         </li>
-        <li class="nav-item" :class="{ active: $route.name == 'dashboard' }">
+        <li
+          v-if="$auth.isAuthenticated"
+          class="nav-item"
+          :class="{ active: $route.name == 'dashboard' }"
+        >
           <router-link :to="{ name: 'dashboard' }" class="nav-link"
             >Dashboard</router-link
           >
@@ -50,8 +57,8 @@ export default {
       await this.$auth.loginWithPopup();
       this.$store.dispatch("setBearer", this.$auth.bearer);
       this.$store.dispatch("getProfile");
-      console.log("this.$auth.user: ");
-      console.log(this.$auth.user);
+      console.log("this.$auth.user: ", this.$auth.user);
+      // console.log(this.$auth.user);
     },
     async logout() {
       await this.$auth.logout({ returnTo: window.location.origin });

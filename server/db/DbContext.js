@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import ProfileSchema from "../models/Profile";
-import TimeTrackSchema from "../models/TimeTrack"
+import ProjectSchema from "../models/Project"
 class DbContext {
   Profile = mongoose.model("Profile", ProfileSchema);
-  TimeTrack = mongoose.model("TimeTrack", TimeTrackSchema)
+  Project = mongoose.model("Project", ProjectSchema)
 }
 
 export const dbContext = new DbContext();

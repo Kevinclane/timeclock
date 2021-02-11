@@ -34,7 +34,15 @@
 
       <div class="col-12 my-1">
         <div class="row">
-          <div class="col-4 bold d-flex flex-end">Pay Period:</div>
+          <div class="col-4 bold d-flex flex-end">
+            <i class="fas fa-exclamation-triangle mr-1 coco"
+              ><span class="tooltiptext"
+                >ie. If Monday, invoice will be available Sunday</span
+              ></i
+            >
+            Pay Period:
+          </div>
+
           <div class="col-6 d-flex flex-column justify-content-left">
             <select
               v-model="newProjectForm.PayPeriod"
@@ -78,14 +86,44 @@
       </div>
       <div v-show="newProjectForm.PayPeriod == 'Monthly'" class="col-12">
         <div class="row">
-          <div class="col-4 bold d-flex flex-end">Invoice Date</div>
+          <div class="col-4 bold d-flex flex-end">Invoice Day</div>
           <div class="col-6 d-flex justify-content-left align-items-center">
-            <input
-              v-model="newProjectForm.end"
-              type="date"
-              name="End"
-              id="End"
-            />
+            <select
+              v-model="newProjectForm.InvoiceDay"
+              name="InvoiceDay"
+              id="InvoiceDay"
+            >
+              <option value="" selected hidden disabled></option>
+              <option value="Last">Last day of the month</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+              <option value="14">14</option>
+              <option value="15">15</option>
+              <option value="16">16</option>
+              <option value="17">17</option>
+              <option value="18">18</option>
+              <option value="19">19</option>
+              <option value="20">20</option>
+              <option value="21">21</option>
+              <option value="22">22</option>
+              <option value="23">23</option>
+              <option value="24">24</option>
+              <option value="25">25</option>
+              <option value="26">26</option>
+              <option value="27">27</option>
+              <option value="28">28</option>
+            </select>
           </div>
         </div>
       </div>
@@ -182,6 +220,7 @@
 </template>
 
 <script>
+import moment from "moment";
 export default {
   name: "NewProjectFormComponent",
   data() {
@@ -193,6 +232,7 @@ export default {
         PayType: "",
         Start: "",
         End: "",
+        InvoiceDate: "",
         Rate: "",
         SalaryFrequency: "",
       },
@@ -201,7 +241,50 @@ export default {
   methods: {
     addProject(e) {
       e.preventDefault();
-      debugger;
+      // debugger;
+      this.trimWhiteSpace();
+      this.newProjectForm.Rate = parseInt(this.newProjectForm.Rate);
+      let abort = false;
+      let emptyFields = [];
+      if (
+        this.newProjectForm.PayPeriod == "Weekly" ||
+        this.newProjectForm.PayPeriod == "Bi-Weekly"
+      ) {
+        this.momentDates();
+        debugger;
+      }
+      if (!abort) {
+        this.$store.dispatch("createProject", { ...this.newProjectForm });
+        this.newProjectForm = {
+          Title: "",
+          Payee: "",
+          PayPeriod: "",
+          PayType: "",
+          Start: "",
+          End: "",
+          InvoiceDay: "",
+          Rate: "",
+          SalaryFrequency: "",
+        };
+      }
+    },
+    trimWhiteSpace() {
+      this.newProjectForm.Title = this.newProjectForm.Title.trim();
+      this.newProjectForm.Payee = this.newProjectForm.Payee.trim();
+      this.newProjectForm.Rate = this.newProjectForm.Rate.trim();
+    },
+    momentDates() {
+      let startDate = moment(this.newProjectForm.Start);
+      this.newProjectForm.Start = moment(this.newProjectForm.Start).format(
+        "YYYY-MM-DD"
+      );
+      if (this.newProjectForm.PayPeriod == "Weekly") {
+        let endDate = moment(startDate, "YYYY-MM-DD").add(7, "days");
+        this.newProjectForm.End = moment(endDate).local().format("YYYY-MM-DD");
+      } else if (this.newProjectForm.PayPeriod == "Bi-Weekly") {
+        let endDate = moment(startDate, "YYYY-MM-DD").add(14, "days");
+        this.newProjectForm.End = moment(endDate).local().format("YYYY-MM-DD");
+      }
     },
   },
 };
@@ -210,10 +293,30 @@ export default {
 <style scoped>
 input {
   height: 1.5rem;
-  max-width: 100%;
+  width: 100%;
 }
 select {
   height: 1.5rem;
-  max-width: 100%;
+  width: 100%;
+}
+.coco {
+  color: chocolate;
+  margin-top: 0.25rem;
+  position: relative;
+}
+.coco .tooltiptext {
+  visibility: hidden;
+  width: 200px;
+  background-color: rgb(214, 219, 207);
+  color: black;
+  text-align: center;
+  border-radius: 6px;
+  border: 2px solid black;
+  padding: 5px 5px;
+  position: absolute;
+  z-index: 1000;
+}
+.coco:hover .tooltiptext {
+  visibility: visible;
 }
 </style>
