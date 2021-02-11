@@ -3,7 +3,14 @@
     <form @submit="addProject" class="row pb-4">
       <div class="col-12 my-1">
         <div class="row">
-          <div class="col-4 bold d-flex flex-end">Project Name:</div>
+          <div class="col-4 bold d-flex flex-end">
+            <i class="fas fa-exclamation-triangle mr-1 coco"
+              ><span class="tooltiptext"
+                >Special character allowed: {{ charsAllowed.chars }}</span
+              ></i
+            >
+            Project Name:
+          </div>
           <div class="col-6 d-flex">
             <input
               v-model="newProjectForm.Title"
@@ -17,7 +24,14 @@
       </div>
       <div class="col-12 my-1">
         <div class="row">
-          <div class="col-4 bold d-flex flex-end">Invoice Target:</div>
+          <div class="col-4 bold d-flex flex-end">
+            <i class="fas fa-exclamation-triangle mr-1 coco"
+              ><span class="tooltiptext"
+                >Special character allowed: {{ charsAllowed.chars }}</span
+              ></i
+            >
+            Invoice Target:
+          </div>
           <div class="col-6 d-flex">
             <input
               v-model="newProjectForm.Payee"
@@ -34,14 +48,7 @@
 
       <div class="col-12 my-1">
         <div class="row">
-          <div class="col-4 bold d-flex flex-end">
-            <i class="fas fa-exclamation-triangle mr-1 coco"
-              ><span class="tooltiptext"
-                >ie. If Monday, invoice will be available Sunday</span
-              ></i
-            >
-            Pay Period:
-          </div>
+          <div class="col-4 bold d-flex flex-end">Pay Period:</div>
 
           <div class="col-6 d-flex flex-column justify-content-left">
             <select
@@ -73,7 +80,13 @@
         class="col-12 my-1"
       >
         <div class="row">
-          <div class="col-4 bold d-flex flex-end">Start:</div>
+          <div class="col-4 bold d-flex flex-end">
+            <i class="fas fa-exclamation-triangle mr-1 coco"
+              ><span class="tooltiptext"
+                >ie. If Monday, invoice will be available Sunday</span
+              ></i
+            >Start:
+          </div>
           <div class="col-6 d-flex justify-content-left align-items-center">
             <input
               v-model="newProjectForm.Start"
@@ -95,42 +108,38 @@
             >
               <option value="" selected hidden disabled></option>
               <option value="Last">Last day of the month</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10</option>
-              <option value="11">11</option>
-              <option value="12">12</option>
-              <option value="13">13</option>
-              <option value="14">14</option>
-              <option value="15">15</option>
-              <option value="16">16</option>
-              <option value="17">17</option>
-              <option value="18">18</option>
-              <option value="19">19</option>
-              <option value="20">20</option>
-              <option value="21">21</option>
-              <option value="22">22</option>
-              <option value="23">23</option>
-              <option value="24">24</option>
-              <option value="25">25</option>
-              <option value="26">26</option>
-              <option value="27">27</option>
-              <option value="28">28</option>
+              <option value="1">1st</option>
+              <option value="2">2nd</option>
+              <option value="3">3rd</option>
+              <option value="4">4th</option>
+              <option value="5">5th</option>
+              <option value="6">6th</option>
+              <option value="7">7th</option>
+              <option value="8">8th</option>
+              <option value="9">9th</option>
+              <option value="10">10th</option>
+              <option value="11">11th</option>
+              <option value="12">12th</option>
+              <option value="13">13th</option>
+              <option value="14">14th</option>
+              <option value="15">15th</option>
+              <option value="16">16th</option>
+              <option value="17">17th</option>
+              <option value="18">18th</option>
+              <option value="19">19th</option>
+              <option value="20">20th</option>
+              <option value="21">21th</option>
+              <option value="22">22th</option>
+              <option value="23">23th</option>
+              <option value="24">24th</option>
+              <option value="25">25th</option>
+              <option value="26">26th</option>
+              <option value="27">27th</option>
+              <option value="28">28th</option>
             </select>
           </div>
         </div>
       </div>
-      <div
-        v-show="newProjectForm.PayPeriod == 'Milestone'"
-        class="col-12"
-      ></div>
 
       <!--END  DATE SELECT-->
 
@@ -221,20 +230,24 @@
 
 <script>
 import moment from "moment";
+import swal from "sweetalert";
 export default {
   name: "NewProjectFormComponent",
   data() {
     return {
       newProjectForm: {
-        Title: "",
-        Payee: "",
-        PayPeriod: "",
+        Title: "", //req
+        Payee: "", //req
+        PayPeriod: "", //req
         PayType: "",
         Start: "",
         End: "",
-        InvoiceDate: "",
-        Rate: "",
+        InvoiceDay: "",
+        Rate: "", //req
         SalaryFrequency: "",
+      },
+      charsAllowed: {
+        chars: "- _ ! : ' / ",
       },
     };
   },
@@ -242,18 +255,52 @@ export default {
     addProject(e) {
       e.preventDefault();
       // debugger;
-      this.trimWhiteSpace();
-      this.newProjectForm.Rate = parseInt(this.newProjectForm.Rate);
+
       let abort = false;
       let emptyFields = [];
       if (
         this.newProjectForm.PayPeriod == "Weekly" ||
         this.newProjectForm.PayPeriod == "Bi-Weekly"
       ) {
-        this.momentDates();
-        debugger;
+        if (this.newProjectForm.Start == "") {
+          emptyFields.push("(Start) ");
+          abort = true;
+        } else {
+          this.momentDates();
+        }
+        if (this.newProjectForm.PayType == "") {
+          emptyFields.push("(Pay Type) ");
+          abort = true;
+        }
+      } else if (this.newProjectForm.PayPeriod == "FirstAndFive") {
+        if (this.newProjectForm.PayType == "") {
+          emptyFields.push("(Pay Type) ");
+          abort = true;
+        }
+      } else if (this.newProjectForm.PayPeriod == "Monthly") {
+        if (this.newProjectForm.InvoiceDay == "") {
+          emptyFields.push("(Invoice Day) ");
+          abort = true;
+        }
+        if (this.newProjectForm.PayType == "") {
+          emptyFields.push("(Pay Type) ");
+          abort = true;
+        }
+      }
+      if (this.newProjectForm.PayType == "Salary") {
+        if (this.newProjectForm.PayPeriod == "") {
+          emptyFields.push("(Every) ");
+          abort = true;
+        }
+      }
+      if (this.newProjectForm.Rate == "") {
+        emptyFields.push("(Rate) ");
+        abort = true;
       }
       if (!abort) {
+        this.trimWhiteSpace();
+        this.characterCheck();
+        this.newProjectForm.Rate = parseInt(this.newProjectForm.Rate);
         this.$store.dispatch("createProject", { ...this.newProjectForm });
         this.newProjectForm = {
           Title: "",
@@ -266,12 +313,39 @@ export default {
           Rate: "",
           SalaryFrequency: "",
         };
+      } else {
+        let i = 0;
+        let missing = ``;
+        while (i < emptyFields.length) {
+          missing += emptyFields[i];
+          i++;
+        }
+        swal({
+          title: "Missing fields:",
+          text: missing,
+          button: "close",
+        });
       }
     },
     trimWhiteSpace() {
       this.newProjectForm.Title = this.newProjectForm.Title.trim();
       this.newProjectForm.Payee = this.newProjectForm.Payee.trim();
       this.newProjectForm.Rate = this.newProjectForm.Rate.trim();
+    },
+    characterCheck() {
+      this.newProjectForm.Title = this.newProjectForm.Title.replace(
+        /[&\/\\#,+()$~%.":*?<>{}]/g,
+        ""
+      );
+      this.newProjectForm.Payee = this.newProjectForm.Payee.replace(
+        /[&\/\\#,+()$~%.":*?<>{}]/g,
+        ""
+      );
+      this.newProjectForm.Rate = this.newProjectForm.Rate.replace(
+        /[&\/\\#,+()$~%.'":*?<>{}]/g,
+        ""
+      );
+      debugger;
     },
     momentDates() {
       let startDate = moment(this.newProjectForm.Start);
