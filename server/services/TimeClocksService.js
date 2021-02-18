@@ -4,8 +4,8 @@ import { BadRequest } from "../utils/Errors";
 class TimeClocksService {
   async getTimeClocks(user, id) {
     let data = await dbContext.TimeClock.find({
-      CreatorEmail = user.email,
-      ProjectId = id
+      CreatorEmail: user.email,
+      ProjectId: id
     })
     return data
   }
@@ -16,8 +16,8 @@ class TimeClocksService {
   async updateTimeClock(rawData, id) {
     let data = await dbContext.TimeClock.findOneAndUpdate(
       {
-        _id = id,
-        CreatorEmail = rawData.email
+        _id: id,
+        CreatorEmail: rawData.email
       },
       {
         EndTime: rawData.EndTime

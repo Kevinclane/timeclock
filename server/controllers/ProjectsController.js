@@ -10,7 +10,9 @@ export class ProjectsController extends BaseController {
     this.router
       .use(auth0provider.getAuthorizedUserInfo)
       .get("/all", this.getProjects)
+      .get("/:id")
       .post("/", this.createProject);
+
   }
   async getProjects(req, res, next) {
     try {
@@ -19,6 +21,14 @@ export class ProjectsController extends BaseController {
       res.status(200).send(data);
     } catch (error) {
       next(error);
+    }
+  }
+  async getProjectById(req, res, next) {
+    try {
+      let data = await projectsService.getProjectById(req.params.id, req.userInfo.email)
+      res.status(200).send(data)
+    } catch (error) {
+      next(error)
     }
   }
   async createProject(req, res, next) {
@@ -30,4 +40,5 @@ export class ProjectsController extends BaseController {
       next(error);
     }
   }
+
 }

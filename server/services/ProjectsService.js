@@ -8,10 +8,10 @@ class ProjectsService {
     });
     return projects;
   }
-  async getProjectById(id, user) {
+  async getProjectById(id, email) {
     let project = await dbContext.Project.findOne({
-      CreatorEmail: user.email,
-      _id = id
+      CreatorEmail: email,
+      _id: id
     })
     if (!project) {
       throw new BadRequest("Invalid Id")
