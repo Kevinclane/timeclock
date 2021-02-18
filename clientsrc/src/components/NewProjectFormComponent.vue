@@ -17,6 +17,7 @@
               type="text"
               name="Title"
               id="Title"
+              maxlength="50"
               required
             />
           </div>
@@ -38,6 +39,7 @@
               type="text"
               name="Payee"
               id="Payee"
+              maxlength="50"
               required
             />
           </div>
@@ -188,6 +190,7 @@
               type="text"
               name="Rate"
               id="Rate"
+              maxlength="10"
             />
           </div>
         </div>
@@ -223,7 +226,7 @@
 
       <!--END SALARY OPTIONS-->
 
-      <button type="submit" class="btn btn-success btnSubmit">Add</button>
+      <button type="submit" class="btn btn-success btn-submit">Add</button>
     </form>
   </div>
 </template>

@@ -29,9 +29,10 @@ export default {
 
 
 <style lang="scss">
-@import "./assets/_variables.scss";
-@import "bootstrap";
-@import "./assets/_overrides.scss";
+// @import "./assets/_variables.scss";
+// @import "bootstrap";
+// @import "./assets/_overrides.scss";
+@import "./assets/bootstrap.css";
 
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
@@ -59,9 +60,19 @@ export default {
 .flex-end {
   justify-content: flex-end;
 }
-.btnSubmit {
+.btn-submit {
   position: absolute;
   bottom: 2vh;
   right: 2vw;
+}
+.project-card {
+  max-width: 20rem;
+}
+.border-top-5 {
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+* {
+  font-family: "Montserrat", sans-serif;
 }
 </style>

@@ -4,7 +4,7 @@
       <div class="col">
         <button
           v-if="!showProjectForm"
-          class="btn btn-primary"
+          class="btn btn-success"
           @click="toggleProjectForm"
         >
           Add Project
@@ -24,23 +24,38 @@
         <!--END PROJECT MODAL-->
       </div>
     </div>
-    <div class="row"></div>
+    <div class="row">
+      <project
+        v-for="project in projects"
+        :key="project.id"
+        :project="project"
+      />
+    </div>
   </div>
 </template>
 
 <script>
 import NewProjectFormComponent from "../components/NewProjectFormComponent.vue";
+import Project from "../components/ProjectCardComponent.vue";
 export default {
-  components: { NewProjectFormComponent },
+  components: { NewProjectFormComponent, Project },
   name: "Dashboard",
   data() {
     return {
       showProjectForm: false,
     };
   },
+  mounted() {
+    this.$store.dispatch("getProjects");
+  },
   methods: {
     toggleProjectForm() {
       this.showProjectForm = !this.showProjectForm;
+    },
+  },
+  computed: {
+    projects() {
+      return this.$store.state.projects;
     },
   },
 };

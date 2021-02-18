@@ -7,7 +7,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     user: {},
-    projects: []
+    projects: [],
+    activeProject: {}
   },
 
 
@@ -17,6 +18,9 @@ export default new Vuex.Store({
     },
     setProjects(state, projects) {
       state.projects = projects
+    },
+    setActiveProject(state, project) {
+      state.activeProject = project
     }
   },
 
@@ -29,7 +33,9 @@ export default new Vuex.Store({
     resetBearer() {
       api.defaults.headers.authorization = "";
     },
-    //#endregion
+    //#endregion -- END AUTH STUFF --
+
+    //#region  -- PROFILE STUFF --
     async getProfile({ commit }) {
       try {
         let res = await api.get("/profile")
@@ -38,11 +44,25 @@ export default new Vuex.Store({
         console.error(err)
       }
     },
+
+    //#endregion --END PROFILE STUFF
+
+    //#region  -- PROJECT STUFF --
+
     async getProjects({ commit }) {
       try {
+        // debugger
         let res = await api.get("/projects/all")
         commit("setProjects", res.data)
         console.log(res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async getActiveProject({ commit }, id) {
+      try {
+        let res = await api.get("/projects/" + id)
+        commit("setActiveProject", res.data)
       } catch (error) {
         console.error(error)
       }
@@ -55,6 +75,8 @@ export default new Vuex.Store({
         console.error(error)
       }
     }
+
+    //#endregion -- END PROJECT STUFF --
 
   }
 })

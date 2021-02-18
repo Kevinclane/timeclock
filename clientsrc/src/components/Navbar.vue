@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-primary">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <router-link class="navbar-brand" :to="{ name: 'home' }">Home</router-link>
     <router-link
       v-if="$auth.isAuthenticated"
