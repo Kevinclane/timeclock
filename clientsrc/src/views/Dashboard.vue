@@ -57,6 +57,9 @@ export default {
     projects() {
       return this.$store.state.projects;
     },
+    timeClocks() {
+      return this.$store.state.timeClocks;
+    },
   },
 };
 </script>

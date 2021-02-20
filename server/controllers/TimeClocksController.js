@@ -10,12 +10,13 @@ export class TimeClocksController extends BaseController {
       .use(auth0Provider.getAuthorizedUserInfo)
       .get("/:id", this.getTimeClocks)
       .put("/:id", this.updateTimeClock)
+      .put("/:id/out", this.clockOut)
       .post("", this.createTimeClock);
   }
   async getTimeClocks(req, res, next) {
     try {
-      req.body.CreatorEmail = req.userInfo.email
-      let data = await timeClocksService.getTimeClocks(req.body, req.params.id)
+      let email = req.userInfo.email
+      let data = await timeClocksService.getTimeClocks(email, req.params.id)
       res.status(200).send(data)
     } catch (error) {
       next(error)
@@ -25,6 +26,19 @@ export class TimeClocksController extends BaseController {
     try {
       req.body.CreatorEmail = req.userInfo.email
       let data = await timeClocksService.updateTimeClock(req.body, req.params.id)
+      res.status(200).send(data)
+    } catch (error) {
+      next(error)
+    }
+  }
+  async clockOut(req, res, next) {
+    try {
+      let updateInfo = {
+        email: req.userInfo.email,
+        id: req.params.id,
+        end: req.body.end
+      }
+      let data = await timeClocksService.clockOut(updateInfo)
       res.status(200).send(data)
     } catch (error) {
       next(error)

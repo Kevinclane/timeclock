@@ -75,4 +75,7 @@ export default {
 * {
   font-family: "Montserrat", sans-serif;
 }
+a:hover {
+  text-decoration: none;
+}
 </style>

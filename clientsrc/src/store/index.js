@@ -8,7 +8,8 @@ export default new Vuex.Store({
   state: {
     user: {},
     projects: [],
-    activeProject: {}
+    activeProject: {},
+    timeClocks: []
   },
 
 
@@ -21,6 +22,12 @@ export default new Vuex.Store({
     },
     setActiveProject(state, project) {
       state.activeProject = project
+    },
+    addNewTimeClock(state, timeClock) {
+      state.timeClocks.push(timeClock)
+    },
+    setTimeClocks(state, timeClocks) {
+      state.timeClocks = timeClocks
     }
   },
 
@@ -51,7 +58,7 @@ export default new Vuex.Store({
 
     async getProjects({ commit }) {
       try {
-        // debugger
+        debugger
         let res = await api.get("/projects/all")
         commit("setProjects", res.data)
         console.log(res.data)
@@ -74,9 +81,41 @@ export default new Vuex.Store({
       } catch (error) {
         console.error(error)
       }
-    }
+    },
 
     //#endregion -- END PROJECT STUFF --
+
+    //#region  -- TIME CLOCK STUFF --
+
+    async clockIn({ commit }, obj) {
+      try {
+        let res = await api.post("/timeclock", obj)
+        commit("addNewTimeClock", res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async clockOut({ dispatch }, obj) {
+      try {
+        let res = await api.put("/timeclock/" + obj.projectId + "/out", obj)
+        if (res.data) {
+          dispatch("getTimeClocks", obj.projectId)
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async getTimeClocks({ commit }, projectId) {
+      try {
+        debugger
+        let res = await api.get("/timeclock/" + projectId)
+        commit("setTimeClocks", res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    //#endregion -- END TIME CLOCK STUFF --
 
   }
 })

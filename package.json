@@ -20,7 +20,7 @@
     "helmet": "^3.21.2",
     "moment": "^2.29.1",
     "mongoose": "^5.8.0",
-    "socket.io": "^2.3.0",
+    "socket.io": "^2.4.1",
     "sweetalert": "^2.1.2"
   },
   "engines": {

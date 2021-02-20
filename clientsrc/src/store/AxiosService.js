@@ -7,7 +7,7 @@ let baseUrl = location.host.includes("localhost")
 
 export const api = Axios.create({
   baseURL: baseUrl + "api",
-  timeout: 3000,
+  timeout: 30000,
   withCredentials: true
 });
 

@@ -2,9 +2,9 @@ import { dbContext } from "../db/DbContext";
 import { BadRequest } from "../utils/Errors";
 
 class TimeClocksService {
-  async getTimeClocks(user, id) {
+  async getTimeClocks(email, id) {
     let data = await dbContext.TimeClock.find({
-      CreatorEmail: user.email,
+      CreatorEmail: email,
       ProjectId: id
     })
     return data
@@ -14,13 +14,27 @@ class TimeClocksService {
     return data
   }
   async updateTimeClock(rawData, id) {
+    let data = await dbContext.TimeClock.findOneAndUpdate({
+      _id: id,
+      CreatorEmail: rawData.CreatorEmail
+    },
+      rawData,
+      {
+        new: true
+      }
+    )
+    if (!data) {
+      throw new BadRequest("Invalid Id")
+    } else return data
+  }
+  async clockOut(updateInfo) {
     let data = await dbContext.TimeClock.findOneAndUpdate(
       {
-        _id: id,
-        CreatorEmail: rawData.email
+        _id: updateInfo.id,
+        CreatorEmail: updateInfo.email
       },
       {
-        EndTime: rawData.EndTime
+        EndTime: updateInfo.end
       },
       {
         new: true
