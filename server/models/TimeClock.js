@@ -6,6 +6,7 @@ const TimeClock = new Schema({
   CreatorEmail: { type: String, required: true },
   StartTime: { type: Date, required: true },
   EndTime: { type: Date },
+  Current: { type: Boolean, default: true },
   Messages: [{ type: String }]
 },
   { timestamps: true, toJSON: { virtuals: true } }

@@ -10,14 +10,18 @@ export class ProjectsController extends BaseController {
     this.router
       .use(auth0provider.getAuthorizedUserInfo)
       .get("/all", this.getProjects)
-      .get("/:id")
+      .get("/:id", this.getProjectById)
       .post("/", this.createProject);
 
   }
   async getProjects(req, res, next) {
     try {
       let data = await projectsService.getProjects(req.userInfo);
-      data.TimeClocks = await timeClocksService.getTimeClocks(req.userInfo, data._id)
+      let i = 0
+      while (i < data.length) {
+        data[i].TimeClocks = await timeClocksService.getTimeClocks(req.userInfo.email, data[i]._id)
+        i++
+      }
       res.status(200).send(data);
     } catch (error) {
       next(error);
@@ -26,6 +30,7 @@ export class ProjectsController extends BaseController {
   async getProjectById(req, res, next) {
     try {
       let data = await projectsService.getProjectById(req.params.id, req.userInfo.email)
+      data.TimeClocks = await timeClocksService.getTimeClocks(req.userInfo.email, data._id)
       res.status(200).send(data)
     } catch (error) {
       next(error)

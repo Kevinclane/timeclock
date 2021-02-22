@@ -14,6 +14,9 @@ export default {
   async mounted() {
     await this.$store.dispatch("getProfile");
   },
+  beforeDestroy() {
+    this.$store.dispatch("emptyData");
+  },
   computed: {
     userInfo() {
       return this.$store.state.user;

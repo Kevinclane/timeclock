@@ -15,7 +15,7 @@ const Project = new Schema(
     Rate: { type: Number, required: true },
     SalaryFrequency: { type: String },
     Active: { type: Boolean, default: true },
-    TimeClocks: [{ type: ObjectId, ref: "TimeClocks" }]
+    TimeClocks: [{ type: Object }]
   },
   { timestamps: true, toJSON: { virtuals: true } }
 );

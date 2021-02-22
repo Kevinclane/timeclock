@@ -65,6 +65,11 @@ export default {
   bottom: 2vh;
   right: 2vw;
 }
+.btn-cancel {
+  position: absolute;
+  bottom: 2vh;
+  left: 2vw;
+}
 .project-card {
   max-width: 20rem;
 }
@@ -77,5 +82,8 @@ export default {
 }
 a:hover {
   text-decoration: none;
+}
+.card-height {
+  height: 15rem;
 }
 </style>

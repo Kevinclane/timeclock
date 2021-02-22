@@ -226,6 +226,9 @@
 
       <!--END SALARY OPTIONS-->
 
+      <button class="btn btn-danger btn-cancel" @click="closeModal">
+        Cancel
+      </button>
       <button type="submit" class="btn btn-success btn-submit">Add</button>
     </form>
   </div>
@@ -257,8 +260,6 @@ export default {
   methods: {
     addProject(e) {
       e.preventDefault();
-      // debugger;
-
       let abort = false;
       let emptyFields = [];
       if (
@@ -316,6 +317,7 @@ export default {
           Rate: "",
           SalaryFrequency: "",
         };
+        this.$emit("closeModal");
       } else {
         let i = 0;
         let missing = ``;
@@ -329,6 +331,9 @@ export default {
           button: "close",
         });
       }
+    },
+    closeModal() {
+      this.$emit("closeModal");
     },
     trimWhiteSpace() {
       this.newProjectForm.Title = this.newProjectForm.Title.trim();
@@ -348,7 +353,6 @@ export default {
         /[&\/\\#,+()$~%.'":*?<>{}]/g,
         ""
       );
-      debugger;
     },
     momentDates() {
       let startDate = moment(this.newProjectForm.Start);

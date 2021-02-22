@@ -1,51 +1,70 @@
 <template>
   <div class="container card mt-3 text-light border-primary">
-    <div class="row">
-      <div class="col-12 bg-secondary">
-        <h1 class="">{{ activeProject.Title }}</h1>
-      </div>
-      <div class="col-12">
-        <h2>{{ activeProject.Payee }}</h2>
-      </div>
-      <div class="col-12">
-        {{ activeProject.Start }} - {{ activeProject.End }}
-      </div>
-      <div class="col-12 d-flex flex-end">
-        <button @click="clockIn" class="btn btn-success m-2">Clock-In</button>
-        <button @click="clockOut" class="btn btn-danger m-2">Clock-Out</button>
-      </div>
+    <weekly-project-details
+      v-if="
+        activeProject.PayPeriod == 'Weekly' ||
+        activeProject.PayPeriod == 'Bi-Weekly'
+      "
+      :project="activeProject"
+    />
+    <monthly-project-details
+      v-else-if="activeProject.PayPeriod == 'Monthly'"
+      :project="activeProject"
+    />
+    <milestone-project-details
+      v-else-if="activeProject.PayPeriod == 'Milestone'"
+    />
+    <first-and-five-project-details
+      v-else-if="activeProject.PayPeriod == 'FirstAndFive'"
+    />
+    <time-clock-component
+      v-for="timeClock in activeProject.TimeClocks"
+      :key="timeClock.id"
+      :TimeClock="timeClock"
+    />
+    <div class="col-12 d-flex flex-end">
+      <button @click="clockIn" class="btn btn-success m-2">Clock-In</button>
+      <button @click="clockOut" class="btn btn-danger m-2">Clock-Out</button>
     </div>
   </div>
 </template>
 
 <script>
+import WeeklyProjectDetails from "../components/DetailViewComponents/WeeklyProjectDetails.vue";
+import MonthlyProjectDetails from "../components/DetailViewComponents/MonthlyProjectDetails.vue";
+import MilestoneProjectDetails from "../components/DetailViewComponents/MilestoneProjectDetails.vue";
+import FirstAndFiveProjectDetails from "../components/DetailViewComponents/FirstAndFiveProjectDetails.vue";
+import TimeClockComponent from "../components/TimeClockComponent.vue";
 import moment from "moment";
 export default {
   name: "ProjectDetails",
   data() {
-    return {
-      place: "holder",
-    };
+    return {};
   },
   async mounted() {
     await this.$store.dispatch(
       "getActiveProject",
       this.$route.params.projectId
     );
-    await this.$store.dispatch("getTimeClocks", this.$route.params.projectId);
+  },
+  beforeDestroy() {
+    this.$store.dispatch("clearActiveProject");
   },
   methods: {
     clockIn() {
-      debugger;
-      let currentTime = new Date();
       let timeObj = {
         ProjectId: this.$route.params.projectId,
-        StartTime: moment(currentTime),
+        StartTime: moment(new Date()),
       };
       this.$store.dispatch("clockIn", timeObj);
     },
     clockOut() {
-      console.log("test");
+      let currentClock = this.activeProject.TimeClocks.find(
+        (t) => t.Current == true
+      );
+      currentClock.EndTime = moment(new Date());
+
+      this.$store.dispatch("clockOut", currentClock);
     },
   },
   computed: {
@@ -60,6 +79,13 @@ export default {
     timeClocks() {
       return this.$store.state.timeClocks;
     },
+  },
+  components: {
+    WeeklyProjectDetails,
+    MonthlyProjectDetails,
+    MilestoneProjectDetails,
+    FirstAndFiveProjectDetails,
+    TimeClockComponent,
   },
 };
 </script>

@@ -1,6 +1,9 @@
 <template>
   <nav class="navbar navbar-dark bg-primary">
     <router-link class="navbar-brand" :to="{ name: 'home' }">Home</router-link>
+    <router-link class="navbar-brand" :to="{ name: 'dashboard' }"
+      >Dashboard</router-link
+    >
     <button
       class="navbar-toggler"
       type="button"

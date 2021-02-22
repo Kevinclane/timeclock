@@ -34,7 +34,8 @@ class TimeClocksService {
         CreatorEmail: updateInfo.email
       },
       {
-        EndTime: updateInfo.end
+        EndTime: updateInfo.EndTime,
+        Current: false
       },
       {
         new: true

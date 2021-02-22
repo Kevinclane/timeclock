@@ -9,7 +9,6 @@ export default new Vuex.Store({
     user: {},
     projects: [],
     activeProject: {},
-    timeClocks: []
   },
 
 
@@ -23,11 +22,19 @@ export default new Vuex.Store({
     setActiveProject(state, project) {
       state.activeProject = project
     },
-    addNewTimeClock(state, timeClock) {
-      state.timeClocks.push(timeClock)
+    addProject(state, project) {
+      state.projects.push(project)
     },
-    setTimeClocks(state, timeClocks) {
-      state.timeClocks = timeClocks
+    addNewTimeClock(state, timeClock) {
+      state.activeProject.TimeClocks.push(timeClock)
+    },
+    updateTimeClock(state, timeClock) {
+      let index = state.activeProject.TimeClocks.findIndex(t => t.id == timeClock.id)
+      state.activeProject.TimeClocks.splice(index, 1, timeClock)
+
+    },
+    clearActiveProject(state) {
+      state.activeProject = {}
     }
   },
 
@@ -58,7 +65,6 @@ export default new Vuex.Store({
 
     async getProjects({ commit }) {
       try {
-        debugger
         let res = await api.get("/projects/all")
         commit("setProjects", res.data)
         console.log(res.data)
@@ -77,7 +83,7 @@ export default new Vuex.Store({
     async createProject({ commit }, projectData) {
       try {
         let res = await api.post("/projects", projectData)
-        console.log(res.data)
+        commit("addProject", res.data)
       } catch (error) {
         console.error(error)
       }
@@ -95,27 +101,29 @@ export default new Vuex.Store({
         console.error(error)
       }
     },
-    async clockOut({ dispatch }, obj) {
+    async clockOut({ commit }, obj) {
       try {
-        let res = await api.put("/timeclock/" + obj.projectId + "/out", obj)
-        if (res.data) {
-          dispatch("getTimeClocks", obj.projectId)
-        }
+        debugger
+        let res = await api.put("/timeclock/" + obj.id + "/out", obj)
+        commit("updateTimeClock", res.data)
       } catch (error) {
         console.error(error)
       }
     },
-    async getTimeClocks({ commit }, projectId) {
+
+    //#endregion -- END TIME CLOCK STUFF --
+
+    //#region  -- DATA CLEARING --
+
+    clearActiveProject({ commit }) {
       try {
-        debugger
-        let res = await api.get("/timeclock/" + projectId)
-        commit("setTimeClocks", res.data)
+        commit("clearActiveProject")
       } catch (error) {
         console.error(error)
       }
     }
 
-    //#endregion -- END TIME CLOCK STUFF --
+    //#endregion -- END DATA CLEARING --
 
   }
 })

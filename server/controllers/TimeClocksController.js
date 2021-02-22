@@ -36,7 +36,7 @@ export class TimeClocksController extends BaseController {
       let updateInfo = {
         email: req.userInfo.email,
         id: req.params.id,
-        end: req.body.end
+        EndTime: req.body.EndTime
       }
       let data = await timeClocksService.clockOut(updateInfo)
       res.status(200).send(data)

@@ -2,29 +2,26 @@
   <div class="container">
     <div class="row my-3">
       <div class="col">
-        <button
-          v-if="!showProjectForm"
-          class="btn btn-success"
-          @click="toggleProjectForm"
-        >
-          Add Project
-        </button>
-        <button
-          v-if="showProjectForm"
-          class="btn btn-danger"
-          @click="toggleProjectForm"
-        >
-          Cancel
-        </button>
-
         <!--PROJECT MODAL-->
         <div v-if="showProjectForm" class="modal-content container">
-          <new-project-form-component />
+          <new-project-form-component @closeModal="toggleProjectForm" />
         </div>
         <!--END PROJECT MODAL-->
       </div>
     </div>
     <div class="row">
+      <div
+        class="col-lg-4 col-md-5 col-10 offset-1 offset-md-0 offset-lg-0 mb-2"
+      >
+        <div
+          v-if="loaded"
+          class="card border-primary mb-3 text-light project-card card-height d-flex justify-content-center"
+          type="button"
+          @click="toggleProjectForm"
+        >
+          <i class="fas fa-5x fa-plus"></i>
+        </div>
+      </div>
       <project
         v-for="project in projects"
         :key="project.id"
@@ -43,10 +40,12 @@ export default {
   data() {
     return {
       showProjectForm: false,
+      loaded: false,
     };
   },
-  mounted() {
-    this.$store.dispatch("getProjects");
+  async mounted() {
+    await this.$store.dispatch("getProjects");
+    this.loaded = true;
   },
   methods: {
     toggleProjectForm() {
