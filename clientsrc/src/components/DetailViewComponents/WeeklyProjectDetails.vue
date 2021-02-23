@@ -6,7 +6,9 @@
     <div class="col-12">
       <h2>{{ project.Payee }}</h2>
     </div>
-    <div class="col-12">{{ project.Start }} - {{ project.End }}</div>
+    <div class="col-12">
+      Project PayPeriod: {{ project.Start }} - {{ project.End }}
+    </div>
   </div>
 </template>
 

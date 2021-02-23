@@ -35,7 +35,7 @@ export default new Vuex.Store({
     },
     clearActiveProject(state) {
       state.activeProject = {}
-    }
+    },
   },
 
 
@@ -103,7 +103,6 @@ export default new Vuex.Store({
     },
     async clockOut({ commit }, obj) {
       try {
-        debugger
         let res = await api.put("/timeclock/" + obj.id + "/out", obj)
         commit("updateTimeClock", res.data)
       } catch (error) {
@@ -121,7 +120,7 @@ export default new Vuex.Store({
       } catch (error) {
         console.error(error)
       }
-    }
+    },
 
     //#endregion -- END DATA CLEARING --
 
