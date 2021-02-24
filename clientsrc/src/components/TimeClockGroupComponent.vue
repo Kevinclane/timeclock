@@ -1,9 +1,9 @@
 <template>
   <div class="row border-times bg-darker m-2">
-    <div class="col-4 d-flex justify-content-center align-items-center">
+    <div class="col-3 d-flex justify-content-center align-items-center">
       {{ day }}
     </div>
-    <div class="col-8">
+    <div class="col-9">
       <time-clock-component
         v-for="(timeClock, index) in TimeClocks"
         :key="`timeClock-${index}`"

@@ -4,9 +4,17 @@
       {{ Start }} - <span v-if="TimeClock.EndTime">{{ End }}</span>
     </div>
     <div class="col-6">
-      <span v-if="Total.hour">{{ Total.hour }} Hours</span>
-      <span v-if="Total.minute">{{ Total.minute }} Minutes</span>
-      <span v-if="Total.second">{{ Total.second }} Seconds</span>
+      <div class="row">
+        <div class="col-4">
+          <span v-show="Total.hour">{{ Total.hour }}h</span>
+        </div>
+        <div class="col-4">
+          <span v-show="Total.minute">{{ Total.minute }}m</span>
+        </div>
+        <div class="col-4">
+          <span v-show="Total.second">{{ Total.second }}s</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -24,7 +32,6 @@ export default {
       return moment(this.TimeClock.EndTime).format("h:mm A");
     },
     Total() {
-      debugger;
       if (this.TimeClock.EndTime) {
         let start = {
           hour: parseInt(moment(this.TimeClock.StartTime).format("hh")),
