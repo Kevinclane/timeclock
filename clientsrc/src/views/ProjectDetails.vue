@@ -17,17 +17,26 @@
     <first-and-five-project-details
       v-else-if="activeProject.PayPeriod == 'FirstAndFive'"
     />
-    <!-- <time-clock-component
-      v-for="timeClock in activeProject.TimeClocks"
-      :key="timeClock.id"
-      :TimeClock="timeClock"
-    /> -->
     <div>TIME CLOCK GROUPS</div>
-    <time-clock-group-component
-      v-for="(timeClockGroup, index) in timeClockGroups"
-      :key="`timeClockGroup-${index}`"
-      :TimeClocks="timeClockGroups[index]"
-    />
+    <div class="row">
+      <div class="col-6">
+        <time-clock-group-component
+          v-for="(timeClockGroup, index) in timeClockGroups"
+          :key="`timeClockGroup-${index}`"
+          :TimeClocks="timeClockGroups[index]"
+        />
+      </div>
+      <div class="col-6">
+        <div class="row">
+          <div class="col-12">Total Time</div>
+          <div class="col-12 d-flex justify-content-around">
+            <span>{{ totalTimes.hour }} Hours</span>
+            <span>{{ totalTimes.minute }} Minutes</span>
+            <span>{{ totalTimes.second }} Seconds</span>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="col-12 d-flex flex-end">
       <button @click="clockIn" class="btn btn-success m-2">Clock-In</button>
       <button @click="clockOut" class="btn btn-danger m-2">Clock-Out</button>
@@ -40,7 +49,6 @@ import WeeklyProjectDetails from "../components/DetailViewComponents/WeeklyProje
 import MonthlyProjectDetails from "../components/DetailViewComponents/MonthlyProjectDetails.vue";
 import MilestoneProjectDetails from "../components/DetailViewComponents/MilestoneProjectDetails.vue";
 import FirstAndFiveProjectDetails from "../components/DetailViewComponents/FirstAndFiveProjectDetails.vue";
-import TimeClockComponent from "../components/TimeClockComponent.vue";
 import TimeClockGroupComponent from "../components/TimeClockGroupComponent.vue";
 import moment from "moment";
 export default {
@@ -56,6 +64,7 @@ export default {
   },
   beforeDestroy() {
     this.$store.dispatch("clearActiveProject");
+    this.$store.dispatch("clearTimeClockGroups");
   },
   methods: {
     clockIn() {
@@ -83,24 +92,10 @@ export default {
       return proj;
     },
     timeClockGroups() {
-      let timeClocks = [...this.$store.state.activeProject.TimeClocks];
-      let finishedArr = [];
-      while (timeClocks.length > 0) {
-        let tempArr = [];
-        let i = 0;
-        tempArr.push(timeClocks[0]);
-        timeClocks.splice(0, 1);
-        while (i < timeClocks.length) {
-          if (
-            moment(tempArr[0].StartTime).isSame(timeClocks[i].StartTime, "day")
-          ) {
-            tempArr.push(timeClocks[i]);
-            timeClocks.splice(i, 1);
-          } else i++;
-        }
-        finishedArr.push(tempArr);
-      }
-      return finishedArr;
+      return this.$store.state.timeClockGroup;
+    },
+    totalTimes() {
+      return this.$store.state.totalProjectTimes;
     },
   },
   components: {
@@ -108,7 +103,6 @@ export default {
     MonthlyProjectDetails,
     MilestoneProjectDetails,
     FirstAndFiveProjectDetails,
-    TimeClockComponent,
     TimeClockGroupComponent,
   },
 };

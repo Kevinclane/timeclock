@@ -86,4 +86,10 @@ a:hover {
 .card-height {
   height: 15rem;
 }
+.border-times {
+  border: green solid 1px;
+}
+.bg-darker {
+  background-color: #222222;
+}
 </style>

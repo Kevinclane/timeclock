@@ -1,11 +1,15 @@
 <template>
-  <div class="row">
-    {{ day }}
-    <time-clock-component
-      v-for="(timeClock, index) in TimeClocks"
-      :key="`timeClock-${index}`"
-      :TimeClock="TimeClocks[index]"
-    />
+  <div class="row border-times bg-darker m-2">
+    <div class="col-4 d-flex justify-content-center align-items-center">
+      {{ day }}
+    </div>
+    <div class="col-8">
+      <time-clock-component
+        v-for="(timeClock, index) in TimeClocks"
+        :key="`timeClock-${index}`"
+        :TimeClock="TimeClocks[index]"
+      />
+    </div>
   </div>
 </template>
 

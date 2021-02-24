@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import router from '../router/index'
 import { api } from "./AxiosService"
+import moment from "moment"
 
 Vue.use(Vuex)
 export default new Vuex.Store({
@@ -9,6 +10,8 @@ export default new Vuex.Store({
     user: {},
     projects: [],
     activeProject: {},
+    timeClockGroup: [],
+    totalProjectTimes: {}
   },
 
 
@@ -31,11 +34,18 @@ export default new Vuex.Store({
     updateTimeClock(state, timeClock) {
       let index = state.activeProject.TimeClocks.findIndex(t => t.id == timeClock.id)
       state.activeProject.TimeClocks.splice(index, 1, timeClock)
-
+    },
+    setTimeClockGroups(state, timeClockGroup) {
+      state.timeClockGroup = timeClockGroup
+    },
+    setTotalProjectTimes(state, total) {
+      state.totalProjectTimes = total
     },
     clearActiveProject(state) {
       state.activeProject = {}
+      state.timeClockGroup = []
     },
+
   },
 
 
@@ -72,10 +82,12 @@ export default new Vuex.Store({
         console.error(error)
       }
     },
-    async getActiveProject({ commit }, id) {
+    async getActiveProject({ commit, dispatch }, id) {
       try {
         let res = await api.get("/projects/" + id)
         commit("setActiveProject", res.data)
+        dispatch("groupTimeClocks")
+        dispatch("totalProjectTimes")
       } catch (error) {
         console.error(error)
       }
@@ -93,21 +105,95 @@ export default new Vuex.Store({
 
     //#region  -- TIME CLOCK STUFF --
 
-    async clockIn({ commit }, obj) {
+    async clockIn({ commit, dispatch }, obj) {
       try {
         let res = await api.post("/timeclock", obj)
         commit("addNewTimeClock", res.data)
+        dispatch("groupTimeClocks")
       } catch (error) {
         console.error(error)
       }
     },
-    async clockOut({ commit }, obj) {
+    async clockOut({ commit, dispatch }, obj) {
       try {
         let res = await api.put("/timeclock/" + obj.id + "/out", obj)
         commit("updateTimeClock", res.data)
+        dispatch("groupTimeClocks")
+        dispatch("totalProjectTimes")
       } catch (error) {
         console.error(error)
       }
+    },
+    async groupTimeClocks({ commit }) {
+      let timeClocks = [...this.state.activeProject.TimeClocks];
+      let finishedArr = [];
+      while (timeClocks.length > 0) {
+        let tempArr = [];
+        let i = 0;
+        tempArr.push(timeClocks[0]);
+        timeClocks.splice(0, 1);
+        while (i < timeClocks.length) {
+          if (
+            moment(tempArr[0].StartTime).isSame(timeClocks[i].StartTime, "day")
+          ) {
+            tempArr.push(timeClocks[i]);
+            timeClocks.splice(i, 1);
+          } else i++;
+        }
+        finishedArr.push(tempArr);
+      }
+      commit("setTimeClockGroups", finishedArr)
+    },
+    totalProjectTimes({ commit }) {
+      let times = this.state.activeProject.TimeClocks;
+      let i = 0;
+      let total = {
+        hour: 0,
+        minute: 0,
+        second: 0,
+      };
+      while (i < times.length && times[i].EndTime) {
+        let start = {
+          hour: parseInt(moment(times[i].StartTime).format("hh")),
+          minute: parseInt(moment(times[i].StartTime).format("mm")),
+          second: parseInt(moment(times[i].StartTime).format("ss")),
+        };
+        let end = {
+          hour: parseInt(moment(times[i].EndTime).format("hh")),
+          minute: parseInt(moment(times[i].EndTime).format("mm")),
+          second: parseInt(moment(times[i].EndTime).format("ss")),
+        };
+        let diff = {
+          hour: end.hour - start.hour,
+          minute: end.minute - start.minute,
+          second: end.second - start.second,
+        };
+        if (diff.second < 0) {
+          diff.second += 60;
+          diff.minute -= 1;
+        }
+        if (diff.minute < 0) {
+          diff.minute += 60;
+          diff.hour -= 1;
+        }
+        total.hour += diff.hour;
+        total.minute += diff.minute;
+        total.second += diff.second;
+        i++;
+      }
+      i = 0;
+      while (total.second > 59) {
+        total.second -= 60;
+        i++;
+      }
+      total.minute += i;
+      i = 0;
+      while (total.minute > 59) {
+        total.minute -= 60;
+        i++;
+      }
+      total.hour += i;
+      commit("setTotalProjectTimes", total)
     },
 
     //#endregion -- END TIME CLOCK STUFF --
@@ -115,12 +201,9 @@ export default new Vuex.Store({
     //#region  -- DATA CLEARING --
 
     clearActiveProject({ commit }) {
-      try {
-        commit("clearActiveProject")
-      } catch (error) {
-        console.error(error)
-      }
+      commit("clearActiveProject")
     },
+
 
     //#endregion -- END DATA CLEARING --
 
