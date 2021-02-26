@@ -11,7 +11,8 @@ export class TimeClocksController extends BaseController {
       .get("/:id", this.getTimeClocks)
       .put("/:id", this.updateTimeClock)
       .put("/:id/out", this.clockOut)
-      .post("", this.createTimeClock);
+      .post("", this.createTimeClock)
+      .delete("/:id", this.deleteTimeClock)
   }
   async getTimeClocks(req, res, next) {
     try {
@@ -48,6 +49,16 @@ export class TimeClocksController extends BaseController {
     try {
       req.body.CreatorEmail = req.userInfo.email
       let data = await timeClocksService.createTimeClock(req.body)
+      res.status(200).send(data)
+    } catch (error) {
+      next(error)
+    }
+  }
+  async deleteTimeClock(req, res, next) {
+    try {
+      req.body.CreatorEmail = req.userInfo.email
+      req.body.id = req.params.id
+      let data = await timeClocksService.deleteTimeClock(req.body)
       res.status(200).send(data)
     } catch (error) {
       next(error)

@@ -1,8 +1,13 @@
 <template>
   <div>
+    <i
+      class="fas fa-trash-alt del-icon"
+      type="button"
+      @click="deleteTimeClock"
+    ></i>
     <form @submit="updateTimeClock">
       <div class="row">
-        <div class="col-12">
+        <div class="col-12 d-flex justify-content-center align-items-center">
           <input
             class="mx-w-50"
             type="text"
@@ -30,12 +35,13 @@
             id="startAMPM"
             required
             v-model="editedTime.startAMPM"
+            class="h-100 ml-1"
           >
             <option value="AM" selected>AM</option>
             <option value="PM">PM</option>
           </select>
         </div>
-        <div class="col-12">
+        <div class="col-12 d-flex justify-content-center align-items-center">
           <input
             class="mx-w-50"
             type="text"
@@ -61,6 +67,7 @@
             id="endAMPM"
             required
             v-model="editedTime.endAMPM"
+            class="h-100 ml-1"
           >
             <option value="AM" selected>AM</option>
             <option value="PM">PM</option>
@@ -83,6 +90,7 @@
 
 <script>
 import moment from "moment";
+import swal from "sweetalert";
 export default {
   name: "EditTimeClockFormComponent",
   props: ["timeClock"],
@@ -101,7 +109,6 @@ export default {
   methods: {
     updateTimeClock(e) {
       e.preventDefault();
-      debugger;
       let date = moment(this.timeClock.StartTime).format("MM-DD-YYYY");
       let startTimeString =
         this.editedTime.startHour +
@@ -124,6 +131,23 @@ export default {
     closeModal() {
       this.$emit("closeModal");
     },
+    deleteTimeClock() {
+      swal({
+        title: "Are you sure?",
+        text: "Once deleted, this data will be gone forever.",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      }).then((willDelete) => {
+        if (willDelete) {
+          swal("Poof! Your imaginary file has been deleted!", {
+            icon: "success",
+          });
+          this.$store.dispatch("deleteTimeClock", this.timeClock);
+          this.$emit("closeModal");
+        }
+      });
+    },
   },
 };
 </script>
@@ -132,5 +156,12 @@ export default {
 .mx-w-50 {
   max-width: 50%;
   width: 5rem;
+}
+.del-icon {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  color: #e74c3c;
+  z-index: 101;
 }
 </style>

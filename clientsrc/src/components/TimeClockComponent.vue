@@ -15,16 +15,7 @@
         @closeModal="toggleEditForm"
       />
     </div>
-    <div class="col-5">
-      <div class="row">
-        <div class="col-6">
-          <span v-show="Total.hour">{{ Total.hour }}h</span>
-        </div>
-        <div class="col-6">
-          <span v-show="Total.minute">{{ Total.minute }}m</span>
-        </div>
-      </div>
-    </div>
+    <div class="col-4">{{ Total }} Hours</div>
   </div>
 </template>
 
@@ -80,7 +71,10 @@ export default {
           diff.minute += 60;
           diff.hour -= 1;
         }
-        return diff;
+        let res = diff.hour;
+        res += diff.minute / 60;
+        res = res.toFixed(2);
+        return res;
       } else return {};
     },
   },

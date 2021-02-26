@@ -32,9 +32,12 @@ export default new Vuex.Store({
       state.activeProject.TimeClocks.push(timeClock)
     },
     updateTimeClock(state, timeClock) {
-      debugger
       let index = state.activeProject.TimeClocks.findIndex(t => t.id == timeClock.id)
       state.activeProject.TimeClocks.splice(index, 1, timeClock)
+    },
+    deleteTimeClock(state, timeClock) {
+      let index = state.activeProject.TimeClocks.findIndex(t => t.id == timeClock.id)
+      state.activeProject.TimeClocks.splice(index, 1)
     },
     setTimeClockGroups(state, timeClockGroup) {
       state.timeClockGroup = timeClockGroup
@@ -142,6 +145,7 @@ export default new Vuex.Store({
             timeClocks.splice(i, 1);
           } else i++;
         }
+        tempArr.sort((a, b) => moment(a.StartTime).format('HH') - moment(b.StartTime).format('HH'))
         finishedArr.push(tempArr);
       }
       commit("setTimeClockGroups", finishedArr)
@@ -197,10 +201,20 @@ export default new Vuex.Store({
       total.hour += i;
       commit("setTotalProjectTimes", total)
     },
-    async updateTimeClock({ commit }, timeClock) {
+    async updateTimeClock({ commit, dispatch }, timeClock) {
       try {
         let res = await api.put("/timeclock/" + timeClock.id, timeClock)
         commit("updateTimeClock", res.data)
+        dispatch("groupTimeClocks")
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async deleteTimeClock({ commit, dispatch }, timeClock) {
+      try {
+        let res = await api.delete("timeclock/" + timeClock.id)
+        commit("deleteTimeClock", res.data)
+        dispatch("groupTimeClocks")
       } catch (error) {
         console.error(error)
       }

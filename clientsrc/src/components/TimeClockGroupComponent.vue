@@ -15,7 +15,7 @@
     <div
       class="col-lg-4 col-12 d-flex justify-content-center flex-column border-left-green"
     >
-      <div>{{ dayTotalHours.hour }}:{{ dayTotalHours.minute }}</div>
+      <div>{{ dayTotalHours }} Hours</div>
     </div>
   </div>
 </template>
@@ -80,7 +80,10 @@ export default {
         i++;
       }
       total.hour += i;
-      return total;
+      let res = total.hour;
+      res += total.minute / 60;
+      res = res.toFixed(2);
+      return res;
     },
   },
   components: {
