@@ -47,6 +47,9 @@ export default {
     await this.$store.dispatch("getProjects");
     this.loaded = true;
   },
+  beforeDestroy() {
+    this.$store.dispatch("clearProjects");
+  },
   methods: {
     toggleProjectForm() {
       this.showProjectForm = !this.showProjectForm;

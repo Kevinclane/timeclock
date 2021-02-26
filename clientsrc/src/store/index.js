@@ -32,6 +32,7 @@ export default new Vuex.Store({
       state.activeProject.TimeClocks.push(timeClock)
     },
     updateTimeClock(state, timeClock) {
+      debugger
       let index = state.activeProject.TimeClocks.findIndex(t => t.id == timeClock.id)
       state.activeProject.TimeClocks.splice(index, 1, timeClock)
     },
@@ -45,7 +46,9 @@ export default new Vuex.Store({
       state.activeProject = {}
       state.timeClockGroup = []
     },
-
+    clearProjects(state) {
+      state.projects = []
+    }
   },
 
 
@@ -77,7 +80,6 @@ export default new Vuex.Store({
       try {
         let res = await api.get("/projects/all")
         commit("setProjects", res.data)
-        console.log(res.data)
       } catch (error) {
         console.error(error)
       }
@@ -124,7 +126,7 @@ export default new Vuex.Store({
         console.error(error)
       }
     },
-    async groupTimeClocks({ commit }) {
+    groupTimeClocks({ commit }) {
       let timeClocks = [...this.state.activeProject.TimeClocks];
       let finishedArr = [];
       while (timeClocks.length > 0) {
@@ -154,12 +156,12 @@ export default new Vuex.Store({
       };
       while (i < times.length && times[i].EndTime) {
         let start = {
-          hour: parseInt(moment(times[i].StartTime).format("hh")),
+          hour: parseInt(moment(times[i].StartTime).format("HH")),
           minute: parseInt(moment(times[i].StartTime).format("mm")),
           second: parseInt(moment(times[i].StartTime).format("ss")),
         };
         let end = {
-          hour: parseInt(moment(times[i].EndTime).format("hh")),
+          hour: parseInt(moment(times[i].EndTime).format("HH")),
           minute: parseInt(moment(times[i].EndTime).format("mm")),
           second: parseInt(moment(times[i].EndTime).format("ss")),
         };
@@ -195,6 +197,14 @@ export default new Vuex.Store({
       total.hour += i;
       commit("setTotalProjectTimes", total)
     },
+    async updateTimeClock({ commit }, timeClock) {
+      try {
+        let res = await api.put("/timeclock/" + timeClock.id, timeClock)
+        commit("updateTimeClock", res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    },
 
     //#endregion -- END TIME CLOCK STUFF --
 
@@ -203,7 +213,9 @@ export default new Vuex.Store({
     clearActiveProject({ commit }) {
       commit("clearActiveProject")
     },
-
+    clearProjects({ commit }) {
+      commit("clearProjects")
+    }
 
     //#endregion -- END DATA CLEARING --
 

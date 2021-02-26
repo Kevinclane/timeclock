@@ -88,8 +88,12 @@ a:hover {
 }
 .border-times {
   border: green solid 1px;
+  border-radius: 5px;
 }
 .bg-darker {
   background-color: #222222;
+}
+.text-black {
+  color: black;
 }
 </style>

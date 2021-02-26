@@ -17,26 +17,52 @@
     <first-and-five-project-details
       v-else-if="activeProject.PayPeriod == 'FirstAndFive'"
     />
-    <div>TIME CLOCK GROUPS</div>
-    <div class="row">
-      <div class="col-6">
-        <time-clock-group-component
-          v-for="(timeClockGroup, index) in timeClockGroups"
-          :key="`timeClockGroup-${index}`"
-          :TimeClocks="timeClockGroups[index]"
-        />
-      </div>
-      <div class="col-6">
-        <div class="row">
-          <div class="col-12">Total Time</div>
-          <div class="col-12 d-flex justify-content-around">
-            <span>{{ totalTimes.hour }} Hours</span>
-            <span>{{ totalTimes.minute }} Minutes</span>
-            <span>{{ totalTimes.second }} Seconds</span>
+    <div class="container">
+      <div class="row d-flex justify-content-center">
+        <div class="col-lg-8 col-12">
+          <div class="row bg-primary rounded-top text-white">
+            <div class="col-12 d-flex justify-content-between">
+              <span> Sorting Filter </span>
+              <span>
+                Showing: {{ activeProject.Start }} - {{ activeProject.End }}
+              </span>
+            </div>
+
+            <div class="col-12 bg-light rounded-bottom">
+              <time-clock-group-component
+                v-for="(timeClockGroup, index) in timeClockGroups"
+                :key="`timeClockGroup-${index}`"
+                :timeClocks="timeClockGroups[index]"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="container">
+            <div class="row bg-primary text-white rounded-top">
+              <div class="col-12">Total Time</div>
+              <div class="col-12 bg-light rounded-bottom">
+                <div class="row bg-secondary text-white border-times m-2">
+                  <div class="col-12">
+                    <span>{{ totalTimes.hour }} Hours</span>
+                    <span>{{ totalTimes.minute }} Minutes</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="container my-2">
+            <div class="row bg-primary text-white rounded-top">
+              <div class="col-12">Estimated Pay</div>
+              <div class="col-12 bg-light rounded-bottom">
+                <hourly-component :project="activeProject" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
     <div class="col-12 d-flex flex-end">
       <button @click="clockIn" class="btn btn-success m-2">Clock-In</button>
       <button @click="clockOut" class="btn btn-danger m-2">Clock-Out</button>
@@ -50,6 +76,7 @@ import MonthlyProjectDetails from "../components/DetailViewComponents/MonthlyPro
 import MilestoneProjectDetails from "../components/DetailViewComponents/MilestoneProjectDetails.vue";
 import FirstAndFiveProjectDetails from "../components/DetailViewComponents/FirstAndFiveProjectDetails.vue";
 import TimeClockGroupComponent from "../components/TimeClockGroupComponent.vue";
+import HourlyComponent from "../components/PayCalcComponents/HourlyComponent.vue";
 import moment from "moment";
 export default {
   name: "ProjectDetails",
@@ -64,7 +91,6 @@ export default {
   },
   beforeDestroy() {
     this.$store.dispatch("clearActiveProject");
-    this.$store.dispatch("clearTimeClockGroups");
   },
   methods: {
     clockIn() {
@@ -85,10 +111,8 @@ export default {
   computed: {
     activeProject() {
       let proj = this.$store.state.activeProject;
-      proj.Start = moment(proj.Start).format("dddd, MMMM Do YYYY");
-      proj.End = moment(proj.End)
-        .subtract(1, "days")
-        .format("dddd, MMMM Do YYYY");
+      proj.Start = moment(proj.Start).format("MM/DD/YYYY");
+      proj.End = moment(proj.End).subtract(1, "days").format("MM/DD/YYYY");
       return proj;
     },
     timeClockGroups() {
@@ -104,8 +128,26 @@ export default {
     MilestoneProjectDetails,
     FirstAndFiveProjectDetails,
     TimeClockGroupComponent,
+    HourlyComponent,
   },
 };
 </script>
 <style scoped>
+.hide-mobile {
+  visibility: visible;
+}
+@media screen and (max-width: 768px) {
+  .hide-mobile {
+    visibility: hidden;
+    height: 0;
+  }
+}
+.text-center-mobile {
+  text-align: left;
+}
+@media screen and (max-width: 768px) {
+  .text-center-mobile {
+    text-align: center;
+  }
+}
 </style>
