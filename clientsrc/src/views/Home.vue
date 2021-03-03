@@ -7,28 +7,39 @@
       <div class="col-12">Online Time Clock</div>
       <div class="col-12">Track hours as a contractor or as a team</div>
     </div>
+    <form @submit="log">
+      <input type="date" name="date" id="date" v-model="test" />
+      <button type="submit">click</button>
+    </form>
   </div>
 </template>
 
 
 <script>
+import moment from "moment";
 export default {
   name: "home",
   data() {
-    return {};
+    return {
+      test: "",
+    };
   },
   async mounted() {
     await this.$store.dispatch("getProfile");
-  },
-  beforeDestroy() {
-    this.$store.dispatch("emptyData");
   },
   computed: {
     userInfo() {
       return this.$store.state.user;
     },
   },
-  methods: {},
+  methods: {
+    log(e) {
+      e.preventDefault();
+      let date = moment(this.test).format("MM/DD/YYYY");
+      console.log(this.test);
+      console.log(date);
+    },
+  },
   components: {},
 };
 </script>

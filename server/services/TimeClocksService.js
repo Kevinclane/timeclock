@@ -54,6 +54,25 @@ class TimeClocksService {
       throw new BadRequest("Invalid ID");
     } else return data
   }
+  async deleteTimeClocks(email, id) {
+    let clocks = await dbContext.TimeClock.find({
+      CreatorEmail: email,
+      ProjectId: id
+    })
+    let delCount = 0
+    let i = 0
+    while (i < clocks.length) {
+      let data = await dbContext.TimeClock.findOneAndDelete({
+        CreatorEmail: email,
+        _id: clocks[i].id
+      })
+      if (data) {
+        delCount++
+      }
+      i++
+    }
+    return delCount
+  }
 }
 
 export const timeClocksService = new TimeClocksService()

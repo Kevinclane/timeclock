@@ -35,7 +35,6 @@
 import NewProjectFormComponent from "../components/NewProjectFormComponent.vue";
 import Project from "../components/ProjectCardComponent.vue";
 export default {
-  components: { NewProjectFormComponent, Project },
   name: "Dashboard",
   data() {
     return {
@@ -63,6 +62,7 @@ export default {
       return this.$store.state.timeClocks;
     },
   },
+  components: { NewProjectFormComponent, Project },
 };
 </script>
 <style scoped>

@@ -3,33 +3,32 @@
     <i
       class="fas fa-cog settings-icon"
       type="button"
-      @click="toggleEditForm"
+      @click="toggleSettingsBox"
     ></i>
-    <div v-if="showEditForm" class="edit-form p-3 text-dark d-flex flex-column">
-      <button class="btn btn-green my-1" @click="editProject">
+    <div
+      v-if="showSettingsBox"
+      class="settings-box p-3 text-dark d-flex flex-column"
+    >
+      <button class="btn btn-green my-1" @click="toggleProjectEditor">
         Edit Project
       </button>
       <button class="btn btn-danger my-1" @click="deleteProject">
         Delete Project
       </button>
     </div>
-    <weekly-project-details
-      v-if="
-        activeProject.PayPeriod == 'Weekly' ||
-        activeProject.PayPeriod == 'Bi-Weekly'
-      "
-      :project="activeProject"
-    />
-    <monthly-project-details
-      v-else-if="activeProject.PayPeriod == 'Monthly'"
-      :project="activeProject"
-    />
-    <milestone-project-details
-      v-else-if="activeProject.PayPeriod == 'Milestone'"
-    />
-    <first-and-five-project-details
-      v-else-if="activeProject.PayPeriod == 'FirstAndFive'"
-    />
+
+    <div v-if="editProject" class="container modal-content">
+      <edit-project-component @closeModal="toggleProjectEditor" />
+    </div>
+
+    <div class="row">
+      <div class="col-12 bg-secondary">
+        <h1 class="">{{ activeProject.Title }}</h1>
+      </div>
+      <div class="col-12">
+        <h2>{{ activeProject.Payee }}</h2>
+      </div>
+    </div>
     <div class="container">
       <div class="row d-flex justify-content-center">
         <div class="col-lg-8 col-12 my-2 order-2 order-lg-1">
@@ -69,7 +68,18 @@
               <div class="row bg-primary text-white rounded-top">
                 <div class="col-12">Estimated Pay</div>
                 <div class="col-12 bg-light rounded-bottom">
-                  <hourly-component :project="activeProject" />
+                  <hourly-component
+                    v-if="activeProject.PayType == 'Hourly'"
+                    :project="activeProject"
+                  />
+                  <salary-component
+                    v-else-if="activeProject.PayType == 'Salary'"
+                    :project="activeProject"
+                  />
+                  <milestone-component
+                    v-else-if="activeProject.PayPeriod == 'Milestone'"
+                    :project="activeProject"
+                  />
                 </div>
               </div>
             </div>
@@ -96,18 +106,18 @@
 </template>
 
 <script>
-import WeeklyProjectDetails from "../components/DetailViewComponents/WeeklyProjectDetails.vue";
-import MonthlyProjectDetails from "../components/DetailViewComponents/MonthlyProjectDetails.vue";
-import MilestoneProjectDetails from "../components/DetailViewComponents/MilestoneProjectDetails.vue";
-import FirstAndFiveProjectDetails from "../components/DetailViewComponents/FirstAndFiveProjectDetails.vue";
 import TimeClockGroupComponent from "../components/TimeClockGroupComponent.vue";
 import HourlyComponent from "../components/PayCalcComponents/HourlyComponent.vue";
+import SalaryComponent from "../components/PayCalcComponents/SalaryComponent.vue";
+import MilestoneComponent from "../components/PayCalcComponents/MilestoneComponent.vue";
+import EditProjectComponent from "../components/EditProjectFormComponent.vue";
 import moment from "moment";
 export default {
   name: "ProjectDetails",
   data() {
     return {
-      showEditForm: false,
+      showSettingsBox: false,
+      editProject: false,
     };
   },
   async mounted() {
@@ -134,15 +144,23 @@ export default {
       currentClock.EndTime = moment(new Date());
       this.$store.dispatch("clockOut", currentClock);
     },
-    toggleEditForm() {
-      this.showEditForm = !this.showEditForm;
+    toggleSettingsBox() {
+      this.showSettingsBox = !this.showSettingsBox;
+    },
+    toggleProjectEditor() {
+      this.editProject = !this.editProject;
+    },
+    deleteProject() {
+      this.$store.dispatch("deleteProject", this.$route.params.projectId);
     },
   },
   computed: {
     activeProject() {
-      let proj = this.$store.state.activeProject;
-      proj.Start = moment(proj.Start).format("MM/DD/YYYY");
-      proj.End = moment(proj.End).subtract(1, "days").format("MM/DD/YYYY");
+      let proj = { ...this.$store.state.activeProject };
+      if (proj.Start) {
+        proj.Start = moment(proj.Start).format("MM/DD/YYYY");
+        proj.End = moment(proj.End).subtract(1, "days").format("MM/DD/YYYY");
+      }
       return proj;
     },
     timeClockGroups() {
@@ -153,12 +171,11 @@ export default {
     },
   },
   components: {
-    WeeklyProjectDetails,
-    MonthlyProjectDetails,
-    MilestoneProjectDetails,
-    FirstAndFiveProjectDetails,
     TimeClockGroupComponent,
     HourlyComponent,
+    EditProjectComponent,
+    SalaryComponent,
+    MilestoneComponent,
   },
 };
 </script>
@@ -189,7 +206,7 @@ export default {
   z-index: 102;
   font-size: 1.5rem;
 }
-.edit-form {
+.settings-box {
   position: absolute;
   background-color: #adb5bd;
   top: 40px;
@@ -209,5 +226,22 @@ export default {
 }
 li {
   list-style-type: none;
+}
+.modal-content {
+  position: fixed;
+  padding: 2rem;
+  top: 20vh;
+  left: 10vw;
+  right: 10vw;
+  z-index: 100;
+  border-radius: 20px;
+  background-color: rgba(171, 180, 187, 0.95);
+  max-height: 80vh;
+  max-width: 80vw;
+}
+@media screen and (min-width: 992px) {
+  .modal-content {
+    max-width: 40vw;
+  }
 }
 </style>

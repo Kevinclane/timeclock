@@ -11,7 +11,9 @@ export class ProjectsController extends BaseController {
       .use(auth0provider.getAuthorizedUserInfo)
       .get("/all", this.getProjects)
       .get("/:id", this.getProjectById)
-      .post("/", this.createProject);
+      .post("/", this.createProject)
+      .put("/:id", this.editProject)
+      .delete("/:id", this.deleteProject)
 
   }
   async getProjects(req, res, next) {
@@ -43,6 +45,27 @@ export class ProjectsController extends BaseController {
       res.status(201).send(project);
     } catch (error) {
       next(error);
+    }
+  }
+  async editProject(req, res, next) {
+    try {
+      req.body.CreatorEmail = req.userInfo.email
+      req.body.id = req.params.id
+      req.body.TimeClocks = {}
+      let project = await projectsService.editProject(req.body)
+      project.TimeClocks = await timeClocksService.getTimeClocks(req.userInfo.email, project._id)
+      res.status(200).send(project)
+    } catch (error) {
+      next(error)
+    }
+  }
+  async deleteProject(req, res, next) {
+    try {
+      let data = await projectsService.deleteProject(req.userInfo.email, req.params.id)
+      await timeClocksService.deleteTimeClocks(req.userInfo.email, req.params.id)
+      res.send(data)
+    } catch (error) {
+      next(error)
     }
   }
 

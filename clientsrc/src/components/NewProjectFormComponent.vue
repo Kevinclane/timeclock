@@ -6,7 +6,7 @@
           <div class="col-4 bold d-flex flex-end">
             <i class="fas fa-exclamation-triangle mr-1 coco"
               ><span class="tooltiptext"
-                >Special character allowed: {{ charsAllowed.chars }}</span
+                >Special characters allowed: {{ charsAllowed.chars }}</span
               ></i
             >
             Project Name:
@@ -28,7 +28,7 @@
           <div class="col-4 bold d-flex flex-end">
             <i class="fas fa-exclamation-triangle mr-1 coco"
               ><span class="tooltiptext"
-                >Special character allowed: {{ charsAllowed.chars }}</span
+                >Special characters allowed: {{ charsAllowed.chars }}</span
               ></i
             >
             Invoice Target:
@@ -262,6 +262,7 @@ export default {
       e.preventDefault();
       let abort = false;
       let emptyFields = [];
+      this.trimWhiteSpace();
       if (
         this.newProjectForm.PayPeriod == "Weekly" ||
         this.newProjectForm.PayPeriod == "Bi-Weekly"
@@ -292,7 +293,7 @@ export default {
         }
       }
       if (this.newProjectForm.PayType == "Salary") {
-        if (this.newProjectForm.PayPeriod == "") {
+        if (this.newProjectForm.SalaryFrequency == "") {
           emptyFields.push("(Every) ");
           abort = true;
         }
@@ -302,7 +303,6 @@ export default {
         abort = true;
       }
       if (!abort) {
-        this.trimWhiteSpace();
         this.characterCheck();
         this.newProjectForm.Rate = parseInt(this.newProjectForm.Rate);
         this.$store.dispatch("createProject", { ...this.newProjectForm });

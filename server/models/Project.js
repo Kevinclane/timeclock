@@ -15,7 +15,8 @@ const Project = new Schema(
     Rate: { type: Number, required: true },
     SalaryFrequency: { type: String },
     Active: { type: Boolean, default: true },
-    TimeClocks: [{ type: Object }]
+    TimeClocks: [{ type: Object }],
+    InvoiceGroups: [{ type: Object }]
   },
   { timestamps: true, toJSON: { virtuals: true } }
 );

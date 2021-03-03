@@ -23,6 +23,16 @@ export default new Vuex.Store({
       state.projects = projects
     },
     setActiveProject(state, project) {
+      if (project.Start) {
+        let SZ = project.Start[project.Start.length - 1]
+        let EZ = project.End[project.End.length - 1]
+        if (SZ == "Z") {
+          project.Start = project.Start.slice(0, -1)
+        }
+        if (EZ == "Z") {
+          project.End = project.End.slice(0, -1)
+        }
+      }
       state.activeProject = project
     },
     addProject(state, project) {
@@ -101,6 +111,25 @@ export default new Vuex.Store({
       try {
         let res = await api.post("/projects", projectData)
         commit("addProject", res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async editProject({ commit, dispatch }, projectData) {
+      try {
+        let res = await api.put("/projects/" + projectData.id, projectData)
+        commit("setActiveProject", res.data)
+        dispatch("groupTimeClocks")
+        dispatch("totalProjectTimes")
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async deleteProject({ commit }, id) {
+      try {
+        debugger
+        let data = await api.delete("/projects/" + id)
+        router.push({ name: "dashboard" });
       } catch (error) {
         console.error(error)
       }
@@ -229,9 +258,16 @@ export default new Vuex.Store({
     },
     clearProjects({ commit }) {
       commit("clearProjects")
-    }
+    },
 
     //#endregion -- END DATA CLEARING --
+
+
+    //#region  --MISC FUNCTIONS --
+
+
+
+    //#endregion
 
   }
 })

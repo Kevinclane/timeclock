@@ -140,7 +140,7 @@ export default {
         dangerMode: true,
       }).then((willDelete) => {
         if (willDelete) {
-          swal("Poof! Your imaginary file has been deleted!", {
+          swal("This time clock has been deleted!", {
             icon: "success",
           });
           this.$store.dispatch("deleteTimeClock", this.timeClock);
