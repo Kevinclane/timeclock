@@ -99,8 +99,12 @@
     </div>
 
     <div class="col-12 d-flex flex-end">
-      <button @click="clockIn" class="btn btn-success m-2">Clock-In</button>
-      <button @click="clockOut" class="btn btn-danger m-2">Clock-Out</button>
+      <button v-if="!clockedIn" @click="clockIn" class="btn btn-success m-2">
+        Clock-In
+      </button>
+      <button v-else @click="clockOut" class="btn btn-danger m-2">
+        Clock-Out
+      </button>
     </div>
   </div>
 </template>
@@ -168,6 +172,16 @@ export default {
     },
     totalTimes() {
       return this.$store.state.totalProjectTimes;
+    },
+    clockedIn() {
+      if (this.activeProject.TimeClocks) {
+        let currentClock = this.activeProject.TimeClocks.find(
+          (t) => t.Current == true
+        );
+        if (currentClock) {
+          return true;
+        } else return false;
+      } else return null;
     },
   },
   components: {

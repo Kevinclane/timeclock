@@ -15,7 +15,14 @@
         @closeModal="toggleEditForm"
       />
     </div>
-    <div class="col-4">{{ Total }} Hours</div>
+    <div v-if="timeClock.EndTime" class="col-4">{{ Total }} Hours</div>
+    <div v-else class="col-4">
+      {{ currentTimer.hour }}:
+      <span v-if="currentTimer.minute < 10" class="mr-neg-4">0</span>
+      {{ currentTimer.minute }}:
+      <span v-if="currentTimer.second < 10" class="mr-neg-4">0</span>
+      {{ currentTimer.second }}
+    </div>
   </div>
 </template>
 
@@ -28,11 +35,58 @@ export default {
   data() {
     return {
       showEditForm: false,
+      currentTimer: {},
+      currentDate: Date(),
     };
+  },
+  mounted() {
+    if (!this.timeClock.EndTime) {
+      this.startLiveClock();
+    }
   },
   methods: {
     toggleEditForm() {
       this.showEditForm = !this.showEditForm;
+    },
+    startLiveClock() {
+      let start = {
+        hour: parseInt(moment(this.timeClock.StartTime).format("HH")),
+        minute: parseInt(moment(this.timeClock.StartTime).format("mm")),
+        second: parseInt(moment(this.timeClock.StartTime).format("ss")),
+      };
+      let current = {
+        hour: parseInt(moment(this.currentDate).format("HH")),
+        minute: parseInt(moment(this.currentDate).format("mm")),
+        second: parseInt(moment(this.currentDate).format("ss")),
+      };
+      let diff = {
+        hour: current.hour - start.hour,
+        minute: current.minute - start.minute,
+        second: current.second - start.second,
+      };
+      if (diff.second < 0) {
+        diff.second += 60;
+        diff.minute -= 1;
+      }
+      if (diff.minute < 0) {
+        diff.minute += 60;
+        diff.hour -= 1;
+      }
+      this.currentTimer = diff;
+      this.updateTime();
+    },
+    updateTime() {
+      setInterval(() => {
+        this.currentTimer.second++;
+        if (this.currentTimer.second == 60) {
+          this.currentTimer.minute++;
+          this.currentTimer.second = 0;
+          if (this.currentTimer.minute == 60) {
+            this.currentTimer.hour++;
+            this.currentTimer.minute = 0;
+          }
+        }
+      }, 1000);
     },
   },
   computed: {
@@ -41,9 +95,6 @@ export default {
     },
     End() {
       return moment(this.timeClock.EndTime).format("h:mm A");
-    },
-    FormStartHour() {
-      return "";
     },
     Total() {
       if (this.timeClock.EndTime) {
@@ -57,7 +108,6 @@ export default {
           minute: parseInt(moment(this.timeClock.EndTime).format("mm")),
           second: parseInt(moment(this.timeClock.EndTime).format("ss")),
         };
-
         let diff = {
           hour: end.hour - start.hour,
           minute: end.minute - start.minute,
@@ -75,7 +125,7 @@ export default {
         res += diff.minute / 60;
         res = res.toFixed(2);
         return res;
-      } else return {};
+      }
     },
   },
   components: {
@@ -92,5 +142,9 @@ export default {
   background-color: white;
   border: 2px solid black;
   border-radius: 5px;
+}
+.mr-neg-4 {
+  margin-right: -4px;
+  margin-left: -4px;
 }
 </style>
