@@ -36,43 +36,33 @@ export default {
     return {
       showEditForm: false,
       currentTimer: {},
-      currentDate: Date(),
+      currentDate: moment(Date()),
     };
   },
   mounted() {
     if (!this.timeClock.EndTime) {
       this.startLiveClock();
     }
+    // this.makeDatesLocal();
   },
   methods: {
     toggleEditForm() {
       this.showEditForm = !this.showEditForm;
     },
     startLiveClock() {
-      let start = {
-        hour: parseInt(moment(this.timeClock.StartTime).format("HH")),
-        minute: parseInt(moment(this.timeClock.StartTime).format("mm")),
-        second: parseInt(moment(this.timeClock.StartTime).format("ss")),
+      let timeDiff = moment.duration(
+        moment(this.timeClock.StartTime).diff(moment(this.currentDate))
+      );
+      let hour = parseInt(timeDiff.asHours());
+      let minute = parseInt(timeDiff.asMinutes() - hour * 60);
+      let second = parseInt(
+        timeDiff.asSeconds() - hour * 60 * 60 - minute * 60
+      );
+      this.currentTimer = {
+        hour: hour,
+        minute: minute,
+        second: second,
       };
-      let current = {
-        hour: parseInt(moment(this.currentDate).format("HH")),
-        minute: parseInt(moment(this.currentDate).format("mm")),
-        second: parseInt(moment(this.currentDate).format("ss")),
-      };
-      let diff = {
-        hour: current.hour - start.hour,
-        minute: current.minute - start.minute,
-        second: current.second - start.second,
-      };
-      if (diff.second < 0) {
-        diff.second += 60;
-        diff.minute -= 1;
-      }
-      if (diff.minute < 0) {
-        diff.minute += 60;
-        diff.hour -= 1;
-      }
-      this.currentTimer = diff;
       this.updateTime();
     },
     updateTime() {
@@ -88,6 +78,22 @@ export default {
         }
       }, 1000);
     },
+    makeDatesLocal() {
+      // debugger;
+      let SZ = this.timeClock.StartTime[this.timeClock.StartTime.length - 1];
+      let EZ = "";
+      if (this.timeClock.EndTime) {
+        EZ = this.timeClock.EndTime[this.timeClock.EndTime.length - 1];
+      }
+      if (SZ == "Z") {
+        this.timeClock.StartTime = moment(
+          this.timeClock.StartTime.slice(0, -1)
+        );
+      }
+      if (EZ == "Z") {
+        this.timeClock.EndTime = moment(this.timeClock.EndTime.slice(0, -1));
+      }
+    },
   },
   computed: {
     Start() {
@@ -97,34 +103,12 @@ export default {
       return moment(this.timeClock.EndTime).format("h:mm A");
     },
     Total() {
+      debugger;
       if (this.timeClock.EndTime) {
-        let start = {
-          hour: parseInt(moment(this.timeClock.StartTime).format("HH")),
-          minute: parseInt(moment(this.timeClock.StartTime).format("mm")),
-          second: parseInt(moment(this.timeClock.StartTime).format("ss")),
-        };
-        let end = {
-          hour: parseInt(moment(this.timeClock.EndTime).format("HH")),
-          minute: parseInt(moment(this.timeClock.EndTime).format("mm")),
-          second: parseInt(moment(this.timeClock.EndTime).format("ss")),
-        };
-        let diff = {
-          hour: end.hour - start.hour,
-          minute: end.minute - start.minute,
-          second: end.second - start.second,
-        };
-        if (diff.second < 0) {
-          diff.second += 60;
-          diff.minute -= 1;
-        }
-        if (diff.minute < 0) {
-          diff.minute += 60;
-          diff.hour -= 1;
-        }
-        let res = diff.hour;
-        res += diff.minute / 60;
-        res = res.toFixed(2);
-        return res;
+        let timeDiff = moment.duration(
+          moment(this.timeClock.EndTime).diff(moment(this.timeClock.StartTime))
+        );
+        return timeDiff.asHours().toFixed(2);
       }
     },
   },

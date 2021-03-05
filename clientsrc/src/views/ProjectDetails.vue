@@ -57,8 +57,7 @@
                 <div class="col-12 bg-light rounded-bottom">
                   <div class="row bg-secondary text-white border-times m-2">
                     <div class="col-12">
-                      <span>{{ totalTimes.hour }} Hours</span>
-                      <span>{{ totalTimes.minute }} Minutes</span>
+                      <span>{{ totalTimes }} Hours</span>
                     </div>
                   </div>
                 </div>
@@ -137,7 +136,7 @@ export default {
     clockIn() {
       let timeObj = {
         ProjectId: this.$route.params.projectId,
-        StartTime: moment(new Date()),
+        StartTime: Date(),
       };
       this.$store.dispatch("clockIn", timeObj);
     },
@@ -145,7 +144,7 @@ export default {
       let currentClock = this.activeProject.TimeClocks.find(
         (t) => t.Current == true
       );
-      currentClock.EndTime = moment(new Date());
+      currentClock.EndTime = Date();
       this.$store.dispatch("clockOut", currentClock);
     },
     toggleSettingsBox() {

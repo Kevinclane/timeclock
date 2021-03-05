@@ -100,7 +100,9 @@ export default new Vuex.Store({
     async getActiveProject({ commit, dispatch }, id) {
       try {
         let res = await api.get("/projects/" + id)
+        debugger
         commit("setActiveProject", res.data)
+        // dispatch("convertTimeClocksToMoment")
         dispatch("groupTimeClocks")
         dispatch("totalProjectTimes")
       } catch (error) {
@@ -127,7 +129,6 @@ export default new Vuex.Store({
     },
     async deleteProject({ commit }, id) {
       try {
-        debugger
         let data = await api.delete("/projects/" + id)
         router.push({ name: "dashboard" });
       } catch (error) {
@@ -141,7 +142,13 @@ export default new Vuex.Store({
 
     async clockIn({ commit, dispatch }, obj) {
       try {
+        debugger
+
         let res = await api.post("/timeclock", obj)
+        let SZ = res.data.StartTime[res.data.StartTime.length - 1]
+        if (SZ == "Z") {
+          res.data.StartTime = res.data.StartTime.slice(0, -1)
+        }
         commit("addNewTimeClock", res.data)
         dispatch("groupTimeClocks")
       } catch (error) {
@@ -151,6 +158,7 @@ export default new Vuex.Store({
     async clockOut({ commit, dispatch }, obj) {
       try {
         let res = await api.put("/timeclock/" + obj.id + "/out", obj)
+
         commit("updateTimeClock", res.data)
         dispatch("groupTimeClocks")
         dispatch("totalProjectTimes")
@@ -182,54 +190,34 @@ export default new Vuex.Store({
     totalProjectTimes({ commit }) {
       let times = this.state.activeProject.TimeClocks;
       let i = 0;
-      let total = {
-        hour: 0,
-        minute: 0,
-        second: 0,
-      };
+      let total = 0
       while (i < times.length && times[i].EndTime) {
-        let start = {
-          hour: parseInt(moment(times[i].StartTime).format("HH")),
-          minute: parseInt(moment(times[i].StartTime).format("mm")),
-          second: parseInt(moment(times[i].StartTime).format("ss")),
-        };
-        let end = {
-          hour: parseInt(moment(times[i].EndTime).format("HH")),
-          minute: parseInt(moment(times[i].EndTime).format("mm")),
-          second: parseInt(moment(times[i].EndTime).format("ss")),
-        };
-        let diff = {
-          hour: end.hour - start.hour,
-          minute: end.minute - start.minute,
-          second: end.second - start.second,
-        };
-        if (diff.second < 0) {
-          diff.second += 60;
-          diff.minute -= 1;
-        }
-        if (diff.minute < 0) {
-          diff.minute += 60;
-          diff.hour -= 1;
-        }
-        total.hour += diff.hour;
-        total.minute += diff.minute;
-        total.second += diff.second;
-        i++;
+        let timeDiff = moment.duration(
+          moment(times[i].EndTime).diff(moment(times[i].StartTime))
+        );
+        total += parseFloat(timeDiff.asHours())
+        i++
       }
-      i = 0;
-      while (total.second > 59) {
-        total.second -= 60;
-        i++;
-      }
-      total.minute += i;
-      i = 0;
-      while (total.minute > 59) {
-        total.minute -= 60;
-        i++;
-      }
-      total.hour += i;
-      commit("setTotalProjectTimes", total)
+      commit("setTotalProjectTimes", total.toFixed(2))
     },
+    // convertTimeClocksToMoment() {
+    //   let i = 0
+    //   let timeClocks = this.state.activeProject.TimeClocks
+    //   while (i < timeClocks.length) {
+    //     let SZ = timeClocks[i].StartTime[timeClocks[i].StartTime.length - 1]
+    //     let EZ = ""
+    //     if (timeClocks[i].EndTime) {
+    //       EZ = timeClocks[i].EndTime[timeClocks[i].EndTime.length - 1]
+    //     }
+    //     if (SZ == "Z") {
+    //       timeClocks[i].StartTime = moment(timeClocks[i].StartTime.slice(0, -1))
+    //     }
+    //     if (EZ == "Z") {
+    //       timeClocks[i].EndTime = moment(timeClocks[i].EndTime.slice(0, -1))
+    //     }
+    //     i++
+    //   }
+    // },
     async updateTimeClock({ commit, dispatch }, timeClock) {
       try {
         let res = await api.put("/timeclock/" + timeClock.id, timeClock)

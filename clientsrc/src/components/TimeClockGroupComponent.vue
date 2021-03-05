@@ -32,58 +32,18 @@ export default {
       return moment(this.timeClocks[0].StartTime).format("MM/DD/YYYY");
     },
     dayTotalHours() {
+      debugger;
       let times = this.timeClocks;
       let i = 0;
-      let total = {
-        hour: 0,
-        minute: 0,
-        second: 0,
-      };
+      let total = 0;
       while (i < times.length && times[i].EndTime) {
-        let start = {
-          hour: parseInt(moment(times[i].StartTime).format("HH")),
-          minute: parseInt(moment(times[i].StartTime).format("mm")),
-          second: parseInt(moment(times[i].StartTime).format("ss")),
-        };
-        let end = {
-          hour: parseInt(moment(times[i].EndTime).format("HH")),
-          minute: parseInt(moment(times[i].EndTime).format("mm")),
-          second: parseInt(moment(times[i].EndTime).format("ss")),
-        };
-        let diff = {
-          hour: end.hour - start.hour,
-          minute: end.minute - start.minute,
-          second: end.second - start.second,
-        };
-        if (diff.second < 0) {
-          diff.second += 60;
-          diff.minute -= 1;
-        }
-        if (diff.minute < 0) {
-          diff.minute += 60;
-          diff.hour -= 1;
-        }
-        total.hour += diff.hour;
-        total.minute += diff.minute;
-        total.second += diff.second;
+        let timeDiff = moment.duration(
+          moment(times[i].EndTime).diff(moment(times[i].StartTime))
+        );
+        total += parseFloat(timeDiff.asHours());
         i++;
       }
-      i = 0;
-      while (total.second > 59) {
-        total.second -= 60;
-        i++;
-      }
-      total.minute += i;
-      i = 0;
-      while (total.minute > 59) {
-        total.minute -= 60;
-        i++;
-      }
-      total.hour += i;
-      let res = total.hour;
-      res += total.minute / 60;
-      res = res.toFixed(2);
-      return res;
+      return total.toFixed(2);
     },
   },
   components: {
