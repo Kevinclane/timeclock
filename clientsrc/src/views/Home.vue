@@ -7,10 +7,6 @@
       <div class="col-12">Online Time Clock</div>
       <div class="col-12">Track hours as a contractor or as a team</div>
     </div>
-    <form @submit="log">
-      <input type="date" name="date" id="date" v-model="test" />
-      <button type="submit">click</button>
-    </form>
   </div>
 </template>
 
@@ -32,14 +28,7 @@ export default {
       return this.$store.state.user;
     },
   },
-  methods: {
-    log(e) {
-      e.preventDefault();
-      let date = moment(this.test).format("MM/DD/YYYY");
-      console.log(this.test);
-      console.log(date);
-    },
-  },
+  methods: {},
   components: {},
 };
 </script>

@@ -36,7 +36,7 @@ export default {
     return {
       showEditForm: false,
       currentTimer: {},
-      currentDate: moment(Date()),
+      currentDate: Date(),
     };
   },
   mounted() {
@@ -51,7 +51,7 @@ export default {
     },
     startLiveClock() {
       let timeDiff = moment.duration(
-        moment(this.timeClock.StartTime).diff(moment(this.currentDate))
+        moment(this.currentDate).diff(moment(this.timeClock.StartTime))
       );
       let hour = parseInt(timeDiff.asHours());
       let minute = parseInt(timeDiff.asMinutes() - hour * 60);
@@ -103,7 +103,6 @@ export default {
       return moment(this.timeClock.EndTime).format("h:mm A");
     },
     Total() {
-      debugger;
       if (this.timeClock.EndTime) {
         let timeDiff = moment.duration(
           moment(this.timeClock.EndTime).diff(moment(this.timeClock.StartTime))

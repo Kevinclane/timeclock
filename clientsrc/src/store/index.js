@@ -53,7 +53,7 @@ export default new Vuex.Store({
       state.timeClockGroup = timeClockGroup
     },
     setTotalProjectTimes(state, total) {
-      state.totalProjectTimes = total
+      state.totalProjectTimes = parseFloat(total)
     },
     clearActiveProject(state) {
       state.activeProject = {}
@@ -100,7 +100,7 @@ export default new Vuex.Store({
     async getActiveProject({ commit, dispatch }, id) {
       try {
         let res = await api.get("/projects/" + id)
-        debugger
+        // debugger
         commit("setActiveProject", res.data)
         // dispatch("convertTimeClocksToMoment")
         dispatch("groupTimeClocks")
@@ -142,8 +142,6 @@ export default new Vuex.Store({
 
     async clockIn({ commit, dispatch }, obj) {
       try {
-        debugger
-
         let res = await api.post("/timeclock", obj)
         let SZ = res.data.StartTime[res.data.StartTime.length - 1]
         if (SZ == "Z") {
@@ -158,7 +156,6 @@ export default new Vuex.Store({
     async clockOut({ commit, dispatch }, obj) {
       try {
         let res = await api.put("/timeclock/" + obj.id + "/out", obj)
-
         commit("updateTimeClock", res.data)
         dispatch("groupTimeClocks")
         dispatch("totalProjectTimes")
@@ -200,24 +197,15 @@ export default new Vuex.Store({
       }
       commit("setTotalProjectTimes", total.toFixed(2))
     },
-    // convertTimeClocksToMoment() {
-    //   let i = 0
-    //   let timeClocks = this.state.activeProject.TimeClocks
-    //   while (i < timeClocks.length) {
-    //     let SZ = timeClocks[i].StartTime[timeClocks[i].StartTime.length - 1]
-    //     let EZ = ""
-    //     if (timeClocks[i].EndTime) {
-    //       EZ = timeClocks[i].EndTime[timeClocks[i].EndTime.length - 1]
-    //     }
-    //     if (SZ == "Z") {
-    //       timeClocks[i].StartTime = moment(timeClocks[i].StartTime.slice(0, -1))
-    //     }
-    //     if (EZ == "Z") {
-    //       timeClocks[i].EndTime = moment(timeClocks[i].EndTime.slice(0, -1))
-    //     }
-    //     i++
-    //   }
-    // },
+    async createTimeClock({ commit, dispatch }, timeClock) {
+      try {
+        let res = await api.post("/timeclock", timeClock)
+        commit("addNewTimeClock", res.data)
+        dispatch("groupTimeClocks")
+      } catch (error) {
+        console.error(error)
+      }
+    },
     async updateTimeClock({ commit, dispatch }, timeClock) {
       try {
         let res = await api.put("/timeclock/" + timeClock.id, timeClock)

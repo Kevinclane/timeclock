@@ -123,7 +123,7 @@
       >
         Cancel
       </button>
-      <button type="submit" class="btn btn-success btn-submit">Update</button>
+      <button type="submit" class="btn btn-green btn-submit">Update</button>
     </form>
   </div>
 </template>

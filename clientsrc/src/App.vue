@@ -96,4 +96,13 @@ a:hover {
 .text-black {
   color: black;
 }
+input {
+  border-radius: 5px;
+}
+select {
+  border-radius: 5px;
+}
+.btn-green {
+  background-color: green;
+}
 </style>

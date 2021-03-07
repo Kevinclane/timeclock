@@ -46,6 +46,18 @@
                 :key="`timeClockGroup-${index}`"
                 :timeClocks="timeClockGroups[index]"
               />
+              <add-time-modal
+                v-if="addTimeModal"
+                :project="activeProject"
+                @closeModal="toggleAddTimeModal"
+              />
+              <button
+                v-if="!addTimeModal"
+                class="btn btn-green m-2"
+                @click="toggleAddTimeModal"
+              >
+                Add Time
+              </button>
             </div>
           </div>
         </div>
@@ -56,9 +68,9 @@
                 <div class="col-12">Total Time</div>
                 <div class="col-12 bg-light rounded-bottom">
                   <div class="row bg-secondary text-white border-times m-2">
-                    <div class="col-12">
+                    <h5 class="col-12 my-2">
                       <span>{{ totalTimes }} Hours</span>
-                    </div>
+                    </h5>
                   </div>
                 </div>
               </div>
@@ -98,7 +110,7 @@
     </div>
 
     <div class="col-12 d-flex flex-end">
-      <button v-if="!clockedIn" @click="clockIn" class="btn btn-success m-2">
+      <button v-if="!clockedIn" @click="clockIn" class="btn btn-green m-2">
         Clock-In
       </button>
       <button v-else @click="clockOut" class="btn btn-danger m-2">
@@ -114,6 +126,7 @@ import HourlyComponent from "../components/PayCalcComponents/HourlyComponent.vue
 import SalaryComponent from "../components/PayCalcComponents/SalaryComponent.vue";
 import MilestoneComponent from "../components/PayCalcComponents/MilestoneComponent.vue";
 import EditProjectComponent from "../components/EditProjectFormComponent.vue";
+import AddTimeModal from "../components/AddTimeModal.vue";
 import moment from "moment";
 export default {
   name: "ProjectDetails",
@@ -121,6 +134,7 @@ export default {
     return {
       showSettingsBox: false,
       editProject: false,
+      addTimeModal: false,
     };
   },
   async mounted() {
@@ -152,6 +166,9 @@ export default {
     },
     toggleProjectEditor() {
       this.editProject = !this.editProject;
+    },
+    toggleAddTimeModal() {
+      this.addTimeModal = !this.addTimeModal;
     },
     deleteProject() {
       this.$store.dispatch("deleteProject", this.$route.params.projectId);
@@ -189,6 +206,7 @@ export default {
     EditProjectComponent,
     SalaryComponent,
     MilestoneComponent,
+    AddTimeModal,
   },
 };
 </script>
@@ -208,10 +226,7 @@ export default {
 .text-center-mobile {
   text-align: left;
 }
-.btn-green {
-  background-color: green;
-  /* border: green solid 2px; */
-}
+
 .settings-icon {
   position: absolute;
   top: 10px;

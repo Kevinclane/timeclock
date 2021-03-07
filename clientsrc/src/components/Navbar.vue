@@ -37,7 +37,7 @@
       </ul>
       <span class="navbar-text">
         <button
-          class="btn btn-success"
+          class="btn btn-green"
           @click="login"
           v-if="!$auth.isAuthenticated"
         >

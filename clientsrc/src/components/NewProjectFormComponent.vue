@@ -229,7 +229,7 @@
       <button class="btn btn-danger btn-cancel" @click="closeModal">
         Cancel
       </button>
-      <button type="submit" class="btn btn-success btn-submit">Add</button>
+      <button type="submit" class="btn btn-green btn-submit">Add</button>
     </form>
   </div>
 </template>
