@@ -7,27 +7,34 @@
     ></i>
     <form @submit="updateTimeClock">
       <div class="row">
-        <div class="col-12 d-flex justify-content-center align-items-center">
+        <div
+          class="col-12 d-flex justify-content-center align-items-center my-1"
+        >
           <input
             class="mx-w-50"
-            type="text"
+            type="number"
             name="startHour"
             id="startHour"
             placeholder="hour"
             v-model="editedTime.startHour"
+            minlength="2"
             maxlength="2"
+            min="1"
+            max="12"
             required
           />
           :
           <input
             class="mx-w-50"
-            type="text"
+            type="number"
             name="startMinute"
             id="startMinute"
             placeholder="minute"
             v-model="editedTime.startMinute"
             minlength="2"
             maxlength="2"
+            min="0"
+            max="59"
             required
           />
           <select
@@ -41,26 +48,34 @@
             <option value="PM">PM</option>
           </select>
         </div>
-        <div class="col-12 d-flex justify-content-center align-items-center">
+        <div
+          class="col-12 d-flex justify-content-center align-items-center my-1"
+        >
           <input
             class="mx-w-50"
-            type="text"
+            type="number"
             name="endHour"
             id="endHour"
             placeholder="hour"
             v-model="editedTime.endHour"
+            minlength="2"
             maxlength="2"
+            min="1"
+            max="12"
+            required
           />
           :
           <input
             class="mx-w-50"
-            type="text"
+            type="number"
             name="endMinute"
             id="endMinute"
             placeholder="minute"
             v-model="editedTime.endMinute"
             minlength="2"
             maxlength="2"
+            min="0"
+            max="59"
           />
           <select
             name="endAMPM"
@@ -81,7 +96,7 @@
           >
             Cancel
           </button>
-          <button class="btn btn-sm btn-success" type="submit">Save</button>
+          <button class="btn btn-sm btn-green" type="submit">Save</button>
         </div>
       </div>
     </form>
@@ -141,7 +156,7 @@ export default {
       }).then((willDelete) => {
         if (willDelete) {
           swal("This time clock has been deleted!", {
-            icon: "success",
+            icon: "green",
           });
           this.$store.dispatch("deleteTimeClock", this.timeClock);
           this.$emit("closeModal");
