@@ -1,5 +1,6 @@
 import { dbContext } from "../db/DbContext";
 import { BadRequest } from "../utils/Errors";
+import moment from "moment"
 
 class ProjectsService {
   async getProjects(user) {
@@ -44,12 +45,8 @@ class ProjectsService {
     })
   }
   clearExcessData(projectData) {
-    if (projectData.PayPeriod == "Weekly" || projectData.PayPeriod == "Bi-Weekly") {
+    if (projectData.PayPeriod == "Weekly" || projectData.PayPeriod == "Bi-Weekly" || projectData.PayPeriod == "FirstAndFive") {
       projectData.InvoiceDay = ""
-    } else if (projectData.PayPeriod == "FirstAndFive") {
-      projectData.InvoiceDay = ""
-      projectData.Start = ""
-      projectData.End = ""
     } else if (projectData.PayPeriod == "Monthly") {
       projectData.Start = ""
       projectData.End = ""

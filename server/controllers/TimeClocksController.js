@@ -1,13 +1,13 @@
 import express from "express";
 import BaseController from "../utils/BaseController";
-import auth0Provider from "@bcwdev/auth0provider";
+import auth0provider from "@bcwdev/auth0provider";
 import { timeClocksService } from "../services/TimeClocksService";
 
 export class TimeClocksController extends BaseController {
   constructor() {
     super("api/timeclock");
     this.router
-      .use(auth0Provider.getAuthorizedUserInfo)
+      .use(auth0provider.getAuthorizedUserInfo)
       .get("/:id", this.getTimeClocks)
       .put("/:id", this.updateTimeClock)
       .put("/:id/out", this.clockOut)

@@ -3,6 +3,8 @@ import BaseController from "../utils/BaseController";
 import auth0provider from "@bcwdev/auth0provider";
 import { projectsService } from "../services/ProjectsService";
 import { timeClocksService } from "../services/TimeClocksService";
+import { payPeriodsService } from "../services/PayPeriodsService"
+import moment from "moment"
 
 export class ProjectsController extends BaseController {
   constructor() {
@@ -33,6 +35,7 @@ export class ProjectsController extends BaseController {
     try {
       let data = await projectsService.getProjectById(req.params.id, req.userInfo.email)
       data.TimeClocks = await timeClocksService.getTimeClocks(req.userInfo.email, data._id)
+      data.InvoiceGroups = await payPeriodsService.getPayPeriods(req.userInfo.email, data)
       res.status(200).send(data)
     } catch (error) {
       next(error)
@@ -42,6 +45,9 @@ export class ProjectsController extends BaseController {
     try {
       req.body.CreatorEmail = req.userInfo.email;
       let project = await projectsService.createProject(req.body)
+      if (project.PayPeriod != "Milestone") {
+        let data = await payPeriodsService.createFirstPayPeriod(req.userInfo.email, project)
+      }
       res.status(201).send(project);
     } catch (error) {
       next(error);

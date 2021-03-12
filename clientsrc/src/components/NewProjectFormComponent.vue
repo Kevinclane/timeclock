@@ -305,6 +305,10 @@ export default {
       if (!abort) {
         this.characterCheck();
         this.newProjectForm.Rate = parseInt(this.newProjectForm.Rate);
+        if (this.newProjectForm.PayPeriod == "FirstAndFive") {
+          setFirstAndFiveDates();
+        }
+        debugger;
         this.$store.dispatch("createProject", { ...this.newProjectForm });
         this.newProjectForm = {
           Title: "",
@@ -332,13 +336,29 @@ export default {
         });
       }
     },
+    setFirstAndFiveDates() {
+      let today = parseInt(moment(Date()).format("DD"));
+      if (today < 15) {
+        this.newProjectForm.Start = "1";
+        this.newProjectForm.End = "14";
+      } else {
+        this.newProjectForm.Start = "15";
+        this.newProjectForm.End = moment(today).endOf("month").format("DD");
+      }
+    },
     closeModal() {
       this.$emit("closeModal");
     },
     trimWhiteSpace() {
       this.newProjectForm.Title = this.newProjectForm.Title.trim();
       this.newProjectForm.Payee = this.newProjectForm.Payee.trim();
-      this.newProjectForm.Rate = this.newProjectForm.Rate.trim();
+      if (typeof this.newProjectForm.Rate == "number") {
+        this.newProjectForm.Rate = parseInt(
+          this.newProjectForm.Rate.toString().trim()
+        );
+      } else {
+        this.newProjectForm.Rate = this.newProjectForm.Rate.trim();
+      }
     },
     characterCheck() {
       this.newProjectForm.Title = this.newProjectForm.Title.replace(
@@ -360,10 +380,10 @@ export default {
         "YYYY-MM-DD"
       );
       if (this.newProjectForm.PayPeriod == "Weekly") {
-        let endDate = moment(startDate, "YYYY-MM-DD").add(7, "days");
+        let endDate = moment(startDate, "YYYY-MM-DD").add(6, "days");
         this.newProjectForm.End = moment(endDate).local().format("YYYY-MM-DD");
       } else if (this.newProjectForm.PayPeriod == "Bi-Weekly") {
-        let endDate = moment(startDate, "YYYY-MM-DD").add(14, "days");
+        let endDate = moment(startDate, "YYYY-MM-DD").add(13, "days");
         this.newProjectForm.End = moment(endDate).local().format("YYYY-MM-DD");
       }
     },

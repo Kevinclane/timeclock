@@ -1,8 +1,8 @@
 <template>
   <div class="row bg-secondary text-white border-times m-2">
-    <div class="col-12">{{ totalTimes }} Hours at {{ project.Rate }}/hr</div>
+    <div class="col-12">{{ totalTimes }} Hours at ${{ project.Rate }}/hr</div>
     <div class="col-12" v-if="OTHours > 0">
-      {{ OTHours }} Hours at ${{ OTRate }}
+      {{ OTHours }} Hours at ${{ OTRate }}/hr
     </div>
     <h3 class="col-12 my-2">${{ estimatedPay }}</h3>
   </div>
