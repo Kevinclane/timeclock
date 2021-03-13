@@ -53,11 +53,49 @@ async function updateBiWeeklyPayPeriod(ppObj) {
 }
 
 async function updateFirstAndFivePayPeriod(ppObj) {
+  let today = moment()
+  let currentPP = { ...ppObj }
+  let newPPs = []
+  while (today.isAfter(moment(currentPP.EndDay))) {
+    let rawObj = {
+      ProjectId: ppObj.ProjectId,
+      CreatorEmail: ppObj.CreatorEmail,
+    }
+    let e = parseInt(moment(currentPP.EndDay).format("DD"))
+    if (e >= 28) {
+      let nextYearMo = moment(ppObj.EndDay).add(1, "month").format("YYYY-MM")
+      rawObj.EndDay = new Date(nextYearMo + "14")
+      rawObj.StartDay = new Date(nextYearMo + "1")
+    } else {
+      let thisYearMo = moment(ppObj.EndDay).format("YYYY-MM")
+      let lastDay = moment(ppObj.EndDay).endOf("month").format("DD")
+      rawObj.EndDay = new Date(thisYearMo + "-" + lastDay)
+      rawObj.StartDay = new Date(thisYearMo + "14")
+    }
 
+    let newPP = await dbContext.PayPeriod.create(rawObj)
+    currentPP = newPP
+    newPPs.push(newPP)
+  }
+  return newPPs
 }
 
 async function updateMonthlyPayPeriod(ppObj) {
-
+  let today = moment()
+  let currentPP = { ...ppObj }
+  let newPPs = []
+  while (today.isAfter(moment(currentPP.EndDay))) {
+    let rawObj = {
+      ProjectId: ppObj.ProjectId,
+      CreatorEmail: ppObj.CreatorEmail,
+      StartDay: new Date(moment(currentPP.StartDay).add(1, "month").format("YYYY-MM-DD")),
+      EndDay: new Date(moment(currentPP.EndDay).add(1, "month").format("YYYY-MM-DD"))
+    }
+    let newPP = await dbContext.PayPeriod.create(rawObj)
+    currentPP = newPP
+    newPPs.push(newPP)
+  }
+  return newPPs
 }
 
 class PayPeriodsService {

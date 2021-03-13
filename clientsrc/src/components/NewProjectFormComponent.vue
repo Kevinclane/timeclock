@@ -270,8 +270,6 @@ export default {
         if (this.newProjectForm.Start == "") {
           emptyFields.push("(Start) ");
           abort = true;
-        } else {
-          this.momentDates();
         }
         if (this.newProjectForm.PayType == "") {
           emptyFields.push("(Pay Type) ");
@@ -304,11 +302,9 @@ export default {
       }
       if (!abort) {
         this.characterCheck();
-        this.newProjectForm.Rate = parseInt(this.newProjectForm.Rate);
-        if (this.newProjectForm.PayPeriod == "FirstAndFive") {
-          setFirstAndFiveDates();
-        }
         debugger;
+        this.setDates();
+        this.newProjectForm.Rate = parseInt(this.newProjectForm.Rate);
         this.$store.dispatch("createProject", { ...this.newProjectForm });
         this.newProjectForm = {
           Title: "",
@@ -334,16 +330,6 @@ export default {
           text: missing,
           button: "close",
         });
-      }
-    },
-    setFirstAndFiveDates() {
-      let today = parseInt(moment(Date()).format("DD"));
-      if (today < 15) {
-        this.newProjectForm.Start = "1";
-        this.newProjectForm.End = "14";
-      } else {
-        this.newProjectForm.Start = "15";
-        this.newProjectForm.End = moment(today).endOf("month").format("DD");
       }
     },
     closeModal() {
@@ -374,17 +360,31 @@ export default {
         ""
       );
     },
-    momentDates() {
-      let startDate = moment(this.newProjectForm.Start);
+    setDates() {
+      debugger;
       this.newProjectForm.Start = moment(this.newProjectForm.Start).format(
         "YYYY-MM-DD"
       );
       if (this.newProjectForm.PayPeriod == "Weekly") {
-        let endDate = moment(startDate, "YYYY-MM-DD").add(6, "days");
-        this.newProjectForm.End = moment(endDate).local().format("YYYY-MM-DD");
+        this.newProjectForm.End = moment(this.newProjectForm.Start).add(
+          6,
+          "days"
+        );
       } else if (this.newProjectForm.PayPeriod == "Bi-Weekly") {
-        let endDate = moment(startDate, "YYYY-MM-DD").add(13, "days");
-        this.newProjectForm.End = moment(endDate).local().format("YYYY-MM-DD");
+        this.newProjectForm.End = moment(this.newProjectForm.Start).add(
+          13,
+          "days"
+        );
+      } else if (this.newProjectForm.PayPeriod == "FirstAndFive") {
+        let today = parseInt(moment().format("DD"));
+        let thisYearMo = moment().format("YYYY-MM");
+        if (today < 15) {
+          this.newProjectForm.Start = moment(thisYearMo + "-01");
+          this.newProjectForm.End = moment(thisYearMo + "-14");
+        } else {
+          this.newProjectForm.Start = moment(thisYearMo + "-15");
+          this.newProjectForm.End = moment().endOf("month");
+        }
       }
     },
   },

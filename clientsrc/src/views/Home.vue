@@ -7,6 +7,10 @@
       <div class="col-12">Online Time Clock</div>
       <div class="col-12">Track hours as a contractor or as a team</div>
     </div>
+    <form @submit="run">
+      <input type="text" name="test" id="test" />
+      <button type="submit">push</button>
+    </form>
   </div>
 </template>
 
@@ -28,7 +32,12 @@ export default {
       return this.$store.state.user;
     },
   },
-  methods: {},
+  methods: {
+    run(e) {
+      e.preventDefault();
+      console.log(moment(e.currentTarget.test.value).format("YYYY-MM-DD"));
+    },
+  },
   components: {},
 };
 </script>
