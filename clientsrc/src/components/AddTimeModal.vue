@@ -180,8 +180,8 @@ export default {
         ":00";
       let timeClock = {
         ProjectId: this.$route.params.projectId,
-        StartTime: new Date(startString),
-        EndTime: new Date(endString),
+        StartTime: moment(startString),
+        EndTime: moment(endString),
         Current: false,
       };
 

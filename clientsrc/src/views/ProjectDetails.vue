@@ -34,10 +34,7 @@
         <div class="col-lg-8 col-12 my-2 order-2 order-lg-1">
           <div class="row bg-primary rounded-top text-white">
             <div class="col-12 d-flex justify-content-between">
-              <span> Sorting Filter </span>
-              <span>
-                Showing: {{ activeProject.Start }} - {{ activeProject.End }}
-              </span>
+              <select v-model="payPeriodSelection"></select>
             </div>
 
             <div class="col-12 bg-light rounded-bottom">

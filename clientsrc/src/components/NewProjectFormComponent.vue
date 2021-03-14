@@ -302,7 +302,6 @@ export default {
       }
       if (!abort) {
         this.characterCheck();
-        debugger;
         this.setDates();
         this.newProjectForm.Rate = parseInt(this.newProjectForm.Rate);
         this.$store.dispatch("createProject", { ...this.newProjectForm });
@@ -361,10 +360,7 @@ export default {
       );
     },
     setDates() {
-      debugger;
-      this.newProjectForm.Start = moment(this.newProjectForm.Start).format(
-        "YYYY-MM-DD"
-      );
+      this.newProjectForm.Start = moment(this.newProjectForm.Start);
       if (this.newProjectForm.PayPeriod == "Weekly") {
         this.newProjectForm.End = moment(this.newProjectForm.Start).add(
           6,

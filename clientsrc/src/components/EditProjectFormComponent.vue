@@ -171,7 +171,6 @@ export default {
       }
       if (!abort) {
         this.characterCheck();
-        this.project.Rate = parseInt(this.project.Rate);
         this.$store.dispatch("editProject", { ...this.project });
         this.$emit("closeModal");
       } else {
@@ -194,7 +193,10 @@ export default {
     trimWhiteSpace() {
       this.project.Title = this.project.Title.trim();
       this.project.Payee = this.project.Payee.trim();
-      this.project.Rate = this.project.Rate.trim();
+      if (typeof this.project.Rate == "number") {
+        this.project.Rate = this.project.Rate.toString();
+      }
+      this.project.Rate = parseInt(this.project.Rate.trim());
     },
     characterCheck() {
       this.project.Title = this.project.Title.replace(
