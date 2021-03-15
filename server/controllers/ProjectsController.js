@@ -35,7 +35,9 @@ export class ProjectsController extends BaseController {
     try {
       let data = await projectsService.getProjectById(req.params.id, req.userInfo.email)
       data.TimeClocks = await timeClocksService.getTimeClocks(req.userInfo.email, data._id)
-      data.InvoiceGroups = await payPeriodsService.getPayPeriods(req.userInfo.email, data)
+      if (data.PayPeriod != "Milestone") {
+        data.InvoiceGroups = await payPeriodsService.getPayPeriods(req.userInfo.email, data)
+      }
       res.status(200).send(data)
     } catch (error) {
       next(error)
@@ -69,6 +71,7 @@ export class ProjectsController extends BaseController {
     try {
       let data = await projectsService.deleteProject(req.userInfo.email, req.params.id)
       await timeClocksService.deleteTimeClocks(req.userInfo.email, req.params.id)
+      await payPeriodsService.deletePayPeriods(req.userInfo.email, req.params.id)
       res.send(data)
     } catch (error) {
       next(error)

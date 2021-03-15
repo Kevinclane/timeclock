@@ -35,7 +35,11 @@ export default {
   methods: {
     run(e) {
       e.preventDefault();
-      console.log(moment(e.currentTarget.test.value).format("YYYY-MM-DD"));
+      let res = e.currentTarget.test.value.split("-");
+      let start = moment(res[0]);
+      let end = moment(res[1]);
+      console.log(start);
+      console.log(end);
     },
   },
   components: {},

@@ -95,7 +95,7 @@ class PayPeriodsService {
         i++
       }
     }
-
+    data[data.length - 1].Current = true
     return data
   }
   async createFirstPayPeriod(email, project) {
@@ -153,25 +153,25 @@ class PayPeriodsService {
   }
 
 
-  // async deletePayPeriods(email, id) {
-  //   let clocks = await dbContext.PayPeriod.find({
-  //     CreatorEmail: email,
-  //     ProjectId: id
-  //   })
-  //   let delCount = 0
-  //   let i = 0
-  //   while (i < clocks.length) {
-  //     let data = await dbContext.PayPeriod.findOneAndDelete({
-  //       CreatorEmail: email,
-  //       _id: clocks[i].id
-  //     })
-  //     if (data) {
-  //       delCount++
-  //     }
-  //     i++
-  //   }
-  //   return delCount
-  // }
+  async deletePayPeriods(email, id) {
+    let pps = await dbContext.PayPeriod.find({
+      CreatorEmail: email,
+      ProjectId: id
+    })
+    let delCount = 0
+    let i = 0
+    while (i < pps.length) {
+      let data = await dbContext.PayPeriod.findOneAndDelete({
+        CreatorEmail: email,
+        _id: pps[i].id
+      })
+      if (data) {
+        delCount++
+      }
+      i++
+    }
+    return delCount
+  }
 }
 
 export const payPeriodsService = new PayPeriodsService()

@@ -6,7 +6,7 @@ const PayPeriod = new Schema({
   CreatorEmail: { type: String, required: true },
   StartDay: { type: Date, required: true },
   EndDay: { type: Date, required: true },
-  Current: { type: Boolean, default: true }
+  Current: { type: Boolean, default: false }
 },
   { timestamps: true, toJSON: { virtuals: true } }
 );

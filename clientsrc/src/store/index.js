@@ -143,10 +143,6 @@ export default new Vuex.Store({
     async clockIn({ commit, dispatch }, obj) {
       try {
         let res = await api.post("/timeclock", obj)
-        let SZ = res.data.StartTime[res.data.StartTime.length - 1]
-        if (SZ == "Z") {
-          res.data.StartTime = res.data.StartTime.slice(0, -1)
-        }
         commit("addNewTimeClock", res.data)
         dispatch("groupTimeClocks")
       } catch (error) {

@@ -33,11 +33,53 @@
       <div class="row d-flex justify-content-center">
         <div class="col-lg-8 col-12 my-2 order-2 order-lg-1">
           <div class="row bg-primary rounded-top text-white">
-            <div class="col-12 d-flex justify-content-between">
-              <select v-model="payPeriodSelection"></select>
+            <div
+              class="col-12 d-flex justify-content-center"
+              v-if="activeProject.PayPeriod != 'Milestone'"
+            >
+              <select
+                @change="updatePPSelection"
+                v-model="payPeriodSelection"
+                class="p-1 my-2"
+              >
+                <!-- {{
+                  payPeriodSorting
+                }} -->
+                <pay-period-component
+                  v-for="PayPeriod in activeProject.InvoiceGroups"
+                  :key="PayPeriod.id"
+                  :payPeriod="PayPeriod"
+                />
+              </select>
             </div>
-
-            <div class="col-12 bg-light rounded-bottom">
+            <div class="col-12 d-flex justify-content-center" v-else>
+              {{ milestoneStart }}
+              -
+              {{ milestoneEnd }}
+            </div>
+            <div
+              class="col-12 bg-light rounded-bottom"
+              v-if="activeProject.PayPeriod != 'Milestone'"
+            >
+              <time-clock-group-component
+                v-for="(timeClockGroup, index) in payPeriodDisplay"
+                :key="`timeClockGroup-${index}`"
+                :timeClocks="payPeriodDisplay[index]"
+              />
+              <add-time-modal
+                v-if="addTimeModal"
+                :project="activeProject"
+                @closeModal="toggleAddTimeModal"
+              />
+              <button
+                v-if="!addTimeModal"
+                class="btn btn-green m-2"
+                @click="toggleAddTimeModal"
+              >
+                Add Time
+              </button>
+            </div>
+            <div class="col-12 bg-light rounded-bottom" v-else>
               <time-clock-group-component
                 v-for="(timeClockGroup, index) in timeClockGroups"
                 :key="`timeClockGroup-${index}`"
@@ -123,6 +165,7 @@ import HourlyComponent from "../components/PayCalcComponents/HourlyComponent.vue
 import SalaryComponent from "../components/PayCalcComponents/SalaryComponent.vue";
 import MilestoneComponent from "../components/PayCalcComponents/MilestoneComponent.vue";
 import EditProjectComponent from "../components/EditProjectFormComponent.vue";
+import PayPeriodComponent from "../components/PayPeriodComponent.vue";
 import AddTimeModal from "../components/AddTimeModal.vue";
 import moment from "moment";
 export default {
@@ -132,6 +175,8 @@ export default {
       showSettingsBox: false,
       editProject: false,
       addTimeModal: false,
+      payPeriodSelection: "",
+      payPeriodDisplay: [],
     };
   },
   async mounted() {
@@ -139,23 +184,27 @@ export default {
       "getActiveProject",
       this.$route.params.projectId
     );
+    if (this.activeProject.InvoiceGroups) {
+      this.updatePPSelection();
+    }
   },
   beforeDestroy() {
     this.$store.dispatch("clearActiveProject");
   },
   methods: {
-    clockIn() {
+    async clockIn() {
       let timeObj = {
         ProjectId: this.$route.params.projectId,
-        StartTime: Date(),
+        StartTime: moment(),
       };
-      this.$store.dispatch("clockIn", timeObj);
+      await this.$store.dispatch("clockIn", timeObj);
+      this.updatePPSelection();
     },
     clockOut() {
       let currentClock = this.activeProject.TimeClocks.find(
         (t) => t.Current == true
       );
-      currentClock.EndTime = Date();
+      currentClock.EndTime = moment();
       this.$store.dispatch("clockOut", currentClock);
     },
     toggleSettingsBox() {
@@ -170,13 +219,48 @@ export default {
     deleteProject() {
       this.$store.dispatch("deleteProject", this.$route.params.projectId);
     },
+    updatePPSelection() {
+      if (this.payPeriodSelection == "") {
+        let inital = this.activeProject.InvoiceGroups.find((x) => x.Current);
+        let start = moment(inital.StartDay).format("MM/DD/YYYY");
+        let end = moment(inital.EndDay).format("MM/DD/YYYY");
+        this.payPeriodSelection = `${start} - ${end}`;
+      }
+      let split = this.payPeriodSelection.split("-");
+      let start = moment(split[0]);
+      let end = moment(split[1]);
+      debugger;
+      let i = 0;
+      while (i < this.activeProject.InvoiceGroups.length) {
+        let tcg = this.activeProject.InvoiceGroups[i];
+        let boolS = moment(tcg.StartDay).isSameOrAfter(start);
+        let boolE = moment(tcg.EndDay).isSameOrBefore(end);
+        if (boolS && boolE) {
+          this.payPeriodSelection = `${moment(tcg.StartDay).format(
+            "MM/DD/YYYY"
+          )} - ${moment(tcg.EndDay).format("MM/DD/YYYY")}`;
+          debugger;
+          this.payPeriodDisplay = this.timeClockGroups.filter(
+            (tcg) =>
+              moment(tcg.StartTime).isSameOrAfter(moment(tcg.StartDay)) &&
+              moment(tcg.EndTime).isSameOrBefore(tcg.EndDay)
+          );
+          i = this.activeProject.InvoiceGroups.length;
+        } else i++;
+      }
+      // this.payPeriodDisplay = this.timeClockGroups.filter(
+      //   (tcg) =>
+      //     moment(tcg[0].StartTime).isSameOrAfter(start) &&
+      //     moment(tcg[0].EndTime).isSameOrBefore(end)
+      // );
+    },
   },
   computed: {
     activeProject() {
       let proj = { ...this.$store.state.activeProject };
       if (proj.Start) {
         proj.Start = moment(proj.Start).format("MM/DD/YYYY");
-        proj.End = moment(proj.End).subtract(1, "days").format("MM/DD/YYYY");
+        proj.End = moment(proj.End).format("MM/DD/YYYY");
       }
       return proj;
     },
@@ -196,6 +280,44 @@ export default {
         } else return false;
       } else return null;
     },
+    milestoneStart() {
+      if (this.activeProject.TimeClocks.length > 0) {
+        return moment(this.activeProject.TimeClocks[0].StartTime).format(
+          "MM/DD/YYYY"
+        );
+      } else {
+        return moment().format("MM/DD/YYYY");
+      }
+    },
+    milestoneEnd() {
+      if (this.activeProject.TimeClocks.length > 0) {
+        return moment(
+          this.activeProject.TimeClocks[
+            this.activeProject.TimeClocks.length - 1
+          ].StartTime
+        ).format("MM/DD/YYYY");
+      } else {
+        return moment().format("MM/DD/YYYY");
+      }
+    },
+    // payPeriodSorting() {
+    //   let res = ``;
+    //   let proj = { ...this.activeProject };
+    //   if (proj.InvoiceGroups) {
+    //     let i = 0;
+    //     while (i < proj.InvoiceGroups.length) {
+    //       let start = moment(proj.InvoiceGroups[i].StartDay).format(
+    //         "MM/DD/YYYY"
+    //       );
+    //       let end = moment(proj.InvoiceGroups[i].EndDay).format("MM/DD/YYYY");
+    //       if (proj.InvoiceGroups[i].Current) {
+    //         res += `<option selected>${start} - ${end}</option>`;
+    //       } else res += `<option>${start} - ${end}</option>`;
+    //       i++;
+    //     }
+    //   }
+    //   return res;
+    // },
   },
   components: {
     TimeClockGroupComponent,
@@ -204,6 +326,7 @@ export default {
     SalaryComponent,
     MilestoneComponent,
     AddTimeModal,
+    PayPeriodComponent,
   },
 };
 </script>
