@@ -15,7 +15,7 @@
 <script>
 export default {
   name: "SalaryComponent",
-  props: ["project"],
+  props: ["project", "times"],
   data() {
     return {
       estimatedPay: 0,
@@ -23,7 +23,7 @@ export default {
   },
   computed: {
     totalTimes() {
-      let times = this.$store.state.totalProjectTimes;
+      let times = this.times;
       if (times) {
         let total = times.hour;
         total += times.minute / 60;

@@ -11,7 +11,7 @@
 <script>
 export default {
   name: "HourlyComponent",
-  props: ["project"],
+  props: ["project", "times"],
   data() {
     return {
       estimatedPay: 0,
@@ -21,7 +21,7 @@ export default {
   },
   computed: {
     totalTimes() {
-      let times = this.$store.state.totalProjectTimes;
+      let times = this.times;
       if (times > 40) {
         this.OTHours = parseFloat((times - 40).toFixed(2));
         times = 40;

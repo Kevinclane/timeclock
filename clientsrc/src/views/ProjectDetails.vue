@@ -70,6 +70,7 @@
                 v-if="addTimeModal"
                 :project="activeProject"
                 @closeModal="toggleAddTimeModal"
+                @updateView="updatePPSelection"
               />
               <button
                 v-if="!addTimeModal"
@@ -121,14 +122,17 @@
                   <hourly-component
                     v-if="activeProject.PayType == 'Hourly'"
                     :project="activeProject"
+                    :times="totalTimes"
                   />
                   <salary-component
                     v-else-if="activeProject.PayType == 'Salary'"
                     :project="activeProject"
+                    :times="totalTimes"
                   />
                   <milestone-component
                     v-else-if="activeProject.PayPeriod == 'Milestone'"
                     :project="activeProject"
+                    :times="totalTimes"
                   />
                 </div>
               </div>
@@ -229,7 +233,6 @@ export default {
       let split = this.payPeriodSelection.split("-");
       let start = moment(split[0]);
       let end = moment(split[1]);
-      debugger;
       let i = 0;
       //loops over every payPeriod object in InvoiceGroups
       while (i < this.activeProject.InvoiceGroups.length) {
@@ -239,13 +242,10 @@ export default {
         let boolE = moment(IG.EndDay).isSameOrBefore(end);
         if (boolS && boolE) {
           //should set correct timeClockGroups within query dates
-          debugger;
           this.payPeriodDisplay = this.timeClockGroups.filter(
             (tcg) =>
               moment(tcg[0].StartTime).isSameOrAfter(moment(IG.StartDay)) &&
-              moment(tcg[0].EndTime).isSameOrBefore(
-                moment(IG.EndDay).add(1, "day")
-              )
+              moment(tcg[0].EndTime).isBefore(moment(IG.EndDay).add(1, "day"))
           );
           i = this.activeProject.InvoiceGroups.length;
         } else i++;
@@ -270,7 +270,25 @@ export default {
       return this.$store.state.timeClockGroup;
     },
     totalTimes() {
-      return this.$store.state.totalProjectTimes;
+      let groups = [...this.payPeriodDisplay];
+      let times = [];
+      groups.forEach((group) => {
+        let i = 0;
+        while (i < group.length) {
+          times.push(group[i]);
+          i++;
+        }
+      });
+      let i = 0;
+      let total = 0;
+      while (i < times.length && times[i].EndTime) {
+        let timeDiff = moment.duration(
+          moment(times[i].EndTime).diff(moment(times[i].StartTime))
+        );
+        total += parseFloat(timeDiff.asHours());
+        i++;
+      }
+      return total.toFixed(2);
     },
     clockedIn() {
       if (this.activeProject.TimeClocks) {

@@ -141,6 +141,7 @@ export default {
   methods: {
     closeModal() {
       this.$emit("closeModal");
+      this.$emit("updateView");
     },
     addTimeClock(e) {
       e.preventDefault();
