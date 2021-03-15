@@ -231,19 +231,21 @@ export default {
       let end = moment(split[1]);
       debugger;
       let i = 0;
+      //loops over every payPeriod object in InvoiceGroups
       while (i < this.activeProject.InvoiceGroups.length) {
-        let tcg = this.activeProject.InvoiceGroups[i];
-        let boolS = moment(tcg.StartDay).isSameOrAfter(start);
-        let boolE = moment(tcg.EndDay).isSameOrBefore(end);
+        //current payPeriod object being checked
+        let IG = this.activeProject.InvoiceGroups[i];
+        let boolS = moment(IG.StartDay).isSameOrAfter(start);
+        let boolE = moment(IG.EndDay).isSameOrBefore(end);
         if (boolS && boolE) {
-          this.payPeriodSelection = `${moment(tcg.StartDay).format(
-            "MM/DD/YYYY"
-          )} - ${moment(tcg.EndDay).format("MM/DD/YYYY")}`;
+          //should set correct timeClockGroups within query dates
           debugger;
           this.payPeriodDisplay = this.timeClockGroups.filter(
             (tcg) =>
-              moment(tcg.StartTime).isSameOrAfter(moment(tcg.StartDay)) &&
-              moment(tcg.EndTime).isSameOrBefore(tcg.EndDay)
+              moment(tcg[0].StartTime).isSameOrAfter(moment(IG.StartDay)) &&
+              moment(tcg[0].EndTime).isSameOrBefore(
+                moment(IG.EndDay).add(1, "day")
+              )
           );
           i = this.activeProject.InvoiceGroups.length;
         } else i++;
