@@ -152,6 +152,7 @@ export default new Vuex.Store({
     async clockOut({ commit, dispatch }, obj) {
       try {
         let res = await api.put("/timeclock/" + obj.id + "/out", obj)
+        //for some reason, clocking out will set an object as the timeclock's endTime
         commit("updateTimeClock", res.data)
         dispatch("groupTimeClocks")
         dispatch("totalProjectTimes")

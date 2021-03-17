@@ -1,5 +1,10 @@
 <template>
-  <div class="container card mt-3 text-light border-primary">
+  <div v-if="loading">
+    <div class="spinner-border text-primary mt-5" role="status">
+      <span class="visually-hidden"></span>
+    </div>
+  </div>
+  <div v-else class="container card mt-3 text-light border-primary">
     <i
       class="fas fa-cog settings-icon"
       type="button"
@@ -117,12 +122,20 @@
             </div>
             <div class="container my-2">
               <div class="row bg-primary text-white rounded-top">
-                <div class="col-12">Estimated Pay</div>
+                <div v-if="activeProject.PayType == 'Hourly'" class="col-6">
+                  <input v-model="OTEnabled" type="checkbox" />
+                  Overtime
+                </div>
+                <div v-if="activeProject.PayType == 'Hourly'" class="col-6">
+                  Estimated Pay
+                </div>
+                <div v-else class="col-12">Estimated Pay</div>
                 <div class="col-12 bg-light rounded-bottom">
                   <hourly-component
                     v-if="activeProject.PayType == 'Hourly'"
                     :project="activeProject"
                     :times="totalTimes"
+                    :OTEnabled="OTEnabled"
                   />
                   <salary-component
                     v-else-if="activeProject.PayType == 'Salary'"
@@ -181,6 +194,8 @@ export default {
       addTimeModal: false,
       payPeriodSelection: "",
       payPeriodDisplay: [],
+      loading: true,
+      OTEnabled: true,
     };
   },
   async mounted() {
@@ -191,6 +206,7 @@ export default {
     if (this.activeProject.InvoiceGroups) {
       this.updatePPSelection();
     }
+    this.loading = false;
   },
   beforeDestroy() {
     this.$store.dispatch("clearActiveProject");

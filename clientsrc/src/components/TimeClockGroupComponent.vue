@@ -1,8 +1,6 @@
 <template>
   <div class="row border-times bg-secondary text-white m-2">
-    <div
-      class="col-12 d-flex justify-content-center align-items-center bg-cstm-blue"
-    >
+    <div class="col-12 center-center bg-cstm-blue">
       {{ day }}
     </div>
     <div class="col-lg-8 col-12">

@@ -105,4 +105,12 @@ select {
 .btn-green {
   background-color: green;
 }
+.center-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.vw100 {
+  width: 100vw;
+}
 </style>

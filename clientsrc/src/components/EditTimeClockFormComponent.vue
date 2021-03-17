@@ -7,9 +7,7 @@
     ></i>
     <form @submit="updateTimeClock">
       <div class="row">
-        <div
-          class="col-12 d-flex justify-content-center align-items-center my-1"
-        >
+        <div class="col-12 center-center my-1">
           <input
             class="mx-w-50"
             type="number"
@@ -48,9 +46,7 @@
             <option value="PM">PM</option>
           </select>
         </div>
-        <div
-          class="col-12 d-flex justify-content-center align-items-center my-1"
-        >
+        <div class="col-12 center-center my-1">
           <input
             class="mx-w-50"
             type="number"

@@ -1,10 +1,6 @@
 <template>
   <div class="row border-times bg-secondary text-white m-2">
-    <div
-      class="col-12 d-flex justify-content-center align-items-center bg-cstm-blue"
-    >
-      New Time
-    </div>
+    <div class="col-12 center-center bg-cstm-blue">New Time</div>
     <form @submit="addTimeClock">
       <div class="row my-2">
         <div class="col-lg-4 col-12 dynamic-time-title">

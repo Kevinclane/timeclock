@@ -11,7 +11,7 @@
 <script>
 export default {
   name: "HourlyComponent",
-  props: ["project", "times"],
+  props: ["project", "times", "OTEnabled"],
   data() {
     return {
       estimatedPay: 0,
@@ -22,16 +22,14 @@ export default {
   computed: {
     totalTimes() {
       let times = this.times;
-      if (times > 40) {
+      if (times > 40 && OTEnabled) {
         this.OTHours = parseFloat((times - 40).toFixed(2));
         times = 40;
         this.OTRate = parseFloat((this.project.Rate * 1.5).toFixed(2));
-        this.estimatedPay += parseFloat(
-          (this.OTHours * this.OTRate).toFixed(2)
-        );
+        this.estimatedPay = parseFloat((this.OTHours * this.OTRate).toFixed(2));
         this.estimatedPay += parseFloat((40 * this.project.Rate).toFixed(2));
       } else {
-        this.estimatedPay += parseFloat((times * this.project.Rate).toFixed(2));
+        this.estimatedPay = parseFloat((times * this.project.Rate).toFixed(2));
       }
       return times;
     },

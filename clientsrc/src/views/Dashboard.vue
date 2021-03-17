@@ -1,5 +1,10 @@
 <template>
-  <div class="container">
+  <div v-if="loading">
+    <div class="spinner-border text-primary mt-5" role="status">
+      <span class="visually-hidden"></span>
+    </div>
+  </div>
+  <div v-else class="container">
     <div class="row my-3">
       <div class="col">
         <!--PROJECT MODAL-->
@@ -14,7 +19,6 @@
         class="col-lg-4 col-md-5 col-10 offset-1 offset-md-0 offset-lg-0 mb-2"
       >
         <div
-          v-if="loaded"
           class="card border-primary mb-3 text-light project-card card-height d-flex justify-content-center"
           type="button"
           @click="toggleProjectForm"
@@ -39,12 +43,12 @@ export default {
   data() {
     return {
       showProjectForm: false,
-      loaded: false,
+      loading: true,
     };
   },
   async mounted() {
     await this.$store.dispatch("getProjects");
-    this.loaded = true;
+    this.loading = false;
   },
   beforeDestroy() {
     this.$store.dispatch("clearProjects");
