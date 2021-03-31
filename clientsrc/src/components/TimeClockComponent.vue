@@ -43,7 +43,6 @@ export default {
     if (!this.timeClock.EndTime) {
       this.startLiveClock();
     }
-    // this.makeDatesLocal();
   },
   methods: {
     toggleEditForm() {
@@ -77,22 +76,6 @@ export default {
           }
         }
       }, 1000);
-    },
-    makeDatesLocal() {
-      // debugger;
-      let SZ = this.timeClock.StartTime[this.timeClock.StartTime.length - 1];
-      let EZ = "";
-      if (this.timeClock.EndTime) {
-        EZ = this.timeClock.EndTime[this.timeClock.EndTime.length - 1];
-      }
-      if (SZ == "Z") {
-        this.timeClock.StartTime = moment(
-          this.timeClock.StartTime.slice(0, -1)
-        );
-      }
-      if (EZ == "Z") {
-        this.timeClock.EndTime = moment(this.timeClock.EndTime.slice(0, -1));
-      }
     },
   },
   computed: {

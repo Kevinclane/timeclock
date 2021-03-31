@@ -1,5 +1,5 @@
 {
-  "name": "kanban",
+  "name": "timeclock",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,7 +9,7 @@
     "dev": "node index.js",
     "setup": "npm install"
   },
-  "author": "Codeworks",
+  "author": "Kevin Lane",
   "license": "ISC",
   "dependencies": {
     "@bcwdev/auth0provider": "^0.0.6",

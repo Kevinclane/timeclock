@@ -184,6 +184,7 @@ import MilestoneComponent from "../components/PayCalcComponents/MilestoneCompone
 import EditProjectComponent from "../components/EditProjectFormComponent.vue";
 import PayPeriodComponent from "../components/PayPeriodComponent.vue";
 import AddTimeModal from "../components/AddTimeModal.vue";
+import swal from "sweetalert";
 import moment from "moment";
 export default {
   name: "ProjectDetails",
@@ -237,7 +238,21 @@ export default {
       this.addTimeModal = !this.addTimeModal;
     },
     deleteProject() {
-      this.$store.dispatch("deleteProject", this.$route.params.projectId);
+      swal({
+        title: "Are you sure?",
+        text: "Once deleted, this data will be gone forever.",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      }).then((willDelete) => {
+        if (willDelete) {
+          swal("This project has been deleted!", {
+            icon: "green",
+          });
+          this.$store.dispatch("deleteProject", this.$route.params.projectId);
+          this.$emit("closeModal");
+        }
+      });
     },
     updatePPSelection() {
       if (this.payPeriodSelection == "") {

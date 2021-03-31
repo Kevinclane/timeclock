@@ -49,7 +49,7 @@ export default {
 
 <style scoped>
 .bgimg {
-  background-image: url("../assets/clockMechanics.jpg");
+  background-image: url("../assets/clockMechanics2.jpg");
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
