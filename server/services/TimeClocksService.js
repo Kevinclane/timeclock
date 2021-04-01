@@ -7,7 +7,8 @@ class TimeClocksService {
       CreatorEmail: email,
       ProjectId: id
     })
-    return data
+    let sortedArr = data.sort((a, b) => a.StartTime - b.StartTime)
+    return sortedArr
   }
   async createTimeClock(rawData) {
     let data = await dbContext.TimeClock.create(rawData)

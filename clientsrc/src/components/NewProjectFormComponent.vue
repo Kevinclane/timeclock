@@ -9,28 +9,6 @@
                 >Special characters allowed: {{ charsAllowed.chars }}</span
               ></i
             >
-            Project Name:
-          </div>
-          <div class="col-6 d-flex">
-            <input
-              v-model="newProjectForm.Title"
-              type="text"
-              name="Title"
-              id="Title"
-              maxlength="50"
-              required
-            />
-          </div>
-        </div>
-      </div>
-      <div class="col-12 my-1">
-        <div class="row">
-          <div class="col-4 bold d-flex flex-end">
-            <i class="fas fa-exclamation-triangle mr-1 coco"
-              ><span class="tooltiptext"
-                >Special characters allowed: {{ charsAllowed.chars }}</span
-              ></i
-            >
             Invoice Target:
           </div>
           <div class="col-6 d-flex">
@@ -226,7 +204,11 @@
 
       <!--END SALARY OPTIONS-->
 
-      <button class="btn btn-danger btn-cancel" @click="closeModal">
+      <button
+        class="btn btn-danger btn-cancel"
+        type="button"
+        @click="closeModal"
+      >
         Cancel
       </button>
       <button type="submit" class="btn btn-green btn-submit">Add</button>
@@ -242,7 +224,6 @@ export default {
   data() {
     return {
       newProjectForm: {
-        Title: "", //req
         Payee: "", //req
         PayPeriod: "", //req
         PayType: "",
@@ -306,7 +287,6 @@ export default {
         this.newProjectForm.Rate = parseInt(this.newProjectForm.Rate);
         this.$store.dispatch("createProject", { ...this.newProjectForm });
         this.newProjectForm = {
-          Title: "",
           Payee: "",
           PayPeriod: "",
           PayType: "",

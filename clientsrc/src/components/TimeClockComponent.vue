@@ -1,27 +1,37 @@
 <template>
-  <div class="row">
+  <div class="row d-flex align-items-center my-2">
     <div class="col-1">
       <span
-        ><i class="fas fa-edit" type="button" @click="toggleEditForm"></i
+        ><i
+          class="fas fa-edit"
+          type="button"
+          :hidden="canEdit"
+          @click="toggleEditForm"
+        ></i
       ></span>
     </div>
-    <div class="col-6">
+    <div class="col-lg-4 col-6 order-1 order-lg-1">
       <span>{{ Start }} -</span>
       <span v-if="timeClock.EndTime">{{ End }}</span>
     </div>
-    <div v-if="showEditForm" class="editForm bg-light container">
-      <edit-time-clock-form-component
-        :timeClock="timeClock"
-        @closeModal="toggleEditForm"
-      />
+    <div class="col-lg-4 col-12 order-3 order-lg-2">
+      {{ timeClock.Service }}
     </div>
-    <div v-if="timeClock.EndTime" class="col-4">{{ Total }} Hours</div>
-    <div v-else class="col-4">
+    <div v-if="timeClock.EndTime" class="col-lg-3 col-4 order-2 order-lg-3">
+      {{ Total }} Hours
+    </div>
+    <div v-else class="col-lg-3 col-4 order-2 order-lg-3">
       {{ currentTimer.hour }}:
       <span v-if="currentTimer.minute < 10" class="mr-neg-4">0</span>
       {{ currentTimer.minute }}:
       <span v-if="currentTimer.second < 10" class="mr-neg-4">0</span>
       {{ currentTimer.second }}
+    </div>
+    <div v-if="showEditForm" class="editForm bg-light container order-4">
+      <edit-time-clock-form-component
+        :timeClock="timeClock"
+        @closeModal="toggleEditForm"
+      />
     </div>
   </div>
 </template>
@@ -92,6 +102,11 @@ export default {
         );
         return timeDiff.asHours().toFixed(2);
       }
+    },
+    canEdit() {
+      if (this.timeClock.EndTime) {
+        return false;
+      } else return true;
     },
   },
   components: {

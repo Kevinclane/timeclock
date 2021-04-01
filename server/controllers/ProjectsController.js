@@ -24,8 +24,12 @@ export class ProjectsController extends BaseController {
       let i = 0
       while (i < data.length) {
         data[i].TimeClocks = await timeClocksService.getTimeClocks(req.userInfo.email, data[i]._id)
+        if (data[i].PayPeriod != 'Milestone') {
+          data[i].InvoiceGroups = await payPeriodsService.getPayPeriods(req.userInfo.email, data[i])
+        }
         i++
       }
+
       res.status(200).send(data);
     } catch (error) {
       next(error);

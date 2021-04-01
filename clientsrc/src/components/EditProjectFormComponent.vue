@@ -9,28 +9,6 @@
                 >Special characters allowed: {{ charsAllowed.chars }}</span
               ></i
             >
-            Project Name:
-          </div>
-          <div class="col-6 d-flex">
-            <input
-              v-model="project.Title"
-              type="text"
-              name="Title"
-              id="Title"
-              maxlength="50"
-              required
-            />
-          </div>
-        </div>
-      </div>
-      <div class="col-12 my-1">
-        <div class="row">
-          <div class="col-4 bold d-flex flex-end">
-            <i class="fas fa-exclamation-triangle mr-1 coco"
-              ><span class="tooltiptext"
-                >Special characters allowed: {{ charsAllowed.chars }}</span
-              ></i
-            >
             Invoice Target:
           </div>
           <div class="col-6 d-flex">

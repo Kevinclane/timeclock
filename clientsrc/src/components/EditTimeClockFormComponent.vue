@@ -5,7 +5,7 @@
       type="button"
       @click="deleteTimeClock"
     ></i>
-    <form @submit="updateTimeClock">
+    <form @submit="updateTimeClock" class="mt-2">
       <div class="row">
         <div class="col-12 center-center my-1">
           <input
@@ -45,6 +45,14 @@
             <option value="AM" selected>AM</option>
             <option value="PM">PM</option>
           </select>
+          <input
+            class="h-100 ml-1 w-25"
+            type="date"
+            name="StartDay"
+            id="StartDay"
+            v-model="editedTime.startDay"
+            required
+          />
         </div>
         <div class="col-12 center-center my-1">
           <input
@@ -83,6 +91,24 @@
             <option value="AM" selected>AM</option>
             <option value="PM">PM</option>
           </select>
+          <input
+            class="h-100 ml-1 w-25"
+            type="date"
+            name="EndDay"
+            id="EndDay"
+            v-model="editedTime.endDay"
+            required
+          />
+        </div>
+        <div class="col-12 d-flex justify-content-center">
+          <input
+            type="text"
+            name="Service"
+            id="Service"
+            v-model="editedTime.service"
+            placeholder="Service Provided"
+            required
+          />
         </div>
         <div class="col-12 d-flex justify-content-between">
           <button
@@ -105,37 +131,47 @@ import swal from "sweetalert";
 export default {
   name: "EditTimeClockFormComponent",
   props: ["timeClock"],
+  mounted() {
+    this.editedTime = {};
+  },
   data() {
     return {
       editedTime: {
         startHour: "",
         startMinute: "",
         startAMPM: "",
+        startDay: "",
         endHour: "",
         endMinute: "",
         endAMPM: "",
+        endDay: "",
+        service: "",
       },
     };
   },
   methods: {
     updateTimeClock(e) {
       e.preventDefault();
-      let date = moment(this.timeClock.StartTime).format("MM-DD-YYYY");
       let startTimeString =
+        this.editedTime.startDay +
+        " " +
         this.editedTime.startHour +
         ":" +
         this.editedTime.startMinute +
         " " +
         this.editedTime.startAMPM;
       let endTimeString =
+        this.editedTime.endDay +
+        " " +
         this.editedTime.endHour +
         ":" +
         this.editedTime.endMinute +
         " " +
         this.editedTime.endAMPM;
       let newTimeClock = { ...this.timeClock };
-      newTimeClock.StartTime = moment(date + " " + startTimeString);
-      newTimeClock.EndTime = moment(date + " " + endTimeString);
+      newTimeClock.StartTime = moment(startTimeString);
+      newTimeClock.EndTime = moment(endTimeString);
+      newTimeClock.Service = editedTime.service;
       this.$store.dispatch("updateTimeClock", newTimeClock);
       this.$emit("closeModal");
     },

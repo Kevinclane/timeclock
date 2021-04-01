@@ -136,6 +136,10 @@ export default new Vuex.Store({
       }
     },
 
+    async getProjectCardDetails({ commit }, projects) {
+
+    },
+
     //#endregion -- END PROJECT STUFF --
 
     //#region  -- TIME CLOCK STUFF --

@@ -22,16 +22,24 @@
       </button>
     </div>
 
+    <!--CLOCKIN MODAL-->
+    <div v-if="showClockInForm" class="backdrop">
+      <clock-in-modal
+        class="modal-content container"
+        @closeModal="toggleClockInForm"
+        @clockIn="clockIn"
+        :services="services"
+      />
+    </div>
+    <!--END CLOCKIN MODAL-->
+
     <div v-if="editProject" class="container modal-content">
       <edit-project-component @closeModal="toggleProjectEditor" />
     </div>
 
     <div class="row">
-      <div class="col-12 bg-secondary">
-        <h1 class="">{{ activeProject.Title }}</h1>
-      </div>
-      <div class="col-12">
-        <h2>{{ activeProject.Payee }}</h2>
+      <div class="col-12 bg-secondary pt5-sm">
+        <h1>{{ activeProject.Payee }}</h1>
       </div>
     </div>
     <div class="container">
@@ -166,7 +174,11 @@
     </div>
 
     <div class="col-12 d-flex flex-end">
-      <button v-if="!clockedIn" @click="clockIn" class="btn btn-green m-2">
+      <button
+        v-if="!clockedIn"
+        @click="toggleClockInForm"
+        class="btn btn-green m-2"
+      >
         Clock-In
       </button>
       <button v-else @click="clockOut" class="btn btn-danger m-2">
@@ -184,6 +196,7 @@ import MilestoneComponent from "../components/PayCalcComponents/MilestoneCompone
 import EditProjectComponent from "../components/EditProjectFormComponent.vue";
 import PayPeriodComponent from "../components/PayPeriodComponent.vue";
 import AddTimeModal from "../components/AddTimeModal.vue";
+import ClockInModal from "../components/ClockInModal.vue";
 import swal from "sweetalert";
 import moment from "moment";
 export default {
@@ -191,6 +204,7 @@ export default {
   data() {
     return {
       showSettingsBox: false,
+      showClockInForm: false,
       editProject: false,
       addTimeModal: false,
       payPeriodSelection: "",
@@ -214,11 +228,7 @@ export default {
   },
   methods: {
     async clockIn() {
-      let timeObj = {
-        ProjectId: this.$route.params.projectId,
-        StartTime: moment(),
-      };
-      await this.$store.dispatch("clockIn", timeObj);
+      this.showClockInForm = false;
       this.updatePPSelection();
     },
     clockOut() {
@@ -236,6 +246,9 @@ export default {
     },
     toggleAddTimeModal() {
       this.addTimeModal = !this.addTimeModal;
+    },
+    toggleClockInForm() {
+      this.showClockInForm = !this.showClockInForm;
     },
     deleteProject() {
       swal({
@@ -369,6 +382,25 @@ export default {
     //   }
     //   return res;
     // },
+    services() {
+      let timeClocks = [...this.activeProject.TimeClocks];
+      if (timeClocks.length > 0) {
+        let services = [];
+        services.push(timeClocks[0].Service);
+        timeClocks.splice(0, 1);
+        let i = 0;
+        while (i < timeClocks.length) {
+          let douplicateCheck = services.find(
+            (tc) => tc.Service == timeClocks[i].Service
+          );
+          if (!douplicateCheck) {
+            services.push(timeClocks[i].Service);
+          }
+          i++;
+        }
+        return services;
+      } else return [];
+    },
   },
   components: {
     TimeClockGroupComponent,
@@ -378,10 +410,19 @@ export default {
     MilestoneComponent,
     AddTimeModal,
     PayPeriodComponent,
+    ClockInModal,
   },
 };
 </script>
 <style scoped>
+.pt5-sm {
+  padding-top: inherit;
+}
+@media screen and (max-width: 768px) {
+  .pt5-sm {
+    padding-top: 2.5rem;
+  }
+}
 .hide-mobile {
   visibility: visible;
 }
@@ -442,5 +483,14 @@ li {
   .modal-content {
     max-width: 40vw;
   }
+}
+.backdrop {
+  background-color: rgba(0, 0, 0, 0.3);
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
 }
 </style>

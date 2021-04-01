@@ -8,8 +8,11 @@
     <div class="row my-3">
       <div class="col">
         <!--PROJECT MODAL-->
-        <div v-if="showProjectForm" class="modal-content container">
-          <new-project-form-component @closeModal="toggleProjectForm" />
+        <div v-if="showProjectForm" class="backdrop">
+          <new-project-form-component
+            class="modal-content container"
+            @closeModal="toggleProjectForm"
+          />
         </div>
         <!--END PROJECT MODAL-->
       </div>
@@ -36,6 +39,7 @@
 </template>
 
 <script>
+import ClockInModal from "../components/ClockInModal.vue";
 import NewProjectFormComponent from "../components/NewProjectFormComponent.vue";
 import Project from "../components/ProjectCardComponent.vue";
 export default {
@@ -48,6 +52,9 @@ export default {
   },
   async mounted() {
     await this.$store.dispatch("getProjects");
+    if (this.projects.length > 0) {
+      this.$store.dispatch("getProjectCardDetails", this.projects);
+    }
     this.loading = false;
   },
   beforeDestroy() {
@@ -66,7 +73,7 @@ export default {
       return this.$store.state.timeClocks;
     },
   },
-  components: { NewProjectFormComponent, Project },
+  components: { NewProjectFormComponent, Project, ClockInModal },
 };
 </script>
 <style scoped>
@@ -81,6 +88,15 @@ export default {
   background-color: rgba(171, 180, 187, 0.95);
   max-height: 80vh;
   max-width: 80vw;
+}
+.backdrop {
+  background-color: rgba(0, 0, 0, 0.3);
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
 }
 @media screen and (min-width: 992px) {
   .modal-content {

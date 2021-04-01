@@ -5,7 +5,7 @@
 import moment from "moment";
 export default {
   name: "PayPeriodComponent",
-  props: ["payPeriod", "index"],
+  props: ["payPeriod"],
   computed: {
     Start() {
       return moment(this.payPeriod.StartDay).format("MM/DD/YYYY");

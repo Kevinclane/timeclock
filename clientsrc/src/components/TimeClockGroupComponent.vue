@@ -3,7 +3,7 @@
     <div class="col-12 center-center bg-cstm-blue">
       {{ day }}
     </div>
-    <div class="col-lg-8 col-12">
+    <div class="col-lg-10 col-12">
       <time-clock-component
         v-for="(timeClock, index) in timeClocks"
         :key="`timeClock-${index}`"
@@ -11,7 +11,7 @@
       />
     </div>
     <div
-      class="col-lg-4 col-12 d-flex justify-content-center flex-column border-left-green"
+      class="col-lg-2 col-12 d-flex justify-content-center flex-column border-left-green"
     >
       <div>{{ dayTotalHours }} Hours</div>
     </div>

@@ -5,7 +5,6 @@ let ObjectId = Schema.Types.ObjectId;
 const Project = new Schema(
   {
     CreatorEmail: { type: String, lowercase: true },
-    Title: { type: String, required: true },
     Payee: { type: String, required: true },
     PayPeriod: { type: String, required: true },
     PayType: { type: String },

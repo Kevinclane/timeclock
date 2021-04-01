@@ -4,9 +4,8 @@
       :to="{ name: 'projectDetails', params: { projectId: project.id } }"
     >
       <div class="card border-primary mb-3 text-light project-card card-height">
-        <div class="card-header">{{ project.Title }}</div>
+        <div class="card-header">{{ project.Payee }}</div>
         <div class="card-body">
-          <h4 class="card-title">{{ project.Payee }}</h4>
           <p class="card-text">Last Day Worked</p>
           <p class="card-text">Total Hours</p>
           <p class="card-text">Hours this pay period</p>
@@ -20,6 +19,14 @@
 export default {
   name: "ProjectCardComponent",
   props: ["project"],
+  computed: {
+    LastDayWorked() {
+      if (this.project.TimeClocks == 0) {
+        return "Not Started";
+      } else {
+      }
+    },
+  },
 };
 </script>
 
