@@ -364,24 +364,6 @@ export default {
         return moment().format("MM/DD/YYYY");
       }
     },
-    // payPeriodSorting() {
-    //   let res = ``;
-    //   let proj = { ...this.activeProject };
-    //   if (proj.InvoiceGroups) {
-    //     let i = 0;
-    //     while (i < proj.InvoiceGroups.length) {
-    //       let start = moment(proj.InvoiceGroups[i].StartDay).format(
-    //         "MM/DD/YYYY"
-    //       );
-    //       let end = moment(proj.InvoiceGroups[i].EndDay).format("MM/DD/YYYY");
-    //       if (proj.InvoiceGroups[i].Current) {
-    //         res += `<option selected>${start} - ${end}</option>`;
-    //       } else res += `<option>${start} - ${end}</option>`;
-    //       i++;
-    //     }
-    //   }
-    //   return res;
-    // },
     services() {
       let timeClocks = [...this.activeProject.TimeClocks];
       if (timeClocks.length > 0) {

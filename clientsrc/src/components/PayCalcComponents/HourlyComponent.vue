@@ -1,7 +1,7 @@
 <template>
   <div class="row bg-secondary text-white border-times m-2">
     <div class="col-12">{{ totalTimes }} Hours at ${{ project.Rate }}/hr</div>
-    <div class="col-12" v-if="OTHours > 0">
+    <div class="col-12" v-if="OTHours > 0 && OTEnabled">
       {{ OTHours }} Hours at ${{ OTRate }}/hr
     </div>
     <h3 class="col-12 my-2">${{ estimatedPay }}</h3>
@@ -22,7 +22,7 @@ export default {
   computed: {
     totalTimes() {
       let times = this.times;
-      if (times > 40 && OTEnabled) {
+      if (times > 40 && this.OTEnabled) {
         this.OTHours = parseFloat((times - 40).toFixed(2));
         times = 40;
         this.OTRate = parseFloat((this.project.Rate * 1.5).toFixed(2));

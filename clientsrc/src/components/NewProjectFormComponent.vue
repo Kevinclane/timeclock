@@ -315,7 +315,6 @@ export default {
       this.$emit("closeModal");
     },
     trimWhiteSpace() {
-      this.newProjectForm.Title = this.newProjectForm.Title.trim();
       this.newProjectForm.Payee = this.newProjectForm.Payee.trim();
       if (typeof this.newProjectForm.Rate == "number") {
         this.newProjectForm.Rate = parseInt(
@@ -326,10 +325,6 @@ export default {
       }
     },
     characterCheck() {
-      this.newProjectForm.Title = this.newProjectForm.Title.replace(
-        /[&\/\\#,+()$~%.":*?<>{}]/g,
-        ""
-      );
       this.newProjectForm.Payee = this.newProjectForm.Payee.replace(
         /[&\/\\#,+()$~%.":*?<>{}]/g,
         ""
