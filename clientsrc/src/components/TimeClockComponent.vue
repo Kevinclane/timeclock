@@ -15,7 +15,7 @@
       <span v-if="timeClock.EndTime">{{ End }}</span>
     </div>
     <div class="col-lg-4 col-12 order-3 order-lg-2">
-      {{ timeClock.Service }}
+      {{ timeClock.Comment }}
     </div>
     <div v-if="timeClock.EndTime" class="col-lg-3 col-4 order-2 order-lg-3">
       {{ Total }} Hours

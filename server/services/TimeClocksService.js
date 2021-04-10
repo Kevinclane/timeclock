@@ -36,7 +36,8 @@ class TimeClocksService {
       },
       {
         EndTime: updateInfo.EndTime,
-        Current: false
+        Current: false,
+        Comment: updateInfo.Comment
       },
       {
         new: true

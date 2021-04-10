@@ -9,7 +9,7 @@
       <div class="col">
         <!--PROJECT MODAL-->
         <div v-if="showProjectForm" class="backdrop">
-          <new-project-form-component
+          <new-project-form-modal
             class="modal-content container"
             @closeModal="toggleProjectForm"
           />
@@ -39,8 +39,7 @@
 </template>
 
 <script>
-import ClockInModal from "../components/ClockInModal.vue";
-import NewProjectFormComponent from "../components/NewProjectFormComponent.vue";
+import NewProjectFormModal from "../components/modals/NewProjectFormModal.vue";
 import Project from "../components/ProjectCardComponent.vue";
 export default {
   name: "Dashboard",
@@ -73,7 +72,7 @@ export default {
       return this.$store.state.timeClocks;
     },
   },
-  components: { NewProjectFormComponent, Project, ClockInModal },
+  components: { NewProjectFormModal, Project },
 };
 </script>
 <style scoped>

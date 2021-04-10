@@ -22,19 +22,19 @@
       </button>
     </div>
 
-    <!--CLOCKIN MODAL-->
-    <div v-if="showClockInForm" class="backdrop">
+    <!--CLOCKOUT MODAL-->
+    <div v-if="showClockOutForm" class="backdrop">
       <clock-in-modal
         class="modal-content container"
-        @closeModal="toggleClockInForm"
-        @clockIn="clockIn"
-        :services="services"
+        @closeModal="toggleClockOutForm"
+        @clockOut="clockOut"
+        :timeClock="activeTimeClock"
       />
     </div>
-    <!--END CLOCKIN MODAL-->
+    <!--END CLOCKOUT MODAL-->
 
     <div v-if="editProject" class="container modal-content">
-      <edit-project-component @closeModal="toggleProjectEditor" />
+      <edit-project-form-modal @closeModal="toggleProjectEditor" />
     </div>
 
     <div class="row">
@@ -79,7 +79,7 @@
                 :key="`timeClockGroup-${index}`"
                 :timeClocks="payPeriodDisplay[index]"
               />
-              <add-time-modal
+              <add-time-component
                 v-if="addTimeModal"
                 :project="activeProject"
                 @closeModal="toggleAddTimeModal"
@@ -174,14 +174,10 @@
     </div>
 
     <div class="col-12 d-flex flex-end">
-      <button
-        v-if="!clockedIn"
-        @click="toggleClockInForm"
-        class="btn btn-green m-2"
-      >
+      <button v-if="!clockedIn" @click="clockIn" class="btn btn-green m-2">
         Clock-In
       </button>
-      <button v-else @click="clockOut" class="btn btn-danger m-2">
+      <button v-else @click="toggleClockOutForm" class="btn btn-danger m-2">
         Clock-Out
       </button>
     </div>
@@ -193,10 +189,10 @@ import TimeClockGroupComponent from "../components/TimeClockGroupComponent.vue";
 import HourlyComponent from "../components/PayCalcComponents/HourlyComponent.vue";
 import SalaryComponent from "../components/PayCalcComponents/SalaryComponent.vue";
 import MilestoneComponent from "../components/PayCalcComponents/MilestoneComponent.vue";
-import EditProjectComponent from "../components/EditProjectFormComponent.vue";
+import EditProjectFormModal from "../components/modals/EditProjectFormModal.vue";
 import PayPeriodComponent from "../components/PayPeriodComponent.vue";
-import AddTimeModal from "../components/AddTimeModal.vue";
-import ClockInModal from "../components/ClockInModal.vue";
+import ClockInModal from "../components/modals/TimeClockCommentModal.vue";
+import AddTimeComponent from "../components/AddTimeComponent.vue";
 import swal from "sweetalert";
 import moment from "moment";
 export default {
@@ -204,7 +200,7 @@ export default {
   data() {
     return {
       showSettingsBox: false,
-      showClockInForm: false,
+      showClockOutForm: false,
       editProject: false,
       addTimeModal: false,
       payPeriodSelection: "",
@@ -228,15 +224,16 @@ export default {
   },
   methods: {
     async clockIn() {
-      this.showClockInForm = false;
+      let timeObj = {
+        ProjectId: this.$route.params.projectId,
+        StartTime: moment(),
+      };
+      await this.$store.dispatch("clockIn", timeObj);
       this.updatePPSelection();
     },
     clockOut() {
-      let currentClock = this.activeProject.TimeClocks.find(
-        (t) => t.Current == true
-      );
-      currentClock.EndTime = moment();
-      this.$store.dispatch("clockOut", currentClock);
+      this.toggleClockOutForm();
+      this.updatePPSelection();
     },
     toggleSettingsBox() {
       this.showSettingsBox = !this.showSettingsBox;
@@ -247,8 +244,8 @@ export default {
     toggleAddTimeModal() {
       this.addTimeModal = !this.addTimeModal;
     },
-    toggleClockInForm() {
-      this.showClockInForm = !this.showClockInForm;
+    toggleClockOutForm() {
+      this.showClockOutForm = !this.showClockOutForm;
     },
     deleteProject() {
       swal({
@@ -310,6 +307,12 @@ export default {
       }
       return proj;
     },
+    activeTimeClock() {
+      let currentClock = this.activeProject.TimeClocks.find(
+        (t) => t.Current == true
+      );
+      return currentClock;
+    },
     timeClockGroups() {
       return this.$store.state.timeClockGroup;
     },
@@ -364,38 +367,21 @@ export default {
         return moment().format("MM/DD/YYYY");
       }
     },
-    services() {
-      let timeClocks = [...this.activeProject.TimeClocks];
-      if (timeClocks.length > 0) {
-        let services = [];
-        services.push(timeClocks[0].Service);
-        timeClocks.splice(0, 1);
-        let i = 0;
-        while (i < timeClocks.length) {
-          let douplicateCheck = services.find(
-            (tc) => tc.Service == timeClocks[i].Service
-          );
-          if (!douplicateCheck) {
-            services.push(timeClocks[i].Service);
-          }
-          i++;
-        }
-        return services;
-      } else return [];
-    },
   },
   components: {
     TimeClockGroupComponent,
     HourlyComponent,
-    EditProjectComponent,
+    EditProjectFormModal,
     SalaryComponent,
     MilestoneComponent,
-    AddTimeModal,
+    AddTimeComponent,
     PayPeriodComponent,
     ClockInModal,
   },
 };
 </script>
+
+
 <style scoped>
 .pt5-sm {
   padding-top: inherit;

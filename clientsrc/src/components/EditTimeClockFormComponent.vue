@@ -101,14 +101,14 @@
           />
         </div>
         <div class="col-12 d-flex justify-content-center">
-          <input
-            type="text"
-            name="Service"
-            id="Service"
-            v-model="editedTime.service"
-            placeholder="Service Provided"
+          <textarea
+            name="comments"
+            cols="50"
+            rows="10"
+            v-model="editedTime.comment"
+            placeholder="Comments"
             required
-          />
+          ></textarea>
         </div>
         <div class="col-12 d-flex justify-content-between">
           <button
@@ -145,7 +145,7 @@ export default {
         endMinute: "",
         endAMPM: "",
         endDay: "",
-        service: "",
+        comment: "",
       },
     };
   },
@@ -171,7 +171,7 @@ export default {
       let newTimeClock = { ...this.timeClock };
       newTimeClock.StartTime = moment(startTimeString);
       newTimeClock.EndTime = moment(endTimeString);
-      newTimeClock.Service = editedTime.service;
+      newTimeClock.Comment = editedTime.comment;
       this.$store.dispatch("updateTimeClock", newTimeClock);
       this.$emit("closeModal");
     },
