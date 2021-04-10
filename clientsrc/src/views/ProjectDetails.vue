@@ -55,9 +55,6 @@
                 v-model="payPeriodSelection"
                 class="p-1 my-2"
               >
-                <!-- {{
-                  payPeriodSorting
-                }} -->
                 <pay-period-component
                   v-for="PayPeriod in activeProject.InvoiceGroups"
                   :key="PayPeriod.id"
@@ -80,15 +77,14 @@
                 :timeClocks="payPeriodDisplay[index]"
               />
               <add-time-component
-                v-if="addTimeModal"
+                v-if="showAddTimeComp"
                 :project="activeProject"
-                @closeModal="toggleAddTimeModal"
-                @updateView="updatePPSelection"
+                @addTimeClock="addTimeClock"
               />
               <button
-                v-if="!addTimeModal"
+                v-if="!showAddTimeComp"
                 class="btn btn-green m-2"
-                @click="toggleAddTimeModal"
+                @click="toggleShowAddTimeComp"
               >
                 Add Time
               </button>
@@ -99,15 +95,15 @@
                 :key="`timeClockGroup-${index}`"
                 :timeClocks="timeClockGroups[index]"
               />
-              <add-time-modal
-                v-if="addTimeModal"
+              <add-time-component
+                v-if="showAddTimeComp"
                 :project="activeProject"
-                @closeModal="toggleAddTimeModal"
+                @addTimeClock="addTimeClock"
               />
               <button
-                v-if="!addTimeModal"
+                v-if="!showAddTimeComp"
                 class="btn btn-green m-2"
-                @click="toggleAddTimeModal"
+                @click="toggleShowAddTimeComp"
               >
                 Add Time
               </button>
@@ -202,7 +198,7 @@ export default {
       showSettingsBox: false,
       showClockOutForm: false,
       editProject: false,
-      addTimeModal: false,
+      showAddTimeComp: false,
       payPeriodSelection: "",
       payPeriodDisplay: [],
       loading: true,
@@ -241,11 +237,15 @@ export default {
     toggleProjectEditor() {
       this.editProject = !this.editProject;
     },
-    toggleAddTimeModal() {
-      this.addTimeModal = !this.addTimeModal;
+    toggleShowAddTimeComp() {
+      this.showAddTimeComp = !this.showAddTimeComp;
     },
     toggleClockOutForm() {
       this.showClockOutForm = !this.showClockOutForm;
+    },
+    addTimeClock() {
+      this.toggleShowAddTimeComp();
+      this.updatePPSelection();
     },
     deleteProject() {
       swal({
@@ -260,7 +260,8 @@ export default {
             icon: "green",
           });
           this.$store.dispatch("deleteProject", this.$route.params.projectId);
-          this.$emit("closeModal");
+          // this.$emit("closeModal");
+          this.updatePPSelection();
         }
       });
     },
@@ -366,6 +367,15 @@ export default {
       } else {
         return moment().format("MM/DD/YYYY");
       }
+    },
+    PPNeedsRendered() {
+      return this.$store.state.PPNeedRendered;
+    },
+  },
+  watch: {
+    PPNeedRendered: function () {
+      this.updatePPSelection();
+      this.$store.dispatch("resetPPNeedRendered");
     },
   },
   components: {

@@ -104,6 +104,16 @@
             required
           />
         </div>
+        <div class="col-12 d-flex justify-content-center">
+          <textarea
+            name="comments"
+            cols="50"
+            rows="10"
+            v-model="newTime.comment"
+            placeholder="Comments"
+            required
+          ></textarea>
+        </div>
         <div class="col-12 d-flex justify-content-around mt-3">
           <button class="btn btn-danger" type="button" @click="closeModal">
             Cancel
@@ -131,6 +141,7 @@ export default {
         endMinute: "",
         endAMPM: "",
         endDate: "",
+        comment: "",
       },
     };
   },
@@ -141,24 +152,28 @@ export default {
     },
     addTimeClock(e) {
       e.preventDefault();
+      debugger;
       if (this.newTime.startAMPM == "PM") {
         this.newTime.startHour = (
           parseInt(this.newTime.startHour) + 12
         ).toString();
       }
-      if (this.newTime.startHour < 10) {
+      if (this.newTime.startHour == "12" && this.newTime.startAMPM == "AM") {
+        this.newTime.startHour = "00";
+      }
+      if (this.newTime.startHour.length == 1) {
         this.newTime.startHour = "0" + this.newTime.startHour;
       }
-      if (this.newTime.startMinute < 10) {
+      if (this.newTime.startMinute.length == 1) {
         this.newTime.startMinute = "0" + this.newTime.startMinute;
       }
       if (this.newTime.endAMPM == "PM") {
         this.newTime.endHour = (parseInt(this.newTime.endHour) + 12).toString();
       }
-      if (this.newTime.endHour < 10) {
+      if (this.newTime.endHour.length == 1) {
         this.newTime.endHour = "0" + this.newTime.endHour;
       }
-      if (this.newTime.endMinute < 10) {
+      if (this.newTime.endMinute.length == 1) {
         this.newTime.endMinute = "0" + this.newTime.endMinute;
       }
       let startString =
@@ -180,10 +195,11 @@ export default {
         StartTime: moment(startString),
         EndTime: moment(endString),
         Current: false,
+        Comment: this.newTime.comment,
       };
 
       this.$store.dispatch("createTimeClock", timeClock);
-      this.$emit("closeModal");
+      this.$emit("addTimeClock");
     },
   },
 };

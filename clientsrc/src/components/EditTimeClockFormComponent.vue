@@ -171,7 +171,7 @@ export default {
       let newTimeClock = { ...this.timeClock };
       newTimeClock.StartTime = moment(startTimeString);
       newTimeClock.EndTime = moment(endTimeString);
-      newTimeClock.Comment = editedTime.comment;
+      newTimeClock.Comment = this.editedTime.comment;
       this.$store.dispatch("updateTimeClock", newTimeClock);
       this.$emit("closeModal");
     },
@@ -188,10 +188,9 @@ export default {
       }).then((willDelete) => {
         if (willDelete) {
           swal("This time clock has been deleted!", {
-            icon: "green",
+            icon: "success",
           });
-          this.$store.dispatch("deleteTimeClock", this.timeClock);
-          this.$emit("closeModal");
+          this.$emit("deleteTimeClock");
         }
       });
     },

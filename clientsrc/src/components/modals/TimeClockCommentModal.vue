@@ -33,7 +33,7 @@ export default {
       let timeObj = {
         EndTime: moment(),
         Comment: this.comment,
-        Id: this.timeClock._id,
+        id: this.timeClock._id,
       };
       await this.$store.dispatch("clockOut", timeObj);
       this.$emit("clockOut");

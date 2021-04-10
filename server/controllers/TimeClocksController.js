@@ -10,7 +10,7 @@ export class TimeClocksController extends BaseController {
       .use(auth0provider.getAuthorizedUserInfo)
       .get("/:id", this.getTimeClocks)
       .put("/:id", this.updateTimeClock)
-      .put("/:id/out", this.clockOut)
+      .put("/out/:id", this.clockOut)
       .post("", this.createTimeClock)
       .delete("/:id", this.deleteTimeClock)
   }
@@ -36,7 +36,7 @@ export class TimeClocksController extends BaseController {
     try {
       let updateInfo = {
         email: req.userInfo.email,
-        id: req.body.Id,
+        id: req.params.id,
         EndTime: req.body.EndTime,
         Comment: req.body.Comment
       }

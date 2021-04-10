@@ -11,7 +11,8 @@ export default new Vuex.Store({
     projects: [],
     activeProject: {},
     timeClockGroup: [],
-    totalProjectTimes: {}
+    totalProjectTimes: {},
+    PPNeedsRendered: false
   },
 
 
@@ -61,6 +62,12 @@ export default new Vuex.Store({
     },
     clearProjects(state) {
       state.projects = []
+    },
+    resetPPNeedsRendered(state) {
+      state.PPNeedsRendered = false
+    },
+    setPPNeedsRendered(state) {
+      state.PPNeedsRendered = true
     }
   },
 
@@ -136,10 +143,6 @@ export default new Vuex.Store({
       }
     },
 
-    async getProjectCardDetails({ commit }, projects) {
-
-    },
-
     //#endregion -- END PROJECT STUFF --
 
     //#region  -- TIME CLOCK STUFF --
@@ -155,8 +158,8 @@ export default new Vuex.Store({
     },
     async clockOut({ commit, dispatch }, obj) {
       try {
-        let res = await api.put("/timeclock/" + obj.id + "/out", obj)
-        //for some reason, clocking out will set an object as the timeclock's endTime
+        debugger
+        let res = await api.put("/timeclock/out/" + obj.id, obj)
         commit("updateTimeClock", res.data)
         dispatch("groupTimeClocks")
         dispatch("totalProjectTimes")
@@ -220,6 +223,7 @@ export default new Vuex.Store({
       try {
         let res = await api.delete("timeclock/" + timeClock.id)
         commit("deleteTimeClock", res.data)
+        commit("setPPNeedsRendered")
         dispatch("groupTimeClocks")
       } catch (error) {
         console.error(error)
@@ -236,6 +240,9 @@ export default new Vuex.Store({
     clearProjects({ commit }) {
       commit("clearProjects")
     },
+    resetPPNeedRendered({ commit }) {
+      commit("resetPPNeedsRendered")
+    }
 
     //#endregion -- END DATA CLEARING --
 

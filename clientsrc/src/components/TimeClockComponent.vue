@@ -30,6 +30,7 @@
     <div v-if="showEditForm" class="editForm bg-light container order-4">
       <edit-time-clock-form-component
         :timeClock="timeClock"
+        @deleteTimeClock="deleteTimeClock"
         @closeModal="toggleEditForm"
       />
     </div>
@@ -57,6 +58,10 @@ export default {
   methods: {
     toggleEditForm() {
       this.showEditForm = !this.showEditForm;
+    },
+    deleteTimeClock() {
+      this.toggleEditForm();
+      this.$store.dispatch("deleteTimeClock", this.timeClock);
     },
     startLiveClock() {
       let timeDiff = moment.duration(
