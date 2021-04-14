@@ -1,6 +1,6 @@
 <template>
   <div class="row border-times bg-secondary text-white m-2">
-    <div class="col-12 center-center bg-cstm-blue">
+    <div class="col-12 center-center bg-midnight">
       {{ day }}
     </div>
     <div class="col-lg-10 col-12">
@@ -54,9 +54,7 @@ export default {
 .border-left-green {
   border-left: green solid 1px;
 }
-.bg-cstm-blue {
-  background-color: midnightblue;
-}
+
 @media screen and (max-width: 768px) {
   .border-left-green {
     border-left: hidden;

@@ -11,4 +11,8 @@ export const api = Axios.create({
   withCredentials: true
 });
 
-
+export const payPalApi = Axios.create({
+  baseURL: "https://api-m.sandbox.paypal.com/v1",
+  timeout: 30000,
+  withCredentials: true
+})

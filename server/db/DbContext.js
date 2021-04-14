@@ -5,6 +5,7 @@ import TimeClockSchema from "../models/TimeClock"
 import PayPeriodSchema from "../models/PayPeriod"
 import DateTestSchema from "../models/Date"
 import SubSchema from "../models/Sub"
+import SubIdModelSchema from "../models/SubIdModel"
 import UserSettingsSchema from "../models/UserSettings"
 
 class DbContext {
@@ -14,6 +15,7 @@ class DbContext {
   PayPeriod = mongoose.model("PayPeriod", PayPeriodSchema)
   DateTest = mongoose.model("DateTest", DateTestSchema)
   Sub = mongoose.model("Sub", SubSchema)
+  SubIdModelSchema = mongoose.model("SubIdModel", SubIdModelSchema)
   UserSettings = mongoose.model("UserSettings", UserSettingsSchema)
 }
 

@@ -113,4 +113,7 @@ select {
 .vw100 {
   width: 100vw;
 }
+.bg-midnight {
+  background-color: midnightblue;
+}
 </style>

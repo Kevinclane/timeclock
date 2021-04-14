@@ -1,8 +1,8 @@
+import moment from "moment"
 import Vue from 'vue'
 import Vuex from 'vuex'
 import router from '../router/index'
-import { api } from "./AxiosService"
-import moment from "moment"
+import { api, payPalApi } from "./AxiosService"
 
 Vue.use(Vuex)
 export default new Vuex.Store({
@@ -13,7 +13,8 @@ export default new Vuex.Store({
     timeClockGroups: [],
     totalPPTimes: 0,
     payPeriodSelection: "",
-    payPeriodDisplay: []
+    payPeriodDisplay: [],
+    availableSubs: []
   },
 
 
@@ -154,6 +155,7 @@ export default new Vuex.Store({
     async deleteProject({ }, id) {
       try {
         let data = await api.delete("/projects/" + id)
+        console.log(data.data)
         router.push({ name: "dashboard" });
       } catch (error) {
         console.error(error)
@@ -303,8 +305,23 @@ export default new Vuex.Store({
     async changePPSelection({ commit, dispatch }, newPP) {
       await commit("setPPSelection", newPP)
       dispatch("updatePPSelection")
-    }
+    },
     //#endregion
+
+
+
+
+    //#region ADMIN ONLY
+
+    async createSubscription({ }, rawData) {
+
+    },
+
+    async getAllSubscriptions({ commit }) {
+
+    }
+
+    ////#endregion
 
   }
 })
