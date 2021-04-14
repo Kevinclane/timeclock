@@ -11,8 +11,16 @@ class TimeClocksService {
     return sortedArr
   }
   async createTimeClock(rawData) {
-    let data = await dbContext.TimeClock.create(rawData)
-    return data
+    let currentCheck = dbContext.TimeClock.find({
+      ProjectId: rawData.ProjectId,
+      Current: true
+    }).lean()
+    if (currentCheck.StartTime) {
+      throw new BadRequest("You are already clocked in on this project!")
+    } else {
+      let data = await dbContext.TimeClock.create(rawData)
+      return data
+    }
   }
   async updateTimeClock(rawData, id) {
     let data = await dbContext.TimeClock.findOneAndUpdate({

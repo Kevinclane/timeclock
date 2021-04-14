@@ -152,7 +152,6 @@ export default {
     },
     addTimeClock(e) {
       e.preventDefault();
-      debugger;
       if (this.newTime.startAMPM == "PM") {
         this.newTime.startHour = (
           parseInt(this.newTime.startHour) + 12
@@ -199,7 +198,7 @@ export default {
       };
 
       this.$store.dispatch("createTimeClock", timeClock);
-      this.$emit("addTimeClock");
+      this.$emit("closeModal");
     },
   },
 };

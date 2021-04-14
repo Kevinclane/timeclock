@@ -145,9 +145,12 @@ export default {
         endMinute: "",
         endAMPM: "",
         endDay: "",
-        comment: "",
+        comment: this.timeClock.Comment,
       },
     };
+  },
+  mounted() {
+    this.setEditedTimeObj();
   },
   methods: {
     updateTimeClock(e) {
@@ -193,6 +196,37 @@ export default {
           this.$emit("deleteTimeClock");
         }
       });
+    },
+    setEditedTimeObj() {
+      this.editedTime.startHour = moment(this.timeClock.StartTime).format("HH");
+      if (this.editedTime.startHour < 12) {
+        this.editedTime.startAMPM = "AM";
+      } else {
+        this.editedTime.startAMPM = "PM";
+        this.editedTime.startHour = (
+          parseInt(this.editedTime.startHour) - 12
+        ).toString();
+      }
+      if (this.editedTime.startHour < 1) {
+        this.editedTime.startHour = "12";
+      }
+      this.editedTime.startMinute = moment(this.timeClock.StartTime).format(
+        "mm"
+      );
+
+      this.editedTime.endHour = moment(this.timeClock.EndTime).format("HH");
+      if (this.editedTime.endHour < 12) {
+        this.editedTime.endAMPM = "AM";
+      } else {
+        this.editedTime.endAMPM = "PM";
+        this.editedTime.endHour = (
+          parseInt(this.editedTime.endHour) - 12
+        ).toString();
+      }
+      if (this.editedTime.endHour == "0") {
+        this.editedTime.endHour = "12";
+      }
+      this.editedTime.endMinute = moment(this.timeClock.EndTime).format("mm");
     },
   },
 };

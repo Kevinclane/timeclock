@@ -36,7 +36,7 @@ export default {
         id: this.timeClock._id,
       };
       await this.$store.dispatch("clockOut", timeObj);
-      this.$emit("clockOut");
+      this.$emit("closeModal");
     },
     close() {
       this.$emit("closeModal");

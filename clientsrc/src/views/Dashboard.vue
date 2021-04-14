@@ -51,9 +51,6 @@ export default {
   },
   async mounted() {
     await this.$store.dispatch("getProjects");
-    if (this.projects.length > 0) {
-      this.$store.dispatch("getProjectCardDetails", this.projects);
-    }
     this.loading = false;
   },
   beforeDestroy() {

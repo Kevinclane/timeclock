@@ -7,7 +7,6 @@
         <div class="card-header">{{ project.Payee }}</div>
         <div class="card-body">
           <p class="card-text">Last Day Worked: {{ LastDayWorked }}</p>
-          <p class="card-text">Total Hours: {{ TotalHours }}</p>
           <p class="card-text">Hours this pay period: {{ TotalPPHours }}</p>
         </div>
       </div>
@@ -48,20 +47,7 @@ export default {
         return moment(lastDay).format("MM/DD/YYYY");
       }
     },
-    TotalHours() {
-      let times = this.project.TimeClocks;
-      let i = 0;
-      let total = 0;
-      while (i < times.length && times[i].EndTime) {
-        let timeDiff = moment.duration(
-          moment(times[i].EndTime).diff(moment(times[i].StartTime))
-        );
-        total += parseFloat(timeDiff.asHours());
-        i++;
-      }
-      total = total.toFixed(2);
-      return parseInt(total);
-    },
+
     TotalPPHours() {
       let times = this.payPeriodDisplay;
       let i = 0;
@@ -74,7 +60,7 @@ export default {
         i++;
       }
       total = total.toFixed(2);
-      return parseInt(total);
+      return parseFloat(total);
     },
   },
   methods: {

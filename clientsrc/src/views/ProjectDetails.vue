@@ -51,7 +51,7 @@
               v-if="activeProject.PayPeriod != 'Milestone'"
             >
               <select
-                @change="updatePPSelection"
+                @change="setPPSelection"
                 v-model="payPeriodSelection"
                 class="p-1 my-2"
               >
@@ -78,8 +78,7 @@
               />
               <add-time-component
                 v-if="showAddTimeComp"
-                :project="activeProject"
-                @addTimeClock="addTimeClock"
+                @closeModal="toggleShowAddTimeComp"
               />
               <button
                 v-if="!showAddTimeComp"
@@ -170,7 +169,11 @@
     </div>
 
     <div class="col-12 d-flex flex-end">
-      <button v-if="!clockedIn" @click="clockIn" class="btn btn-green m-2">
+      <button
+        v-if="!clockedIn && !clicked"
+        @click="clockIn"
+        class="btn btn-green m-2"
+      >
         Clock-In
       </button>
       <button v-else @click="toggleClockOutForm" class="btn btn-danger m-2">
@@ -200,9 +203,10 @@ export default {
       editProject: false,
       showAddTimeComp: false,
       payPeriodSelection: "",
-      payPeriodDisplay: [],
+      // payPeriodDisplay: [],
       loading: true,
       OTEnabled: true,
+      clicked: false,
     };
   },
   async mounted() {
@@ -210,8 +214,8 @@ export default {
       "getActiveProject",
       this.$route.params.projectId
     );
-    if (this.activeProject.InvoiceGroups) {
-      this.updatePPSelection();
+    if (this.activeProject != {}) {
+      this.setPPSelection();
     }
     this.loading = false;
   },
@@ -220,16 +224,16 @@ export default {
   },
   methods: {
     async clockIn() {
+      this.clicked = true;
+      setTimeout((this.clicked = false), 1000);
       let timeObj = {
         ProjectId: this.$route.params.projectId,
         StartTime: moment(),
       };
       await this.$store.dispatch("clockIn", timeObj);
-      this.updatePPSelection();
     },
     clockOut() {
       this.toggleClockOutForm();
-      this.updatePPSelection();
     },
     toggleSettingsBox() {
       this.showSettingsBox = !this.showSettingsBox;
@@ -242,10 +246,6 @@ export default {
     },
     toggleClockOutForm() {
       this.showClockOutForm = !this.showClockOutForm;
-    },
-    addTimeClock() {
-      this.toggleShowAddTimeComp();
-      this.updatePPSelection();
     },
     deleteProject() {
       swal({
@@ -260,43 +260,18 @@ export default {
             icon: "green",
           });
           this.$store.dispatch("deleteProject", this.$route.params.projectId);
-          // this.$emit("closeModal");
-          this.updatePPSelection();
         }
       });
     },
     updatePPSelection() {
+      this.$store.dispatch("updatePPSelection");
+    },
+    async setPPSelection() {
       if (this.payPeriodSelection == "") {
-        let inital = this.activeProject.InvoiceGroups.find((x) => x.Current);
-        let start = moment(inital.StartDay).format("MM/DD/YYYY");
-        let end = moment(inital.EndDay).format("MM/DD/YYYY");
-        this.payPeriodSelection = `${start} - ${end}`;
+        this.payPeriodSelection = this.$store.state.payPeriodSelection;
+      } else {
+        this.$store.dispatch("changePPSelection", this.payPeriodSelection);
       }
-      let split = this.payPeriodSelection.split("-");
-      let start = moment(split[0]);
-      let end = moment(split[1]);
-      let i = 0;
-      //loops over every payPeriod object in InvoiceGroups
-      while (i < this.activeProject.InvoiceGroups.length) {
-        //current payPeriod object being checked
-        let IG = this.activeProject.InvoiceGroups[i];
-        let boolS = moment(IG.StartDay).isSameOrAfter(start);
-        let boolE = moment(IG.EndDay).isSameOrBefore(end);
-        if (boolS && boolE) {
-          //should set correct timeClockGroups within query dates
-          this.payPeriodDisplay = this.timeClockGroups.filter(
-            (tcg) =>
-              moment(tcg[0].StartTime).isSameOrAfter(moment(IG.StartDay)) &&
-              moment(tcg[0].EndTime).isBefore(moment(IG.EndDay).add(1, "day"))
-          );
-          i = this.activeProject.InvoiceGroups.length;
-        } else i++;
-      }
-      // this.payPeriodDisplay = this.timeClockGroups.filter(
-      //   (tcg) =>
-      //     moment(tcg[0].StartTime).isSameOrAfter(start) &&
-      //     moment(tcg[0].EndTime).isSameOrBefore(end)
-      // );
     },
   },
   computed: {
@@ -315,28 +290,10 @@ export default {
       return currentClock;
     },
     timeClockGroups() {
-      return this.$store.state.timeClockGroup;
+      return this.$store.state.timeClockGroups;
     },
     totalTimes() {
-      let groups = [...this.payPeriodDisplay];
-      let times = [];
-      groups.forEach((group) => {
-        let i = 0;
-        while (i < group.length) {
-          times.push(group[i]);
-          i++;
-        }
-      });
-      let i = 0;
-      let total = 0;
-      while (i < times.length && times[i].EndTime) {
-        let timeDiff = moment.duration(
-          moment(times[i].EndTime).diff(moment(times[i].StartTime))
-        );
-        total += parseFloat(timeDiff.asHours());
-        i++;
-      }
-      return total.toFixed(2);
+      return this.$store.state.totalPPTimes;
     },
     clockedIn() {
       if (this.activeProject.TimeClocks) {
@@ -368,14 +325,11 @@ export default {
         return moment().format("MM/DD/YYYY");
       }
     },
-    PPNeedsRendered() {
-      return this.$store.state.PPNeedRendered;
-    },
-  },
-  watch: {
-    PPNeedRendered: function () {
-      this.updatePPSelection();
-      this.$store.dispatch("resetPPNeedRendered");
+    // payPeriodSelection() {
+    //   return this.$store.state.payPeriodSelection;
+    // },
+    payPeriodDisplay() {
+      return this.$store.state.payPeriodDisplay;
     },
   },
   components: {
