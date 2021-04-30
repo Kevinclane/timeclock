@@ -323,5 +323,8 @@ export default new Vuex.Store({
 
     ////#endregion
 
+  },
+  modules: {
+
   }
 })

@@ -257,7 +257,7 @@ export default {
       }).then((willDelete) => {
         if (willDelete) {
           swal("This project has been deleted!", {
-            icon: "green",
+            icon: "success",
           });
           this.$store.dispatch("deleteProject", this.$route.params.projectId);
         }
