@@ -4,7 +4,7 @@ import ProjectSchema from "../models/Project";
 import TimeClockSchema from "../models/TimeClock"
 import PayPeriodSchema from "../models/PayPeriod"
 import DateTestSchema from "../models/Date"
-import SubSchema from "../models/Sub"
+import UsersSubStatusSchema from "../models/UsersSubStatus"
 import SubIdModelSchema from "../models/SubIdModel"
 import UserSettingsSchema from "../models/UserSettings"
 
@@ -14,7 +14,7 @@ class DbContext {
   TimeClock = mongoose.model("TimeClock", TimeClockSchema);
   PayPeriod = mongoose.model("PayPeriod", PayPeriodSchema)
   DateTest = mongoose.model("DateTest", DateTestSchema)
-  Sub = mongoose.model("Sub", SubSchema)
+  UsersSubStatus = mongoose.model("UsersSubStatus", UsersSubStatusSchema)
   SubIdModelSchema = mongoose.model("SubIdModel", SubIdModelSchema)
   UserSettings = mongoose.model("UserSettings", UserSettingsSchema)
 }

@@ -4,12 +4,15 @@
       <div class="col-4">
         <div class="card-body p-2">
           <div class="card text-white">
-            <div class="card-title bg-midnight">Basic Plan</div>
+            <h3 class="card-title bg-midnight">Basic Plan</h3>
             <div class="card-text">
               Get access to unlimited projects for just $9.99/mo!
             </div>
           </div>
-          <div class="card-footer" ref="paypal"></div>
+          <div
+            class="card-footer"
+            id="paypal-button-container-P-60M8600290984641EMCHWWQQ"
+          ></div>
         </div>
       </div>
     </div>
@@ -30,61 +33,38 @@ export default {
     };
   },
   mounted() {
-    const script = document.createElement("script");
-    script.src =
-      "https://www.paypal.com/sdk/js?client-id=AYcNR6yomeNea5vOECeE_sq-qAhKxAVR_OLmkcbWaCkdvwdZ4dPKddnezSj-Lrgr3EnYekbWtxRLzYD4&disable-funding=credit,card";
-    script.addEventListener("load", this.setLoaded);
-    document.body.appendChild(script);
+    // const script = document.createElement("script");
+    // script.src =
+    //   "https://www.paypal.com/sdk/js?client-id=AYcNR6yomeNea5vOECeE_sq-qAhKxAVR_OLmkcbWaCkdvwdZ4dPKddnezSj-Lrgr3EnYekbWtxRLzYD4&vault=true&intent=subscription";
+    // script.addEventListener("load", this.setLoaded);
+    // document.body.appendChild(script);
+    paypal
+      .Buttons({
+        style: {
+          shape: "pill",
+          color: "blue",
+          layout: "vertical",
+          label: "subscribe",
+        },
+      })
+      .render("#paypal-button-container-P-60M8600290984641EMCHWWQQ");
   },
   methods: {
     setLoaded() {
       this.loaded = true;
       window.paypal
         .Buttons({
-          createOrder: (data, actions) => {
-            return actions.order.create({
-              name: "Basic",
-              description: this.product.description,
-              billing_cycles: [
-                {
-                  frequency: {
-                    interval_unit: "MONTH",
-                    interval_count: 1,
-                  },
-                  tenure_type: "REGULAR",
-                  sequence: 1,
-                  total_cycles: 0,
-                  pricing_scheme: {
-                    value: this.product.price,
-                    currency_code: "USD",
-                  },
-                },
-              ],
-              payment_preferences: {
-                auto_bill_outstanding: true,
-                payment_failure_threshhold: 1,
-              },
+          createSubscription: function (data, actions) {
+            return actions.subscription.create({
+              plan_id: "P-60M8600290984641EMCHWWQQ",
             });
           },
+          onApprove: function (data, actions) {
+            alert("Thank you for subscribing!");
+          },
         })
-        .render(this.$refs.paypal);
+        .render("#paypal-button-container-P-60M8600290984641EMCHWWQQ");
     },
-    // createOrder: function (data, actions) {
-    //   return actions.order.create({
-    //     purchase_units: [
-    //       {
-    //         amount: {
-    //           value: "0.01",
-    //         },
-    //       },
-    //     ],
-    //   });
-    // },
-    // onApprove: function (data, actions) {
-    //   return actions.order.capture().then(function (details) {
-    //     alert("Transaction completed by TEST");
-    //   });
-    // },
   },
 };
 </script>

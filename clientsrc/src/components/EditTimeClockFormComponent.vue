@@ -227,6 +227,7 @@ export default {
         this.editedTime.endHour = "12";
       }
       this.editedTime.endMinute = moment(this.timeClock.EndTime).format("mm");
+      this.editedTime.startDay = moment(this.timeClock.StartTime);
     },
   },
 };
