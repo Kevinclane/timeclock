@@ -40,7 +40,7 @@
 
 <script>
 import NewProjectFormModal from "../components/modals/NewProjectFormModal.vue";
-import Project from "../components/ProjectCardComponent.vue";
+import Project from "../components/Cards/ProjectCardComponent.vue";
 export default {
   name: "Dashboard",
   data() {

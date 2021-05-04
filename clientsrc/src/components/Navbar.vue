@@ -12,6 +12,18 @@
         :to="{ name: 'dashboard' }"
         >Dashboard</router-link
       >
+      <router-link
+        v-if="$auth.isAuthenticated"
+        class="navbar-brand col m-0 center-center"
+        :to="{ name: 'subscriptions' }"
+        >Upgrade</router-link
+      >
+      <router-link
+        v-if="$auth.isAuthenticated && isAdmin"
+        class="navbar-brand col m-0 center-center"
+        :to="{ name: 'adminsubs' }"
+        >Admin Subs</router-link
+      >
       <span class="navbar-text col m-0 d-flex justify-content-end">
         <button
           class="btn btn-green"
@@ -72,12 +84,15 @@ export default {
     async login() {
       await this.$auth.loginWithPopup();
       this.$store.dispatch("setBearer", this.$auth.bearer);
-      this.$store.dispatch("getProfile");
-      // console.log("this.$auth.user: ", this.$auth.user);
-      // console.log(this.$auth.user);
+      await this.$store.dispatch("getProfile");
     },
     async logout() {
       await this.$auth.logout({ returnTo: window.location.origin });
+    },
+  },
+  computed: {
+    isAdmin() {
+      return this.$store.state.user.isAdmin;
     },
   },
 };

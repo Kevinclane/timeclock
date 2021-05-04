@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="row">
-      <div class="col">
+      <div class="col-4">
         <router-link to="AdminSubscriptions"
           ><h3>Manage Subscriptions</h3></router-link
         >

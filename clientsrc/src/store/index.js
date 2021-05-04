@@ -8,13 +8,14 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     user: {},
+    userSubStatus: {},
     projects: [],
     activeProject: {},
     timeClockGroups: [],
     totalPPTimes: 0,
     payPeriodSelection: "",
     payPeriodDisplay: [],
-    availableSubs: []
+    allSubs: []
   },
 
 
@@ -87,9 +88,11 @@ export default new Vuex.Store({
     },
     setPPSelection(state, PP) {
       state.payPeriodSelection = PP
-    }
+    },
     //#endregion END CALCULATED/DISPLAY STUFF
-
+    setAllSubs(state, subs) {
+      state.allSubs = subs
+    }
 
   },
 
@@ -102,6 +105,13 @@ export default new Vuex.Store({
     resetBearer() {
       api.defaults.headers.authorization = "";
     },
+    setPayPalBearer({ }, bearer) {
+      payPalApi.defaults.headers.authorization = bearer;
+    },
+    resetPayPalBearer() {
+      payPalApi.defaults.headers.authorization = "";
+    },
+
     //#endregion -- END AUTH STUFF --
 
     //#region  -- PROFILE STUFF --
@@ -314,12 +324,21 @@ export default new Vuex.Store({
     //#region ADMIN ONLY
 
     async createSubscription({ }, rawData) {
+      debugger
 
+      let paypalRes = payPalApi.post("/catalogs/products")
+      let res = await api.post("/subscription/" + rawData)
+      console.log("New SubId:", res.data)
     },
 
     async getAllSubscriptions({ commit }) {
+      let res = await api.get("/subscription")
+      commit("setAllSubs", res.data)
+      console.log("Subscriptions:", res.data)
+    },
+    async updateUserSubscription({ commit, dispatch }, paypalRes) {
 
-    }
+    },
 
     ////#endregion
 

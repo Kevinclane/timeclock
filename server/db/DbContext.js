@@ -15,7 +15,7 @@ class DbContext {
   PayPeriod = mongoose.model("PayPeriod", PayPeriodSchema)
   DateTest = mongoose.model("DateTest", DateTestSchema)
   UsersSubStatus = mongoose.model("UsersSubStatus", UsersSubStatusSchema)
-  SubIdModelSchema = mongoose.model("SubIdModel", SubIdModelSchema)
+  SubIdModel = mongoose.model("SubIdModel", SubIdModelSchema)
   UserSettings = mongoose.model("UserSettings", UserSettingsSchema)
 }
 
