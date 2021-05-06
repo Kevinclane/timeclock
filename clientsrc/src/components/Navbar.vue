@@ -16,7 +16,7 @@
         v-if="$auth.isAuthenticated"
         class="navbar-brand col m-0 center-center"
         :to="{ name: 'subscriptions' }"
-        >Upgrade</router-link
+        >Subscribe</router-link
       >
       <router-link
         v-if="$auth.isAuthenticated && isAdmin"

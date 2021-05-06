@@ -7,26 +7,23 @@ import { BadRequest } from "../utils/Errors";
 
 export class SubscriptionsController extends BaseController {
   constructor() {
-    super("api/subscription");
+    super("api/subscriptions");
     this.router
       .use(auth0provider.getAuthorizedUserInfo)
-      .post("", this.createIdModel)
-      .get("", this.getAllIdModels)
+      .put("/updatesubscription", this.updateSubscription)
   }
-  async createIdModel(req, res, next) {
+  async updateSubscription(req, res, next) {
     try {
-      let data = await subscriptionsService.createIdModel(req.body.id)
+      let profile = await profilesService.getProfile(req.userInfo);
+      if (profile.Email != req.body.user.Email) {
+        throw new BadRequest("You are not authorized to edit this profile")
+      }
+      req.body.userId = profile._id
+      let data = await subscriptionsService.updateSubscription(req.body)
       res.send(data)
-    } catch (error) {
-      next(error)
-    }
-  }
-  async getAllIdModels(req, res, next) {
-    try {
-      let ids = await subscriptionsService.getAllIdModels();
-      res.send(ids);
     } catch (error) {
       next(error);
     }
   }
+
 }

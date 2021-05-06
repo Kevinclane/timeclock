@@ -1,13 +1,14 @@
 <template>
   <div class="container">
     <div class="row">
-      <sub-card v-for="sub in allSubs" :key="sub.Id" :sub="sub"> </sub-card>
+      <plan-card v-for="plan in allPlans" :key="plan.Id" :plan="plan">
+      </plan-card>
     </div>
   </div>
 </template>
 
 <script>
-import SubCard from "../components/Cards/SubCard.vue";
+import PlanCard from "../components/Cards/PlanCard.vue";
 export default {
   name: "Subscriptions",
   data() {
@@ -21,16 +22,16 @@ export default {
     };
   },
   mounted() {
-    this.$store.dispatch("getAllSubscriptions");
+    this.$store.dispatch("getAllPlans");
   },
   methods: {},
   computed: {
-    allSubs() {
-      return this.$store.state.allSubs;
+    allPlans() {
+      return this.$store.state.allPlans;
     },
   },
   components: {
-    SubCard,
+    PlanCard,
   },
 };
 </script>

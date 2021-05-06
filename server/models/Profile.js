@@ -1,13 +1,16 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
+let ObjectId = Schema.Types.ObjectId;
 
 const Profile = new Schema(
   {
-    subs: [{ type: String, unique: true }],
-    email: { type: String, lowercase: true, unique: true },
-    name: { type: String, required: true },
-    picture: { type: String },
-    isAdmin: { type: Boolean, default: false }
+    Subs: [{ type: String, unique: true }],
+    Email: { type: String, lowercase: true, unique: true },
+    Name: { type: String, required: true },
+    Picture: { type: String },
+    Subscription: { type: ObjectId, ref: "Subscription" },
+    UserSettings: { type: ObjectId, ref: "UserSettings" },
+    IsAdmin: { type: Boolean, default: false }
   },
   { timestamps: true, toJSON: { virtuals: true } }
 );

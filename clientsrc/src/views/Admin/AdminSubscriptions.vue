@@ -8,76 +8,109 @@
               class="my-1"
               type="text"
               placeholder="Title..."
-              v-model="newSub.Title"
+              name="Title"
+              v-model="newPlan.Title"
             />
             <input
               class="my-1"
               type="text"
               placeholder="Description..."
-              v-model="newSub.Description"
+              name="Description"
+              v-model="newPlan.Description"
             />
             <input
               class="my-1"
               type="text"
               placeholder="Price..."
-              v-model="newSub.Price"
+              name="Price"
+              v-model="newPlan.Price"
             />
             <input
               class="my-1"
               type="text"
               placeholder="PlanId..."
-              v-model="newSub.PlanId"
+              name="PlanId"
+              v-model="newPlan.PlanId"
             />
+            <select name="status" v-model="newPlan.Status">
+              <option
+                v-for="status in statuses"
+                :value="status"
+                v-bind:key="status.$index"
+              >
+                {{ status }}
+              </option>
+            </select>
           </div>
           <div class="card-footer">
-            <button class="btn btn-info mt-2" @click="createNewSub()">
-              Insert Subscription
+            <button class="btn btn-info mt-2" @click="insertPlan()">
+              Insert Plan
             </button>
           </div>
         </div>
       </div>
     </div>
     <div class="row">
-      <sub-card v-for="sub in allSubs" :key="sub.Id" :sub="sub"> </sub-card>
+      <plan-card v-for="plan in allPlans" :key="plan.Id" :plan="plan">
+      </plan-card>
     </div>
   </div>
 </template>
 
 <script>
-import SubCard from "../../components/Cards/SubCard";
+import PlanCard from "../../components/Cards/PlanCard";
 export default {
   name: "AdminSubscriptions",
   data() {
     return {
-      newSub: {
+      newPlan: {
         Title: "",
         Description: "",
         Price: "",
         PlanId: "",
+        Status: "",
       },
+      statuses: [
+        "Basic",
+        "Team0",
+        "Team10",
+        "Team20",
+        "Team30",
+        "Team40",
+        "Team50",
+        "Team60",
+        "Team70",
+        "Team80",
+        "Team90",
+        "Team100",
+        "Ultimate",
+        "Grandfather",
+        "Admin",
+      ],
     };
   },
   mounted() {
-    this.$store.dispatch("getAllSubscriptions");
+    this.$store.dispatch("getAllPlans");
   },
   methods: {
-    createNewSub() {
-      this.$store.dispatch("createSubscription", { ...this.newSub });
-      this.newSub = {
+    insertPlan() {
+      this.$store.dispatch("insertPlan", { ...this.newPlan });
+      this.newPlan = {
         Title: "",
         Description: "",
         Price: "",
         PlanId: "",
+        Status: "",
       };
     },
   },
   computed: {
-    allSubs() {
-      return this.$store.state.allSubs;
+    allPlans() {
+      return this.$store.state.allPlans;
     },
   },
   components: {
-    SubCard,
+    PlanCard,
   },
 };
 </script>

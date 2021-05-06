@@ -15,7 +15,7 @@ export default new Vuex.Store({
     totalPPTimes: 0,
     payPeriodSelection: "",
     payPeriodDisplay: [],
-    allSubs: []
+    allPlans: []
   },
 
 
@@ -90,8 +90,11 @@ export default new Vuex.Store({
       state.payPeriodSelection = PP
     },
     //#endregion END CALCULATED/DISPLAY STUFF
-    setAllSubs(state, subs) {
-      state.allSubs = subs
+    insertNewPlan(state, plan) {
+      state.plans.push(plan)
+    },
+    setAllPlans(state, plans) {
+      state.allPlans = plans
     }
 
   },
@@ -323,22 +326,33 @@ export default new Vuex.Store({
 
     //#region ADMIN ONLY
 
-    async createSubscription({ }, rawData) {
-      debugger
-
-      let paypalRes = payPalApi.post("/catalogs/products")
-      let res = await api.post("/subscription/" + rawData)
+    async insertPlan({ commit }, rawData) {
+      let res = await api.post("/plans", rawData)
+      commit("insertNewPlan", res.data)
       console.log("New SubId:", res.data)
     },
 
-    async getAllSubscriptions({ commit }) {
-      let res = await api.get("/subscription")
-      commit("setAllSubs", res.data)
-      console.log("Subscriptions:", res.data)
+    async getAllPlans({ commit }) {
+      let res = await api.get("/plans")
+      commit("setAllPlans", res.data)
+      console.log("Plans:", res.data)
     },
     async updateUserSubscription({ commit, dispatch }, paypalRes) {
-
+      let reqData = {
+        user: this.state.user,
+        paypal: this.paypalRes
+      }
+      let res = await api.put("/subscriptions/updatesubscription", reqData)
+      console.log("Sub Update: ", res.data)
     },
+    async subscribe({ commit, dispatch }, paypalRes) {
+      let reqData = {
+        user: this.state.user,
+        paypal: paypalRes
+      }
+      let res = await api.put("/subscriptions/updatesubscription", reqData)
+      console.log("Sub Update: ", res.data)
+    }
 
     ////#endregion
 
