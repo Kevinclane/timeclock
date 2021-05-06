@@ -2,7 +2,7 @@
   <div class="col-4 card">
     <div class="card-body p-2">
       <div class="card text-white">
-        <h3 class="card-title bg-midnight">{{ plan.Title }}</h3>
+        <h3 class="card-title bg-midnight p-2">{{ plan.Title }}</h3>
         <div class="card-text">
           {{ plan.Description }}
         </div>
@@ -23,10 +23,10 @@ export default {
     };
   },
   mounted() {
-    this.setupPaypalButtons(this.plan);
+    this.setupPaypalButtons(this.plan, this.updateSubscription);
   },
   methods: {
-    setupPaypalButtons(plan) {
+    setupPaypalButtons(plan, updateSubscription) {
       paypal
         .Buttons({
           style: {
@@ -51,11 +51,14 @@ export default {
               icon: "success",
               button: "Close",
             });
-            debugger;
-            this.$store.dispatch("subscribe", data);
+            updateSubscription(data);
           },
         })
         .render("#paypal-button-container" + this.plan.PlanId);
+    },
+    updateSubscription(data) {
+      data.plan_id = this.plan.PlanId;
+      this.$store.dispatch("subscribe", data);
     },
   },
 };

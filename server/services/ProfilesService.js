@@ -17,6 +17,16 @@ async function createSubscriptionIfNeeded(profile) {
     profile.Subscription = await dbContext.Subscription.create({
       UserId: profile._id,
     })
+    await dbContext.Profile.findByIdAndUpdate(
+      { _id: profile._id },
+      { Subscription: profile.Subscription._id }
+    )
+  }
+  profile.Subscription.PayPalData = {
+    billingToken: profile.Subscription.PayPalData.billingToken,
+    orderID: profile.Subscription.PayPalData.orderID,
+    plan_id: profile.Subscription.PayPalData.plan_id,
+    subscriptionID: profile.Subscription.PayPalData.subscriptionID
   }
   return profile
 }
@@ -26,6 +36,10 @@ async function createUserSettingsIfNeeded(profile) {
     profile.UserSettings = await dbContext.UserSettings.create({
       UserId: profile._id,
     })
+    await dbContext.Profile.findByIdAndUpdate(
+      { _id: profile._id },
+      { UserSettings: profile.UserSettings._id }
+    )
   }
   return profile
 }

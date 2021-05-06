@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="row">
+    <div class="row my-3">
       <plan-card v-for="plan in allPlans" :key="plan.Id" :plan="plan">
       </plan-card>
     </div>

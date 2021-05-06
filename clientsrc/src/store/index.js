@@ -91,7 +91,7 @@ export default new Vuex.Store({
     },
     //#endregion END CALCULATED/DISPLAY STUFF
     insertNewPlan(state, plan) {
-      state.plans.push(plan)
+      state.allPlans.push(plan)
     },
     setAllPlans(state, plans) {
       state.allPlans = plans
@@ -121,6 +121,7 @@ export default new Vuex.Store({
     async getProfile({ commit }) {
       try {
         let res = await api.get("/profile")
+        console.log("UserData: ", res.data)
         commit("setUser", res.data)
       } catch (err) {
         console.error(err)
@@ -346,6 +347,7 @@ export default new Vuex.Store({
       console.log("Sub Update: ", res.data)
     },
     async subscribe({ commit, dispatch }, paypalRes) {
+      debugger
       let reqData = {
         user: this.state.user,
         paypal: paypalRes

@@ -92,7 +92,7 @@ export default {
   },
   computed: {
     isAdmin() {
-      return this.$store.state.user.isAdmin;
+      return this.$store.state.user.IsAdmin;
     },
   },
 };

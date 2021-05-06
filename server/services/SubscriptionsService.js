@@ -16,7 +16,10 @@ class SubscriptionsService {
       {
         UserId: reqData.userId
       },
-      { $set, update },
+      {
+        PayPalData: reqData.paypal,
+        SubStatus: plan.SubStatus
+      },
       { runValidators: true, setDefaultsOnInsert: true, new: true }
     )
     return data

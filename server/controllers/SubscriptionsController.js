@@ -20,6 +20,12 @@ export class SubscriptionsController extends BaseController {
       }
       req.body.userId = profile._id
       let data = await subscriptionsService.updateSubscription(req.body)
+      data.PayPalData = {
+        billingToken: data.PayPalData.billingToken,
+        orderID: data.PayPalData.orderID,
+        plan_id: data.PayPalData.plan_id,
+        subscriptionID: data.PayPalData.subscriptionID
+      }
       res.send(data)
     } catch (error) {
       next(error);

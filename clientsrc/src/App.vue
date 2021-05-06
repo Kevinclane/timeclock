@@ -116,4 +116,10 @@ select {
 .bg-midnight {
   background-color: midnightblue;
 }
+.border-black-1 {
+  border: 1px solid black;
+}
+.text-red {
+  color: red;
+}
 </style>

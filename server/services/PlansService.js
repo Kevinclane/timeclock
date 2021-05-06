@@ -12,7 +12,8 @@ class PlansService {
         Title: reqData.Title,
         Description: reqData.Description,
         Price: reqData.Price,
-        PlanId: reqData.PlanId
+        PlanId: reqData.PlanId,
+        SubStatus: reqData.Status
       })
       return data
     } else throw new BadRequest(`This product with id: ${id} already exists in the database`)
