@@ -64,7 +64,7 @@
         <a href="https://github.com/Kevinclane" target="_blank">
           <i class="fa fa-github text-white mx-1" aria-hidden="true"></i>
         </a>
-        <a href="kevinclane.com" target="_blank">
+        <a href="https://kevinclane.com/" target="_blank">
           <i class="fa fa-address-card text-white mx-1" aria-hidden="true"></i>
         </a>
         <a
