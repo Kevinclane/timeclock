@@ -8,10 +8,10 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     user: {},
-    userSubStatus: {},
     projects: [],
     activeProject: {},
     timeClockGroups: [],
+    weeks: [],
     totalPPTimes: 0,
     payPeriodSelection: "",
     payPeriodDisplay: [],
@@ -88,6 +88,9 @@ export default new Vuex.Store({
     },
     setPPSelection(state, PP) {
       state.payPeriodSelection = PP
+    },
+    setWeeks(state, weeks) {
+      state.weeks = weeks
     },
     //#endregion END CALCULATED/DISPLAY STUFF
     insertNewPlan(state, plan) {
@@ -225,6 +228,8 @@ export default new Vuex.Store({
         console.error(error)
       }
     },
+    //Groups timeclocks of the same day into an array
+    //"TimeClockGroups" is an array of these arrays
     async groupTimeClocks({ commit, dispatch }) {
       let timeClocks = [...this.state.activeProject.TimeClocks];
       let finishedArr = [];
@@ -248,6 +253,7 @@ export default new Vuex.Store({
       await commit("setTimeClockGroups", finishedArr)
       dispatch("updatePPSelection", finishedArr)
     },
+    //Calculates the total times for the active payperiod
     totalPPTimes({ commit }) {
       let tcg = this.state.payPeriodDisplay
       let i = 0;
@@ -283,7 +289,7 @@ export default new Vuex.Store({
 
 
     //#region  --MISC FUNCTIONS --
-
+    //Finds and sets all TimeClockGroups based on active PayPeriod selection
     updatePPSelection({ commit, dispatch }) {
       let timeClockGroups = this.state.timeClockGroups
       if (this.state.payPeriodSelection == "") {
@@ -315,10 +321,86 @@ export default new Vuex.Store({
         } else i++;
       }
       dispatch("totalPPTimes")
+      dispatch("weeklyTimes")
     },
     async changePPSelection({ commit, dispatch }, newPP) {
+      debugger
       await commit("setPPSelection", newPP)
       dispatch("updatePPSelection")
+    },
+    weeklyTimes({ commit, dispatch }) {
+      //tcg is an array of all timeclocks within the active payperiod grouped into individual arrays of the same day ie. [ [Day1], [Day2], ect ]
+      //Each day can have multiple Timeclocks
+      let tcg = [...this.state.payPeriodDisplay]
+      let split = this.state.payPeriodSelection.split("-");
+      let start = moment(split[0]);
+      let end = moment(split[1]);
+
+      //Split into separate weeks
+      let weeks = []
+      // let finished = false
+      let tempStart = start
+      while (tcg.length > 0) {
+        let weekS = moment(tempStart).format("DD/MM/YYYY")
+        let weekE = moment(tempStart).add(6, "days").format("DD/MM/YYYY")
+        let week = weekS + "-" + weekE
+        weekE = moment(tempStart).add(6, "days")
+        let weeklyTcs = []
+        let x = 0
+        let finished = false
+        //this loop should collect all of the day arrays that are withing the current week
+        while (!finished) {
+          //currentTCG is an array of Timeclocks of the same day
+          let currentTCG = tcg[x]
+          let check = moment(currentTCG[0].StartTime)
+          let inWeekCheck = check.isSameOrBefore(weekE)
+          //if the day array is within the week, push to the week's array and remove from list
+          if (inWeekCheck) {
+            weeklyTcs.push(currentTCG)
+            tcg.splice(x, 1)
+            if (tcg.length == 0) {
+              finished = true;
+            }
+          } else {
+            finished = true;
+          }
+        }
+        let weekObj = {
+          readable: week,
+          timeClocks: weeklyTcs
+        }
+        weeks.push(weekObj)
+        tempStart = moment(tempStart).add(7, "days")
+      }
+
+      //calculates times per week
+      let i = 0;
+      //loop through each week
+      while (i < weeks.length) {
+        //total will be the total hours of this week
+        let total = 0;
+        let x = 0
+        //loop through each Time Clock day group
+        while (x < weeks[i].timeClocks.length) {
+          let currentTCG = weeks[i].timeClocks[x]
+          let y = 0
+          let tempTotal = 0
+          //loop through each Time Clock within each day group
+          while (y < currentTCG.length) {
+            let timeDiff = moment.duration(
+              moment(currentTCG[y].EndTime).diff(moment(currentTCG[y].StartTime))
+            );
+
+            tempTotal += parseFloat(timeDiff.asHours())
+            y++
+          }
+          total += tempTotal
+          x++
+        }
+        weeks[i].totalTimes = total.toFixed(2);
+        i++
+      }
+      commit("setWeeks", weeks)
     },
     //#endregion
 

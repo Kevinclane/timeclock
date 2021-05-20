@@ -2,8 +2,9 @@
   <div>
     <div class="row text-black">
       <div class="col-12">
-        <h3>What services will you be providing?</h3>
+        <h3>What did you work on today?</h3>
         <textarea
+          class="mx-w-txt"
           name="comments"
           cols="50"
           rows="10"
@@ -11,7 +12,7 @@
         ></textarea>
       </div>
       <div class="col-12 mt-5 d-flex justify-content-around">
-        <button class="btn btn-danger" @click="close">Close</button>
+        <button class="btn btn-danger" @click="close">Cancel</button>
         <button class="btn btn-green" @click="clockOut">Clock Out</button>
       </div>
     </div>
@@ -54,5 +55,8 @@ export default {
   bottom: 0;
   left: 0;
   z-index: 1;
+}
+.mx-w-txt {
+  max-width: 60vw;
 }
 </style>

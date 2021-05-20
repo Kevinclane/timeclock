@@ -122,4 +122,20 @@ select {
 .text-red {
   color: red;
 }
+body {
+  font-size: medium;
+}
+@media screen and (max-width: 992px) {
+  body {
+    font-size: xx-small;
+  }
+}
+button {
+  height: 2.5rem;
+}
+@media screen and (max-width: 992px) {
+  button {
+    height: 2rem;
+  }
+}
 </style>

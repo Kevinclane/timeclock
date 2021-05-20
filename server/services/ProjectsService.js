@@ -20,10 +20,15 @@ class ProjectsService {
     return project
   }
   async createProject(projectData) {
-
-    let project = this.clearExcessData(projectData)
-    project = await dbContext.Project.create(projectData)
-    return project
+    let profile = await dbContext.Profile.findOne({ Email: projectData.CreatorEmail }).populate("Subscription");
+    // let subscription = await 
+    if (profile.Subscription != "Free") {
+      let project = this.clearExcessData(projectData)
+      project = await dbContext.Project.create(projectData)
+      return project
+    } else {
+      throw new BadRequest("You must be subscribed to create more projects.")
+    }
   }
   async editProject(projectData) {
     let project = this.clearExcessData(projectData)

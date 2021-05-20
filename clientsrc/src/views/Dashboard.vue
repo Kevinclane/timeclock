@@ -29,7 +29,7 @@
           <i class="fas fa-5x fa-plus"></i>
         </div>
       </div>
-      <project
+      <project-card
         v-for="project in projects"
         :key="project.id"
         :project="project"
@@ -39,8 +39,9 @@
 </template>
 
 <script>
+import swal from "sweetalert";
 import NewProjectFormModal from "../components/modals/NewProjectFormModal.vue";
-import Project from "../components/Cards/ProjectCardComponent.vue";
+import ProjectCard from "../components/Cards/ProjectCardComponent.vue";
 export default {
   name: "Dashboard",
   data() {
@@ -51,6 +52,7 @@ export default {
   },
   async mounted() {
     await this.$store.dispatch("getProjects");
+    await this.getProfile();
     this.loading = false;
   },
   beforeDestroy() {
@@ -58,7 +60,26 @@ export default {
   },
   methods: {
     toggleProjectForm() {
-      this.showProjectForm = !this.showProjectForm;
+      if (!this.showProjectForm && this.projectLimit) {
+        swal({
+          title: "Please subscribe to add more projects",
+          text: "Would you like to upgrade?",
+          icon: "info",
+          buttons: ["No thanks", "Yes please!"],
+        }).then((confirm) => {
+          if (confirm) {
+            this.$router.push({ name: "subscriptions" });
+          }
+        });
+      } else {
+        this.showProjectForm = !this.showProjectForm;
+      }
+    },
+    getProfile() {
+      let profile = this.$store.state.user;
+      if (!profile) {
+        this.$store.dispatch("getProfile");
+      }
     },
   },
   computed: {
@@ -68,8 +89,21 @@ export default {
     timeClocks() {
       return this.$store.state.timeClocks;
     },
+    activeSub() {
+      let status = this.$store.state.user.Subscription.SubStatus;
+      if (status == "Basic") {
+        return true;
+      } else return false;
+    },
+    projectLimit() {
+      let status = this.$store.state.user.Subscription.SubStatus;
+      let projects = this.$store.state.projects;
+      if (projects.length > 0 && status == "Free") {
+        return true;
+      } else return false;
+    },
   },
-  components: { NewProjectFormModal, Project },
+  components: { NewProjectFormModal, ProjectCard },
 };
 </script>
 <style scoped>

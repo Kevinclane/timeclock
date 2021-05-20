@@ -1,6 +1,7 @@
 <template>
   <div class="col-lg-4 col-md-5 col-10 offset-1 offset-md-0 offset-lg-0 mb-2">
     <router-link
+      v-bind:class="{ disabled: !project.Active }"
       :to="{ name: 'projectDetails', params: { projectId: project.id } }"
     >
       <div class="card border-primary mb-3 text-light project-card card-height">

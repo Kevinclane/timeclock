@@ -4,24 +4,7 @@
       <span class="visually-hidden"></span>
     </div>
   </div>
-  <div v-else class="container card mt-3 text-light border-primary">
-    <i
-      class="fas fa-cog settings-icon"
-      type="button"
-      @click="toggleSettingsBox"
-    ></i>
-    <div
-      v-if="showSettingsBox"
-      class="settings-box p-3 text-dark d-flex flex-column"
-    >
-      <button class="btn btn-green my-1" @click="toggleProjectEditor">
-        Edit Project
-      </button>
-      <button class="btn btn-danger my-1" @click="deleteProject">
-        Delete Project
-      </button>
-    </div>
-
+  <div v-else class="container-fluid bg-darker text-light">
     <!--CLOCKOUT MODAL-->
     <div v-if="showClockOutForm" class="backdrop">
       <clock-in-modal
@@ -37,14 +20,30 @@
       <edit-project-form-modal @closeModal="toggleProjectEditor" />
     </div>
 
-    <div class="row">
-      <div class="col-12 bg-secondary pt5-sm">
-        <h1>{{ activeProject.Payee }}</h1>
+    <div class="row bg-secondary py-2">
+      <div class="col-12">
+        <i
+          class="fas fa-cog settings-icon"
+          type="button"
+          @click="toggleSettingsBox"
+        ></i>
+        <div
+          v-if="showSettingsBox"
+          class="settings-box p-3 text-dark d-flex flex-column"
+        >
+          <button class="btn btn-green my-1" @click="toggleProjectEditor">
+            Edit Project
+          </button>
+          <button class="btn btn-danger my-1" @click="deleteProject">
+            Delete Project
+          </button>
+        </div>
+        <div class="dynamic-header">{{ activeProject.Payee }}</div>
       </div>
     </div>
-    <div class="container">
-      <div class="row d-flex justify-content-center">
-        <div class="col-lg-8 col-12 my-2 order-2 order-lg-1">
+    <div class="container-fluid mt-5">
+      <div class="row d-flex justify-content-around">
+        <div class="col-lg-7 col-12 my-2 order-2 order-lg-1">
           <div class="row bg-primary rounded-top text-white">
             <div
               class="col-12 d-flex justify-content-center"
@@ -68,7 +67,7 @@
               {{ milestoneEnd }}
             </div>
             <div
-              class="col-12 bg-light rounded-bottom"
+              class="col-12 bg-light"
               v-if="activeProject.PayPeriod != 'Milestone'"
             >
               <time-clock-group-component
@@ -76,6 +75,23 @@
                 :key="`timeClockGroup-${index}`"
                 :timeClocks="payPeriodDisplay[index]"
               />
+              <div class="row"></div>
+            </div>
+            <div class="col-12 bg-light" v-else>
+              <time-clock-group-component
+                v-for="(timeClockGroup, index) in timeClockGroups"
+                :key="`timeClockGroup-${index}`"
+                :timeClocks="timeClockGroups[index]"
+              />
+              <add-time-component
+                v-if="showAddTimeComp"
+                :project="activeProject"
+                @addTimeClock="addTimeClock"
+              />
+            </div>
+            <div
+              class="col-12 bg-light rounded-bottom d-flex justify-content-between"
+            >
               <add-time-component
                 v-if="showAddTimeComp"
                 @closeModal="toggleShowAddTimeComp"
@@ -87,24 +103,19 @@
               >
                 Add Time
               </button>
-            </div>
-            <div class="col-12 bg-light rounded-bottom" v-else>
-              <time-clock-group-component
-                v-for="(timeClockGroup, index) in timeClockGroups"
-                :key="`timeClockGroup-${index}`"
-                :timeClocks="timeClockGroups[index]"
-              />
-              <add-time-component
-                v-if="showAddTimeComp"
-                :project="activeProject"
-                @addTimeClock="addTimeClock"
-              />
               <button
-                v-if="!showAddTimeComp"
+                v-if="!clockedIn && !clicked"
+                @click="clockIn"
                 class="btn btn-green m-2"
-                @click="toggleShowAddTimeComp"
               >
-                Add Time
+                Clock-In
+              </button>
+              <button
+                v-else
+                @click="toggleClockOutForm"
+                class="btn btn-danger m-2"
+              >
+                Clock-Out
               </button>
             </div>
           </div>
@@ -125,11 +136,7 @@
             </div>
             <div class="container my-2">
               <div class="row bg-primary text-white rounded-top">
-                <div v-if="activeProject.PayType == 'Hourly'" class="col-6">
-                  <input v-model="OTEnabled" type="checkbox" />
-                  Overtime
-                </div>
-                <div v-if="activeProject.PayType == 'Hourly'" class="col-6">
+                <div v-if="activeProject.PayType == 'Hourly'" class="col-12">
                   Estimated Pay
                 </div>
                 <div v-else class="col-12">Estimated Pay</div>
@@ -153,6 +160,8 @@
                 </div>
               </div>
             </div>
+
+            <!-- REGION INVOICE BUTTON -->
             <div class="container my-2">
               <div class="row bg-primary text-white rounded-top">
                 <div class="col-12">Invoice Status:</div>
@@ -163,22 +172,10 @@
                 </div>
               </div>
             </div>
+            <!-- END REGION INVOICE BUTTON -->
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="col-12 d-flex flex-end">
-      <button
-        v-if="!clockedIn && !clicked"
-        @click="clockIn"
-        class="btn btn-green m-2"
-      >
-        Clock-In
-      </button>
-      <button v-else @click="toggleClockOutForm" class="btn btn-danger m-2">
-        Clock-Out
-      </button>
     </div>
   </div>
 </template>
@@ -331,6 +328,9 @@ export default {
     payPeriodDisplay() {
       return this.$store.state.payPeriodDisplay;
     },
+    weeks() {
+      return this.$store.state.weeks;
+    },
   },
   components: {
     TimeClockGroupComponent,
@@ -373,8 +373,8 @@ export default {
 
 .settings-icon {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 0px;
+  right: 0px;
   z-index: 102;
   font-size: 1.5rem;
 }
@@ -424,5 +424,15 @@ li {
   bottom: 0;
   left: 0;
   z-index: 1;
+}
+
+.dynamic-header {
+  font-size: 2rem;
+}
+
+@media screen and (min-width: 992px) {
+  .dynamic-header {
+    font-size: 3rem;
+  }
 }
 </style>

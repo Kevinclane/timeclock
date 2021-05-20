@@ -22,11 +22,13 @@ async function createSubscriptionIfNeeded(profile) {
       { Subscription: profile.Subscription._id }
     )
   }
-  profile.Subscription.PayPalData = {
-    billingToken: profile.Subscription.PayPalData.billingToken,
-    orderID: profile.Subscription.PayPalData.orderID,
-    plan_id: profile.Subscription.PayPalData.plan_id,
-    subscriptionID: profile.Subscription.PayPalData.subscriptionID
+  if (profile.Subscription.SubStatus != "Free") {
+    profile.Subscription.PayPalData = {
+      billingToken: profile.Subscription.PayPalData.billingToken,
+      orderID: profile.Subscription.PayPalData.orderID,
+      plan_id: profile.Subscription.PayPalData.plan_id,
+      subscriptionID: profile.Subscription.PayPalData.subscriptionID
+    }
   }
   return profile
 }

@@ -15,9 +15,13 @@ export default {
   data() {
     return {
       estimatedPay: 0,
+      // totalTimes: 0,
       OTHours: 0,
       OTRate: 0,
     };
+  },
+  mounted() {
+    // this.splitWeeks();
   },
   computed: {
     totalTimes() {
@@ -34,5 +38,6 @@ export default {
       return times;
     },
   },
+  methods: {},
 };
 </script>
