@@ -290,18 +290,23 @@ export default new Vuex.Store({
 
     //#region  --MISC FUNCTIONS --
     //Finds and sets all TimeClockGroups based on active PayPeriod selection
-    updatePPSelection({ commit, dispatch }) {
+    async updatePPSelection({ commit, dispatch }) {
       let timeClockGroups = this.state.timeClockGroups
       if (this.state.payPeriodSelection == "") {
         let inital = this.state.activeProject.InvoiceGroups.find((x) => x.Current);
         let start = moment(inital.StartDay).format("MM/DD/YYYY");
         let end = moment(inital.EndDay).format("MM/DD/YYYY");
         let newPP = `${start} - ${end}`;
-        commit("setPPSelection", newPP)
+        await commit("setPPSelection", newPP)
       }
       let split = this.state.payPeriodSelection.split("-");
-      let start = moment(split[0]);
-      let end = moment(split[1]);
+      let startSplit = split[0].split("/")
+      let endSplit = split[1].split("/")
+      debugger
+      // let start = moment(startSplit[1] + "/" + startSplit[0] + "/" + startSplit[2]);
+      // let end = moment(endSplit[1] + "/" + endSplit[0] + "/" + endSplit[2]);
+      let start = moment(split[0])
+      let end = moment(split[1])
       let i = 0;
       //loops over every payPeriod object in InvoiceGroups
       while (i < this.state.activeProject.InvoiceGroups.length) {
@@ -324,7 +329,6 @@ export default new Vuex.Store({
       dispatch("weeklyTimes")
     },
     async changePPSelection({ commit, dispatch }, newPP) {
-      debugger
       await commit("setPPSelection", newPP)
       dispatch("updatePPSelection")
     },
@@ -338,11 +342,10 @@ export default new Vuex.Store({
 
       //Split into separate weeks
       let weeks = []
-      // let finished = false
       let tempStart = start
       while (tcg.length > 0) {
-        let weekS = moment(tempStart).format("DD/MM/YYYY")
-        let weekE = moment(tempStart).add(6, "days").format("DD/MM/YYYY")
+        let weekS = moment(tempStart).format("MM/DD/YYYY")
+        let weekE = moment(tempStart).add(6, "days").format("MM/DD/YYYY")
         let week = weekS + "-" + weekE
         weekE = moment(tempStart).add(6, "days")
         let weeklyTcs = []

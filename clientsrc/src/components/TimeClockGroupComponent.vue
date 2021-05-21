@@ -30,7 +30,6 @@ export default {
       return moment(this.timeClocks[0].StartTime).format("MM/DD/YYYY");
     },
     dayTotalHours() {
-      // debugger;
       let times = this.timeClocks;
       let i = 0;
       let total = 0;

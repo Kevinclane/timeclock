@@ -37,6 +37,7 @@
           <button class="btn btn-danger my-1" @click="deleteProject">
             Delete Project
           </button>
+          <button class="btn btn-info">Overtime</button>
         </div>
         <div class="dynamic-header">{{ activeProject.Payee }}</div>
       </div>
@@ -66,22 +67,11 @@
               -
               {{ milestoneEnd }}
             </div>
-            <div
-              class="col-12 bg-light"
-              v-if="activeProject.PayPeriod != 'Milestone'"
-            >
-              <time-clock-group-component
-                v-for="(timeClockGroup, index) in payPeriodDisplay"
-                :key="`timeClockGroup-${index}`"
-                :timeClocks="payPeriodDisplay[index]"
-              />
-              <div class="row"></div>
-            </div>
-            <div class="col-12 bg-light" v-else>
-              <time-clock-group-component
-                v-for="(timeClockGroup, index) in timeClockGroups"
-                :key="`timeClockGroup-${index}`"
-                :timeClocks="timeClockGroups[index]"
+            <div class="col-12 bg-light text-right">
+              <week-component
+                v-for="(week, index) in weeks"
+                :key="`week-${index}`"
+                :week="weeks[index]"
               />
               <add-time-component
                 v-if="showAddTimeComp"
@@ -120,8 +110,10 @@
             </div>
           </div>
         </div>
+
         <div class="col-lg-3 mx-2 col-12 order-1 order-lg-2">
           <div class="row">
+            <!--REGION TOTAL TIME-->
             <div class="container my-2">
               <div class="row bg-primary text-white rounded-top">
                 <div class="col-12">Total Time</div>
@@ -134,6 +126,9 @@
                 </div>
               </div>
             </div>
+            <!--END REGION TOTAL TIME-->
+
+            <!--REGION ESTIMATED PAY-->
             <div class="container my-2">
               <div class="row bg-primary text-white rounded-top">
                 <div v-if="activeProject.PayType == 'Hourly'" class="col-12">
@@ -160,6 +155,7 @@
                 </div>
               </div>
             </div>
+            <!--END REGION ESTIMATED PAY-->
 
             <!-- REGION INVOICE BUTTON -->
             <div class="container my-2">
@@ -181,7 +177,7 @@
 </template>
 
 <script>
-import TimeClockGroupComponent from "../components/TimeClockGroupComponent.vue";
+import WeekComponent from "../components/WeekComponent.vue";
 import HourlyComponent from "../components/PayCalcComponents/HourlyComponent.vue";
 import SalaryComponent from "../components/PayCalcComponents/SalaryComponent.vue";
 import MilestoneComponent from "../components/PayCalcComponents/MilestoneComponent.vue";
@@ -211,7 +207,7 @@ export default {
       "getActiveProject",
       this.$route.params.projectId
     );
-    if (this.activeProject != {}) {
+    if (this.activeProject !== {}) {
       this.setPPSelection();
     }
     this.loading = false;
@@ -333,7 +329,7 @@ export default {
     },
   },
   components: {
-    TimeClockGroupComponent,
+    WeekComponent,
     HourlyComponent,
     EditProjectFormModal,
     SalaryComponent,

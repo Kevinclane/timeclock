@@ -138,4 +138,8 @@ button {
     height: 2rem;
   }
 }
+
+.border-bottom-black {
+  border-bottom: 2px solid black;
+}
 </style>
