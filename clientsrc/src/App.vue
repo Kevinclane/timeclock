@@ -105,6 +105,9 @@ select {
 .btn-green {
   background-color: green;
 }
+.border-left-green {
+  border-left: green solid 1px;
+}
 .center-center {
   display: flex;
   justify-content: center;

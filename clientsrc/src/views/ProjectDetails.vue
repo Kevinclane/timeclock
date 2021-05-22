@@ -21,6 +21,7 @@
     </div>
 
     <div class="row bg-secondary py-2">
+      <!--REGION COG DROPDOWN BUTTON-->
       <div class="col-12">
         <i
           class="fas fa-cog settings-icon"
@@ -41,6 +42,7 @@
         </div>
         <div class="dynamic-header">{{ activeProject.Payee }}</div>
       </div>
+      <!--END REGION COG DROPDOWN-->
     </div>
     <div class="container-fluid mt-5">
       <div class="row d-flex justify-content-around">
@@ -75,17 +77,12 @@
               />
               <add-time-component
                 v-if="showAddTimeComp"
-                :project="activeProject"
-                @addTimeClock="addTimeClock"
+                @closeModal="toggleShowAddTimeComp"
               />
             </div>
             <div
               class="col-12 bg-light rounded-bottom d-flex justify-content-between"
             >
-              <add-time-component
-                v-if="showAddTimeComp"
-                @closeModal="toggleShowAddTimeComp"
-              />
               <button
                 v-if="!showAddTimeComp"
                 class="btn btn-green m-2"
@@ -139,7 +136,7 @@
                   <hourly-component
                     v-if="activeProject.PayType == 'Hourly'"
                     :project="activeProject"
-                    :times="totalTimes"
+                    :weeks="weeks"
                     :OTEnabled="OTEnabled"
                   />
                   <salary-component

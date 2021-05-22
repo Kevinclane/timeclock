@@ -3,10 +3,12 @@
     <div class="col-12 center-center bg-cstm-blue">New Time</div>
     <form @submit="addTimeClock">
       <div class="row my-2">
-        <div class="col-lg-4 col-12 dynamic-time-title">
+        <div class="col-lg-4 col-12 text-center dynamic-time-title">
           <h5>Start:</h5>
         </div>
-        <div class="col-lg-8 col-12 d-flex dynamic-time-form">
+        <div
+          class="col-lg-8 col-10 offset-1 offset-lg-0 d-flex dynamic-time-form"
+        >
           <input
             class="w-5rem"
             type="number"
@@ -54,10 +56,12 @@
             required
           />
         </div>
-        <div class="col-lg-4 col-12 dynamic-time-title">
+        <div class="col-lg-4 col-12 text-center dynamic-time-title">
           <h5>End:</h5>
         </div>
-        <div class="col-lg-8 col-12 d-flex dynamic-time-form">
+        <div
+          class="col-lg-8 col-10 offset-1 offset-lg-0 d-flex dynamic-time-form"
+        >
           <input
             class="w-5rem"
             type="number"

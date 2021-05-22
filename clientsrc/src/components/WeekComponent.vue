@@ -10,7 +10,7 @@
     <div class="col-12 text-black py-2">
       <div class="row m-2">
         <div class="col-12 border-bottom-black">
-          <div>Week of {{ week.readable }}</div>
+          <!-- <div>Week of {{ week.readable }}</div> -->
           <div>Hours this week: {{ week.totalTimes }}</div>
         </div>
       </div>

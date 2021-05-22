@@ -1,43 +1,84 @@
 <template>
   <div class="row bg-secondary text-white border-times m-2">
-    <div class="col-12">{{ totalTimes }} Hours at ${{ project.Rate }}/hr</div>
-    <div class="col-12" v-if="OTHours > 0 && OTEnabled">
-      {{ OTHours }} Hours at ${{ OTRate }}/hr
+    <div v-if="!showDetails" class="col-12 text-left">
+      <i
+        class="fa fa-plus"
+        type="button"
+        @click="toggleShowDetails"
+        aria-hidden="true"
+      ></i>
     </div>
-    <h3 class="col-12 my-2">${{ estimatedPay }}</h3>
+    <div v-else class="col-12 text-left">
+      <i
+        class="fa fa-minus"
+        type="button"
+        @click="toggleShowDetails"
+        aria-hidden="true"
+      ></i>
+      <div
+        v-for="(week, index) in weeks"
+        :key="`week-${index}`"
+        class="row text-center"
+      >
+        <div v-if="!week.OTHours" class="col-8">
+          {{ week.totalTimes }} x ${{ project.Rate }}/hr
+        </div>
+        <div v-if="!week.OTHours" class="col-4 border-left-green">
+          ${{ week.pay }}
+        </div>
+
+        <div v-if="week.OTHours" class="col-8">
+          {{ week.regHours }} x ${{ project.Rate }}/hr
+        </div>
+        <div v-if="week.OTHours" class="col-4 border-left-green">
+          ${{ week.regPay }}
+        </div>
+        <div v-if="week.OTHours" class="col-8">
+          {{ week.OTHours }} x ${{ week.OTRate }}/hr
+        </div>
+        <div v-if="week.OTHours" class="col-4 border-left-green">
+          ${{ week.OTPay }}
+        </div>
+      </div>
+    </div>
+    <h4 class="col-12 py-2">${{ totalPay }}</h4>
   </div>
 </template>
 
 <script>
 export default {
   name: "HourlyComponent",
-  props: ["project", "times", "OTEnabled"],
+  props: ["project", "weeks", "OTEnabled"],
   data() {
     return {
       estimatedPay: 0,
-      // totalTimes: 0,
       OTHours: 0,
       OTRate: 0,
+      showDetails: false,
     };
   },
-  mounted() {
-    // this.splitWeeks();
-  },
+  mounted() {},
   computed: {
-    totalTimes() {
-      let times = this.times;
-      if (times > 40 && this.OTEnabled) {
-        this.OTHours = parseFloat((times - 40).toFixed(2));
-        times = 40;
-        this.OTRate = parseFloat((this.project.Rate * 1.5).toFixed(2));
-        this.estimatedPay = parseFloat((this.OTHours * this.OTRate).toFixed(2));
-        this.estimatedPay += parseFloat((40 * this.project.Rate).toFixed(2));
-      } else {
-        this.estimatedPay = parseFloat((times * this.project.Rate).toFixed(2));
+    totalPay() {
+      let i = 0;
+      let total = 0;
+      while (i < this.weeks.length) {
+        total += this.weeks[i].pay;
+        i++;
       }
-      return times;
+      return total;
     },
   },
-  methods: {},
+  methods: {
+    toggleShowDetails() {
+      this.showDetails = !this.showDetails;
+    },
+  },
 };
 </script>
+
+<style scoped>
+.bb {
+  border-bottom: 2px solid black;
+}
+</style>

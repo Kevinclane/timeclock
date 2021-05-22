@@ -300,11 +300,6 @@ export default new Vuex.Store({
         await commit("setPPSelection", newPP)
       }
       let split = this.state.payPeriodSelection.split("-");
-      let startSplit = split[0].split("/")
-      let endSplit = split[1].split("/")
-      debugger
-      // let start = moment(startSplit[1] + "/" + startSplit[0] + "/" + startSplit[2]);
-      // let end = moment(endSplit[1] + "/" + endSplit[0] + "/" + endSplit[2]);
       let start = moment(split[0])
       let end = moment(split[1])
       let i = 0;
@@ -347,7 +342,7 @@ export default new Vuex.Store({
         let weekS = moment(tempStart).format("MM/DD/YYYY")
         let weekE = moment(tempStart).add(6, "days").format("MM/DD/YYYY")
         let week = weekS + "-" + weekE
-        weekE = moment(tempStart).add(6, "days")
+        weekE = moment(tempStart).add(7, "days")
         let weeklyTcs = []
         let x = 0
         let finished = false
@@ -356,7 +351,7 @@ export default new Vuex.Store({
           //currentTCG is an array of Timeclocks of the same day
           let currentTCG = tcg[x]
           let check = moment(currentTCG[0].StartTime)
-          let inWeekCheck = check.isSameOrBefore(weekE)
+          let inWeekCheck = check.isBefore(weekE)
           //if the day array is within the week, push to the week's array and remove from list
           if (inWeekCheck) {
             weeklyTcs.push(currentTCG)
@@ -401,6 +396,19 @@ export default new Vuex.Store({
           x++
         }
         weeks[i].totalTimes = total.toFixed(2);
+        let PS = this.state.activeProject.ProjectSettings
+        if (PS.OT && weeks[i].totalTimes > 40) {
+          weeks[i].OTHours = parseFloat((weeks[i].totalTimes - 40).toFixed(2))
+          weeks[i].OTRate = parseFloat((this.state.activeProject.Rate * PS.OTRate).toFixed(2))
+          weeks[i].regHours = 40
+          weeks[i].OTPay = parseFloat(((weeks[i].totalTimes - 40) * (this.state.activeProject.Rate * PS.OTRate)).toFixed(2))
+          let payTotal = 40 * this.state.activeProject.Rate
+          weeks[i].regPay = payTotal.toFixed(2)
+          payTotal += parseFloat((weeks[i].totalTimes - 40) * (this.state.activeProject.Rate * PS.OTRate).toFixed(2))
+          weeks[i].pay = parseFloat(payTotal.toFixed(2))
+        } else {
+          weeks[i].pay = parseFloat((weeks[i].totalTimes * this.state.activeProject.Rate).toFixed(2))
+        }
         i++
       }
       commit("setWeeks", weeks)

@@ -50,10 +50,6 @@ export default {
 </script>
 
 <style scoped>
-.border-left-green {
-  border-left: green solid 1px;
-}
-
 @media screen and (max-width: 768px) {
   .border-left-green {
     border-left: hidden;

@@ -7,6 +7,7 @@ import DateTestSchema from "../models/Date"
 import SubscriptionSchema from "../models/Subscription"
 import PlanSchema from "../models/Plan"
 import UserSettingsSchema from "../models/UserSettings"
+import ProjectSettingsSchema from "../models/ProjectSettings"
 
 class DbContext {
   Profile = mongoose.model("Profile", ProfileSchema);
@@ -17,6 +18,7 @@ class DbContext {
   Subscription = mongoose.model("Subscription", SubscriptionSchema)
   Plan = mongoose.model("Plan", PlanSchema)
   UserSettings = mongoose.model("UserSettings", UserSettingsSchema)
+  ProjectSettings = mongoose.model("ProjectSettings", ProjectSettingsSchema)
 }
 
 export const dbContext = new DbContext();
