@@ -82,6 +82,7 @@
   </div>
 </template>
 
+
 <script>
 import PlanCard from "../../components/Cards/PlanCard";
 export default {

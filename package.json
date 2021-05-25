@@ -18,9 +18,10 @@
     "dotenv": "^8.1.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
+    "file-saver": "^2.0.5",
     "helmet": "^3.21.2",
     "moment": "^2.29.1",
-    "mongoose": "^5.8.0",
+    "mongoose": "^5.12.11",
     "socket.io": "^2.4.1",
     "sweetalert": "^2.1.2"
   },

@@ -125,6 +125,12 @@ select {
 .text-red {
   color: red;
 }
+.text-darker {
+  color: #222222;
+}
+.text-green {
+  color: green;
+}
 body {
   font-size: medium;
 }

@@ -156,11 +156,33 @@
 
             <!-- REGION INVOICE BUTTON -->
             <div class="container my-2">
-              <div class="row bg-primary text-white rounded-top">
-                <div class="col-12">Invoice Status:</div>
+              <div
+                v-if="invoiceReady"
+                class="row bg-primary text-white rounded-top"
+              >
+                <div class="col-12">Invoice Status: Ready</div>
                 <div class="col-12 bg-light rounded-bottom">
-                  <div class="row d-flex justify-content-center">
-                    <button class="btn btn-green m-2">Generate</button>
+                  <div class="row py-3">
+                    <div class="col-12 d-flex justify-content-around">
+                      <button class="btn btn-info">Word Doc</button>
+                      <button class="btn btn-danger">PDF</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="row bg-primary text-white rounded-top">
+                <div class="col-12">Invoice Status: In Progress</div>
+                <div class="col-12 bg-light rounded-bottom">
+                  <div class="row py-3">
+                    <div v-if="!forceShowInvoice" class="col-12">
+                      <button @click="setInvoiceReady()" class="btn btn-danger">
+                        Force Load
+                      </button>
+                    </div>
+                    <div v-else class="col-12 d-flex justify-content-around">
+                      <button class="btn btn-info">Word Doc</button>
+                      <button class="btn btn-danger">PDF</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -192,6 +214,7 @@ export default {
       showClockOutForm: false,
       editProject: false,
       showAddTimeComp: false,
+      forceShowInvoice: false,
       payPeriodSelection: "",
       // payPeriodDisplay: [],
       loading: true,
@@ -236,6 +259,9 @@ export default {
     },
     toggleClockOutForm() {
       this.showClockOutForm = !this.showClockOutForm;
+    },
+    setInvoiceReady() {
+      this.forceShowInvoice = true;
     },
     deleteProject() {
       swal({
@@ -315,14 +341,17 @@ export default {
         return moment().format("MM/DD/YYYY");
       }
     },
-    // payPeriodSelection() {
-    //   return this.$store.state.payPeriodSelection;
-    // },
     payPeriodDisplay() {
       return this.$store.state.payPeriodDisplay;
     },
     weeks() {
       return this.$store.state.weeks;
+    },
+    invoiceReady() {
+      let today = moment();
+      let activePP = this.$store.state.payPeriodSelection;
+      let split = activePP.split("-");
+      return moment(split[1]).isSameOrBefore(today);
     },
   },
   components: {

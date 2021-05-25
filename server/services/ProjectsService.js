@@ -34,7 +34,8 @@ async function createProjectSettingsIfNeeded(project) {
         new: true
       }
     )
-  } else return project
+  }
+  return project
 }
 
 class ProjectsService {

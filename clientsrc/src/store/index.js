@@ -429,12 +429,12 @@ export default new Vuex.Store({
     async getAllPlans({ commit }) {
       let res = await api.get("/plans")
       commit("setAllPlans", res.data)
-      console.log("Plans:", res.data)
+      // console.log("Plans:", res.data)
     },
     async updateUserSubscription({ commit, dispatch }, paypalRes) {
       let reqData = {
         user: this.state.user,
-        paypal: this.paypalRes
+        paypal: paypalRes
       }
       let res = await api.put("/subscriptions/updatesubscription", reqData)
       console.log("Sub Update: ", res.data)

@@ -4,9 +4,9 @@
       <router-link
         class="navbar-brand col m-0 d-flex align-items-center justify-content-start"
         :to="{ name: 'home' }"
-        >Home</router-link
-      >
-      <router-link
+        ><i class="fa fa-2x fa-home text-dark" aria-hidden="true"></i
+      ></router-link>
+      <!-- <router-link
         v-if="$auth.isAuthenticated"
         class="navbar-brand col m-0 center-center"
         :to="{ name: 'dashboard' }"
@@ -33,9 +33,9 @@
           Login
         </button>
         <button class="btn btn-danger" @click="logout" v-else>logout</button>
-      </span>
-      <!-- <button
-        class="navbar-toggler hide-lg col-0"
+      </span> -->
+      <button
+        class="navbar-toggler col-0 mr-3 h-100"
         type="button"
         data-toggle="collapse"
         data-target="#navbarText"
@@ -47,11 +47,6 @@
       </button>
       <div class="collapse navbar-collapse col-12" id="navbarText">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item" :class="{ active: $route.name == 'home' }">
-            <router-link :to="{ name: 'home' }" class="nav-link"
-              >Home</router-link
-            >
-          </li>
           <li
             v-if="$auth.isAuthenticated"
             class="nav-item"
@@ -59,6 +54,24 @@
           >
             <router-link :to="{ name: 'dashboard' }" class="nav-link"
               >Dashboard</router-link
+            >
+          </li>
+          <li
+            v-if="$auth.isAuthenticated"
+            class="nav-item"
+            :class="{ active: $route.name == 'subscriptions' }"
+          >
+            <router-link :to="{ name: 'subscriptions' }" class="nav-link"
+              >Subscriptions</router-link
+            >
+          </li>
+          <li
+            v-if="$auth.isAuthenticated && isAdmin"
+            class="nav-item"
+            :class="{ active: $route.name == 'adminsubs' }"
+          >
+            <router-link :to="{ name: 'adminsubs' }" class="nav-link"
+              >Admin</router-link
             >
           </li>
         </ul>
@@ -72,7 +85,7 @@
           </button>
           <button class="btn btn-danger" @click="logout" v-else>logout</button>
         </span>
-      </div> -->
+      </div>
     </div>
   </nav>
 </template>
