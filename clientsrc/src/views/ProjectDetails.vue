@@ -15,9 +15,10 @@
       />
     </div>
     <!--END CLOCKOUT MODAL-->
-
-    <div v-if="editProject" class="container modal-content">
-      <edit-project-form-modal @closeModal="toggleProjectEditor" />
+    <div v-if="editProject" class="backdrop">
+      <div class="container modal-content">
+        <edit-project-form-modal @closeModal="toggleProjectEditor" />
+      </div>
     </div>
 
     <div class="row bg-secondary py-2">
@@ -38,7 +39,8 @@
           <button class="btn btn-danger my-1" @click="deleteProject">
             Delete Project
           </button>
-          <button class="btn btn-info">Overtime</button>
+          <input type="check-box" />
+          <button class="btn btn-info my-1">Overtime</button>
         </div>
         <div class="dynamic-header">{{ activeProject.Payee }}</div>
       </div>
@@ -253,6 +255,9 @@ export default {
     },
     toggleProjectEditor() {
       this.editProject = !this.editProject;
+      if (this.editProject) {
+        this.toggleSettingsBox();
+      }
     },
     toggleShowAddTimeComp() {
       this.showAddTimeComp = !this.showAddTimeComp;
@@ -446,15 +451,5 @@ li {
   bottom: 0;
   left: 0;
   z-index: 1;
-}
-
-.dynamic-header {
-  font-size: 2rem;
-}
-
-@media screen and (min-width: 992px) {
-  .dynamic-header {
-    font-size: 3rem;
-  }
 }
 </style>

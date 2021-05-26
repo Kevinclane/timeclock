@@ -52,6 +52,9 @@ export default {
   },
   async mounted() {
     await this.$store.dispatch("getProjects");
+    if (!this.profile) {
+      this.getProfile();
+    }
     await this.getProfile();
     this.loading = false;
   },
@@ -76,10 +79,7 @@ export default {
       }
     },
     getProfile() {
-      let profile = this.$store.state.user;
-      if (!profile) {
-        this.$store.dispatch("getProfile");
-      }
+      this.$store.dispatch("getProfile");
     },
   },
   computed: {
@@ -101,6 +101,9 @@ export default {
       if (projects.length > 0 && status == "Free") {
         return true;
       } else return false;
+    },
+    profile() {
+      return this.$store.state.user;
     },
   },
   components: { NewProjectFormModal, ProjectCard },

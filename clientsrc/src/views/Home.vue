@@ -5,6 +5,8 @@
     >
       <h1 class="col-6 text-center">Time Tracker</h1>
       <h2 class="col-12">Beta version is now live!</h2>
+      <input type="text" v-model="test" />
+      <button @click="testFN()">test</button>
     </div>
     <div
       class="row my-5 py-3 component2 d-flex justify-content-center align-items-center"
@@ -108,6 +110,15 @@ export default {
         this.$store.dispatch("setBearer", this.$auth.bearer);
         this.$store.dispatch("getProfile");
         router.push({ name: "dashboard" });
+      }
+    },
+    testFN() {
+      debugger;
+      if (this.test.includes(".")) {
+        let split = this.test.split(".");
+        let isnum0 = /^\d+$/.test(split[0]);
+        let isnum1 = /^\d+$/.test(split[1]);
+        console.log(this.test);
       }
     },
   },

@@ -4,7 +4,8 @@ import Home from '../views/Home.vue'
 import Dashboard from '../views/Dashboard.vue'
 import ProjectDetails from '../views/ProjectDetails.vue'
 import Subscriptions from "../views/Subscriptions.vue"
-import AdminSubscriptions from "../views/Admin/AdminSubscriptions.vue"
+import Admin from "../views/Admin/Admin.vue"
+import Feedback from "../views/Feedback.vue"
 import { authGuard } from "@bcwdev/auth0-vue"
 
 Vue.use(Router)
@@ -35,9 +36,15 @@ export default new Router({
       beforeEnter: authGuard
     },
     {
-      path: '/adminsubs',
-      name: 'adminsubs',
-      component: AdminSubscriptions,
+      path: '/admin',
+      name: 'admin',
+      component: Admin,
+      beforeEnter: authGuard
+    },
+    {
+      path: '/feedback',
+      name: 'feedback',
+      component: Feedback,
       beforeEnter: authGuard
     },
     {

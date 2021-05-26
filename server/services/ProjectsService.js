@@ -38,6 +38,39 @@ async function createProjectSettingsIfNeeded(project) {
   return project
 }
 
+//returns true if there have been too many projects created within time limit
+async function checkServerCache(email, type) {
+  let serverCache = await dbContext.ServerCache.find({
+    CreatorEmail: email,
+    Type: type
+  })
+  let i = 0
+  let now = moment()
+  let res = false
+
+  while (i < serverCache.length) {
+    let expired = moment(serverCache[i].Exp).isSameOrBefore(now)
+    if (expired) {
+      await dbContext.ServerCache.findByIdAndDelete(serverCache._id)
+      serverCache.splice(i, 1)
+    } else {
+      i++
+    }
+  }
+  if (serverCache.length > 9) {
+    res = true
+  }
+  return res
+}
+
+async function createServerCache(email, type) {
+  await dbContext.ServerCache.create({
+    CreatorEmail: email,
+    Type: type,
+    Exp: moment().add(1, "hours")
+  })
+}
+
 class ProjectsService {
   async getProjects(user) {
     let projects = await dbContext.Project.find({
@@ -58,28 +91,39 @@ class ProjectsService {
   }
   async createProject(projectData) {
     let profile = await dbContext.Profile.findOne({ Email: projectData.CreatorEmail }).populate("Subscription");
-    let projects = await dbContext.Project.find({ CreatorEmail: projectData.CreatorEmail })
-    // let subscription = await 
-    if (profile.Subscription == "Free" && projects.length >= 1) {
-      throw new BadRequest("You must be subscribed to create more projects.")
+    let serverCache = await checkServerCache(projectData.CreatorEmail, "createProject")
+    if (serverCache) {
+      throw new BadRequest("You have created too many projects recently. Please wait a little while before trying again.")
     } else {
-      let project = await clearExcessData(projectData)
-      project = await dbContext.Project.create(projectData)
-      return project
+      let projects = await dbContext.Project.find({ CreatorEmail: projectData.CreatorEmail })
+      if (profile.Subscription == "Free" && projects.length >= 1) {
+        throw new BadRequest("You must be subscribed to create more projects.")
+      } else {
+        let project = await clearExcessData(projectData)
+        project = await dbContext.Project.create(projectData)
+        createServerCache(project.CreatorEmail, "createProject")
+        return project
+      }
     }
   }
   async editProject(projectData) {
-    let project = await clearExcessData(projectData)
-    project = await dbContext.Project.findOneAndUpdate({
-      _id: projectData.id,
-      CreatorEmail: projectData.CreatorEmail
-    },
-      projectData,
-      {
-        new: true
-      }
-    )
-    return project
+    let serverCache = await checkServerCache(projectData.CreatorEmail, "editProject")
+    if (serverCache) {
+      throw new BadRequest("You have edited too many projects recently. Please wait a little while before trying again.")
+    } else {
+      let project = await clearExcessData(projectData)
+      project = await dbContext.Project.findOneAndUpdate({
+        _id: projectData.id,
+        CreatorEmail: projectData.CreatorEmail
+      },
+        projectData,
+        {
+          new: true
+        }
+      ).populate("ProjectSettings")
+      createServerCache(project.CreatorEmail, "editProject")
+      return project
+    }
   }
   async deleteProject(email, id) {
     await dbContext.Project.findOneAndDelete({

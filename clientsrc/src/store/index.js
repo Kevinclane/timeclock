@@ -1,4 +1,5 @@
 import moment from "moment"
+import swal from "sweetalert"
 import Vue from 'vue'
 import Vuex from 'vuex'
 import router from '../router/index'
@@ -163,8 +164,8 @@ export default new Vuex.Store({
     async editProject({ commit, dispatch }, projectData) {
       try {
         let res = await api.put("/projects/" + projectData.id, projectData)
-        commit("setActiveProject", res.data)
-        dispatch("groupTimeClocks")
+        await commit("setActiveProject", res.data)
+        dispatch("weeklyTimes")
       } catch (error) {
         console.error(error)
       }
@@ -412,6 +413,14 @@ export default new Vuex.Store({
         i++
       }
       commit("setWeeks", weeks)
+    },
+    async submitFeedback({ commit, dispatch }, feedback) {
+      try {
+        let res = await api.post("/feedback", feedback)
+        console.log(res.data)
+      } catch (error) {
+        console.error(error)
+      }
     },
     //#endregion
 

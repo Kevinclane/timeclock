@@ -66,11 +66,20 @@
             >
           </li>
           <li
+            v-if="$auth.isAuthenticated"
+            class="nav-item"
+            :class="{ active: $route.name == 'feedback' }"
+          >
+            <router-link :to="{ name: 'feedback' }" class="nav-link"
+              >Feedback</router-link
+            >
+          </li>
+          <li
             v-if="$auth.isAuthenticated && isAdmin"
             class="nav-item"
-            :class="{ active: $route.name == 'adminsubs' }"
+            :class="{ active: $route.name == 'admin' }"
           >
-            <router-link :to="{ name: 'adminsubs' }" class="nav-link"
+            <router-link :to="{ name: 'admin' }" class="nav-link"
               >Admin</router-link
             >
           </li>

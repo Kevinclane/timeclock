@@ -147,8 +147,23 @@ button {
     height: 2rem;
   }
 }
-
 .border-bottom-black {
   border-bottom: 2px solid black;
+}
+.dynamic-header {
+  font-size: 2rem;
+}
+@media screen and (min-width: 992px) {
+  .dynamic-header {
+    font-size: 3rem;
+  }
+}
+.dynamic-header2 {
+  font-size: 1rem;
+}
+@media screen and (min-width: 992px) {
+  .dynamic-header2 {
+    font-size: 2rem;
+  }
 }
 </style>

@@ -124,10 +124,9 @@ export default {
   methods: {
     editProject(e) {
       e.preventDefault();
-      let abort = false;
       let emptyFields = [];
+      let abort = this.characterCheck();
       this.trimWhiteSpace();
-      debugger;
       if (
         this.project.PayPeriod == "Weekly" ||
         this.project.PayPeriod == "Bi-Weekly"
@@ -148,7 +147,6 @@ export default {
         abort = true;
       }
       if (!abort) {
-        this.characterCheck();
         this.$store.dispatch("editProject", { ...this.project });
         this.$emit("closeModal");
       } else {
@@ -157,6 +155,9 @@ export default {
         while (i < emptyFields.length) {
           missing += emptyFields[i];
           i++;
+        }
+        if (missing == ``) {
+          missing = "Rate must be a number";
         }
         swal({
           title: "Missing fields:",
@@ -169,26 +170,33 @@ export default {
       this.$emit("closeModal");
     },
     trimWhiteSpace() {
-      this.project.Title = this.project.Title.trim();
       this.project.Payee = this.project.Payee.trim();
       if (typeof this.project.Rate == "number") {
         this.project.Rate = this.project.Rate.toString();
       }
-      this.project.Rate = parseInt(this.project.Rate.trim());
+      this.project.Rate = this.project.Rate.trim();
     },
     characterCheck() {
-      this.project.Title = this.project.Title.replace(
-        /[&\/\\#,+()$~%.":*?<>{}]/g,
-        ""
-      );
+      let res = false;
       this.project.Payee = this.project.Payee.replace(
         /[&\/\\#,+()$~%.":*?<>{}]/g,
         ""
       );
-      this.project.Rate = this.project.Rate.replace(
-        /[&\/\\#,+()$~%.'":*?<>{}]/g,
-        ""
-      );
+      let rate = this.project.Rate;
+      if (rate.includes(".")) {
+        let split = rate.split(".");
+        let isnum0 = /^\d+$/.test(split[0]);
+        let isnum1 = /^\d+$/.test(split[1]);
+        if (!isnum0 || !isnum1) {
+          res = true;
+        }
+      } else {
+        let isnum = /^\d+$/.test(rate);
+        if (!isnum) {
+          res = true;
+        }
+      }
+      return res;
     },
   },
   computed: {

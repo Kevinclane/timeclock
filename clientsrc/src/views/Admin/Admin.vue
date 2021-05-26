@@ -86,7 +86,7 @@
 <script>
 import PlanCard from "../../components/Cards/PlanCard";
 export default {
-  name: "AdminSubscriptions",
+  name: "Admin",
   data() {
     return {
       newPlan: {

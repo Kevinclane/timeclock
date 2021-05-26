@@ -13,7 +13,7 @@ export class ProjectsController extends BaseController {
       .use(auth0provider.getAuthorizedUserInfo)
       .get("/all", this.getProjects)
       .get("/:id", this.getProjectById)
-      .post("/", this.createProject)
+      .post("", this.createProject)
       .put("/:id", this.editProject)
       .delete("/:id", this.deleteProject)
 
