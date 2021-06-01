@@ -7,7 +7,7 @@
       <div class="col-10 offset-1 my-5 bg-secondary rounded p-4">
         <div class="row">
           <div class="col-12 my-1">
-            <select v-model="feedback.type">
+            <select v-model="feedback.Type">
               <option value="Bug">Report a bug</option>
               <option value="Suggestion">Make a suggestion</option>
               <option value="Feedback">General feedback</option>
@@ -19,7 +19,7 @@
               name="comments"
               cols="50"
               rows="10"
-              v-model="feedback.text"
+              v-model="feedback.Text"
             ></textarea>
           </div>
           <div class="col-12">
@@ -37,8 +37,8 @@ export default {
   data() {
     return {
       feedback: {
-        type: "",
-        text: "",
+        Type: "",
+        Text: "",
       },
     };
   },

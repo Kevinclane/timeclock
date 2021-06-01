@@ -1,14 +1,17 @@
 <template>
-  <div class="col-4 card">
-    <div class="card-body p-2">
-      <div class="card text-white">
-        <h3 class="card-title bg-midnight p-2">{{ plan.Title }}</h3>
-        <div class="card-text">
-          {{ plan.Description }}
-        </div>
-      </div>
-      <div class="card-footer" :id="paypalButtonContainer"></div>
+  <div class="col-lg-4 col-12 text-white bg-secondary rounded">
+    <div class="row">
+      <h4 class="col-12 bg-midnight p-2">{{ plan.Title }}</h4>
+      <ul class="col-8 offset-2 col-lg-10 offset-lg-1">
+        <li
+          v-for="(description, index) in plan.Description"
+          :key="`description-${index}`"
+        >
+          {{ description }}
+        </li>
+      </ul>
     </div>
+    <div class="col-12" :id="paypalButtonContainer"></div>
   </div>
 </template>
 
@@ -34,6 +37,7 @@ export default {
             color: "blue",
             layout: "vertical",
             label: "subscribe",
+            height: 35,
           },
           createSubscription: function (data, actions) {
             return actions.subscription.create({

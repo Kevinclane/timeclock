@@ -45,42 +45,54 @@ class TimeClocksService {
     return sortedArr
   }
   async createTimeClock(rawData) {
-    let serverCache = await checkServerCache(rawData.CreatorEmail, "createTC")
-    if (serverCache) {
-      throw new BadRequest("You have created too many time clocks recently. Please wait a little while before trying again.")
+    let project = await dbContext.Project.findOne({ _id: rawData.ProjectId })
+    let abort = moment(rawData.StartTime).isBefore(moment(project.Start))
+    if (abort) {
+      throw new BadRequest("Cannot create time clock prior to project's start date")
     } else {
-      let currentCheck = dbContext.TimeClock.find({
-        ProjectId: rawData.ProjectId,
-        Current: true
-      }).lean()
-      if (currentCheck.StartTime) {
-        throw new BadRequest("You are already clocked in on this project!")
+      let serverCache = await checkServerCache(rawData.CreatorEmail, "createTC")
+      if (serverCache) {
+        throw new BadRequest("You have created too many time clocks recently. Please wait a little while before trying again.")
       } else {
-        let data = await dbContext.TimeClock.create(rawData)
-        createServerCache(rawData.CreatorEmail, "createTC")
-        return data
+        let currentCheck = dbContext.TimeClock.find({
+          ProjectId: rawData.ProjectId,
+          Current: true
+        }).lean()
+        if (currentCheck.StartTime) {
+          throw new BadRequest("You are already clocked in on this project!")
+        } else {
+          let data = await dbContext.TimeClock.create(rawData)
+          createServerCache(rawData.CreatorEmail, "createTC")
+          return data
+        }
       }
     }
   }
   async updateTimeClock(rawData, id) {
-    let serverCache = await checkServerCache(projectData.CreatorEmail, "editProject")
-    if (serverCache) {
-      throw new BadRequest("You have edited too many time clocks recently. Please wait a little while before trying again.")
+    let project = await dbContext.Project.findOne({ _id: rawData.ProjectId })
+    let abort = moment(rawData.StartTime).isBefore(moment(project.Start))
+    if (abort) {
+      throw new BadRequest("Cannot create time clock prior to project's start date")
     } else {
-      let data = await dbContext.TimeClock.findOneAndUpdate({
-        _id: id,
-        CreatorEmail: rawData.CreatorEmail
-      },
-        rawData,
-        {
-          new: true
-        }
-      )
-      if (!data) {
-        throw new BadRequest("Invalid Id")
+      let serverCache = await checkServerCache(projectData.CreatorEmail, "editProject")
+      if (serverCache) {
+        throw new BadRequest("You have edited too many time clocks recently. Please wait a little while before trying again.")
       } else {
-        createServerCache(rawData.CreatorEmail, "editTC")
-        return data
+        let data = await dbContext.TimeClock.findOneAndUpdate({
+          _id: id,
+          CreatorEmail: rawData.CreatorEmail
+        },
+          rawData,
+          {
+            new: true
+          }
+        )
+        if (!data) {
+          throw new BadRequest("Invalid Id")
+        } else {
+          createServerCache(rawData.CreatorEmail, "editTC")
+          return data
+        }
       }
     }
   }

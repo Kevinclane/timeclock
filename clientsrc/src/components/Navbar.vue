@@ -2,38 +2,10 @@
   <nav class="navbar navbar-dark bg-primary container-fluid">
     <div class="row vw100 d-flex justify-content-between">
       <router-link
-        class="navbar-brand col m-0 d-flex align-items-center justify-content-start"
+        class="navbar-brand col-1 m-0 d-flex align-items-center justify-content-start"
         :to="{ name: 'home' }"
         ><i class="fa fa-2x fa-home text-dark" aria-hidden="true"></i
       ></router-link>
-      <!-- <router-link
-        v-if="$auth.isAuthenticated"
-        class="navbar-brand col m-0 center-center"
-        :to="{ name: 'dashboard' }"
-        >Dashboard</router-link
-      >
-      <router-link
-        v-if="$auth.isAuthenticated"
-        class="navbar-brand col m-0 center-center"
-        :to="{ name: 'subscriptions' }"
-        >Subscribe</router-link
-      >
-      <router-link
-        v-if="$auth.isAuthenticated && isAdmin"
-        class="navbar-brand col m-0 center-center"
-        :to="{ name: 'adminsubs' }"
-        >Admin Subs</router-link
-      >
-      <span class="navbar-text col m-0 d-flex justify-content-end">
-        <button
-          class="btn btn-green"
-          @click="login"
-          v-if="!$auth.isAuthenticated"
-        >
-          Login
-        </button>
-        <button class="btn btn-danger" @click="logout" v-else>logout</button>
-      </span> -->
       <button
         class="navbar-toggler col-0 mr-3 h-100"
         type="button"

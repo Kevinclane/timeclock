@@ -15,6 +15,15 @@
       />
     </div>
     <!--END CLOCKOUT MODAL-->
+    <!--DOC PREVIEW MODAL-->
+    <div v-if="showDocPreview" class="backdrop">
+      <doc-preview-modal
+        class="xxl-modal"
+        :weeks="weeks"
+        @closeModal="toggleDocPreview"
+      />
+    </div>
+    <!--DOC PREVIEW MODAL-->
     <div v-if="editProject" class="backdrop">
       <div class="container modal-content">
         <edit-project-form-modal @closeModal="toggleProjectEditor" />
@@ -80,6 +89,7 @@
               <add-time-component
                 v-if="showAddTimeComp"
                 @closeModal="toggleShowAddTimeComp"
+                :project="activeProject"
               />
             </div>
             <div
@@ -166,7 +176,9 @@
                 <div class="col-12 bg-light rounded-bottom">
                   <div class="row py-3">
                     <div class="col-12 d-flex justify-content-around">
-                      <button class="btn btn-info">Word Doc</button>
+                      <button @click="toggleDocPreview()" class="btn btn-info">
+                        Word Doc
+                      </button>
                       <button class="btn btn-danger">PDF</button>
                     </div>
                   </div>
@@ -182,7 +194,9 @@
                       </button>
                     </div>
                     <div v-else class="col-12 d-flex justify-content-around">
-                      <button class="btn btn-info">Word Doc</button>
+                      <button @click="toggleDocPreview()" class="btn btn-info">
+                        Word Doc
+                      </button>
                       <button class="btn btn-danger">PDF</button>
                     </div>
                   </div>
@@ -206,8 +220,11 @@ import EditProjectFormModal from "../components/modals/EditProjectFormModal.vue"
 import PayPeriodComponent from "../components/PayPeriodComponent.vue";
 import ClockInModal from "../components/modals/TimeClockCommentModal.vue";
 import AddTimeComponent from "../components/AddTimeComponent.vue";
+import DocPreviewModal from "../components/modals/DocPreviewModal.vue";
 import swal from "sweetalert";
 import moment from "moment";
+import * as docx from "docx";
+import * as fs from "fs";
 export default {
   name: "ProjectDetails",
   data() {
@@ -217,6 +234,7 @@ export default {
       editProject: false,
       showAddTimeComp: false,
       forceShowInvoice: false,
+      showDocPreview: false,
       payPeriodSelection: "",
       // payPeriodDisplay: [],
       loading: true,
@@ -294,6 +312,39 @@ export default {
         this.$store.dispatch("changePPSelection", this.payPeriodSelection);
       }
     },
+    toggleDocPreview() {
+      this.showDocPreview = !this.showDocPreview;
+    },
+    createDoc() {
+      // debugger;
+      // console.log("test");
+      const doc = new docx.Document({
+        sections: [
+          {
+            properties: {},
+            children: [
+              new docx.Paragraph({
+                children: [
+                  new docx.TextRun("Hello World"),
+                  new docx.TextRun({
+                    text: "Foo Bar",
+                    bold: true,
+                  }),
+                  new docx.TextRun({
+                    text: "\tGithub is the best",
+                    bold: true,
+                  }),
+                ],
+              }),
+            ],
+          },
+        ],
+      });
+      docx.saveDocumentToFile(doc, "New Document.docx");
+      // docx.Packer.toBuffer(doc).then((buffer) => {
+      //   fs.writeFileSync("My Document.docx", buffer);
+      // });
+    },
   },
   computed: {
     activeProject() {
@@ -368,6 +419,7 @@ export default {
     AddTimeComponent,
     PayPeriodComponent,
     ClockInModal,
+    DocPreviewModal,
   },
 };
 </script>
@@ -437,6 +489,20 @@ li {
   background-color: rgba(171, 180, 187, 0.95);
   max-height: 80vh;
   max-width: 80vw;
+}
+.xxl-modal {
+  position: fixed;
+  padding: 2rem;
+  top: 2vh;
+  left: 2vw;
+  right: 2vw;
+  bottom: 2vh;
+  z-index: 100;
+  background-color: whitesmoke;
+  height: 90vh;
+  width: 90vw;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 @media screen and (min-width: 992px) {
   .modal-content {

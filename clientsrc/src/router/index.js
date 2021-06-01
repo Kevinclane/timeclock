@@ -4,7 +4,7 @@ import Home from '../views/Home.vue'
 import Dashboard from '../views/Dashboard.vue'
 import ProjectDetails from '../views/ProjectDetails.vue'
 import Subscriptions from "../views/Subscriptions.vue"
-import Admin from "../views/Admin/Admin.vue"
+import Admin from "../views/Admin.vue"
 import Feedback from "../views/Feedback.vue"
 import { authGuard } from "@bcwdev/auth0-vue"
 

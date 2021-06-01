@@ -156,6 +156,7 @@ export default {
     },
     addTimeClock(e) {
       e.preventDefault();
+
       if (this.newTime.startAMPM == "PM") {
         this.newTime.startHour = (
           parseInt(this.newTime.startHour) + 12
@@ -193,16 +194,23 @@ export default {
         ":" +
         this.newTime.endMinute +
         ":00";
-      let timeClock = {
-        ProjectId: this.$route.params.projectId,
-        StartTime: moment(startString),
-        EndTime: moment(endString),
-        Current: false,
-        Comment: this.newTime.comment,
-      };
-
-      this.$store.dispatch("createTimeClock", timeClock);
-      this.$emit("closeModal");
+      let abort = moment(startString).isBefore(moment(this.project.Start));
+      if (!abort) {
+        let timeClock = {
+          ProjectId: this.$route.params.projectId,
+          StartTime: moment(startString),
+          EndTime: moment(endString),
+          Current: false,
+          Comment: this.newTime.comment,
+        };
+        this.$store.dispatch("createTimeClock", timeClock);
+        this.$emit("closeModal");
+      } else {
+        swal({
+          title: "Cannot create a time clock prior to Project's start date",
+          icon: "warning",
+        });
+      }
     },
   },
 };

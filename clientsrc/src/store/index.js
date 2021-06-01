@@ -16,7 +16,9 @@ export default new Vuex.Store({
     totalPPTimes: 0,
     payPeriodSelection: "",
     payPeriodDisplay: [],
-    allPlans: []
+    allPlans: [],
+    feedback: [],
+    activeFeedback: {}
   },
 
 
@@ -99,6 +101,12 @@ export default new Vuex.Store({
     },
     setAllPlans(state, plans) {
       state.allPlans = plans
+    },
+    setFeedback(state, feedback) {
+      state.feedback = feedback
+    },
+    setActiveFeedback(state, feedback) {
+      state.activeFeedback = feedback
     }
 
   },
@@ -408,16 +416,64 @@ export default new Vuex.Store({
           payTotal += parseFloat((weeks[i].totalTimes - 40) * (this.state.activeProject.Rate * PS.OTRate).toFixed(2))
           weeks[i].pay = parseFloat(payTotal.toFixed(2))
         } else {
-          weeks[i].pay = parseFloat((weeks[i].totalTimes * this.state.activeProject.Rate).toFixed(2))
+          let pay = (weeks[i].totalTimes * this.state.activeProject.Rate).toFixed(2)
+          let split = pay.split(".")
+          if (split[1].length == 1) {
+            pay += "0"
+          }
+          weeks[i].pay = parseFloat(pay)
         }
         i++
       }
       commit("setWeeks", weeks)
     },
-    async submitFeedback({ commit, dispatch }, feedback) {
+    async submitFeedback({ }, feedback) {
       try {
         let res = await api.post("/feedback", feedback)
-        console.log(res.data)
+        if (res.data) {
+          swal("Thank you for the feedback!")
+          router.push({ name: "dashboard" });
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async getFeedback({ commit }) {
+      try {
+        let res = await api.get("/feedback/all")
+        let feedback = {
+          bugs: [],
+          suggestions: [],
+          feedback: []
+        }
+        let i = 0
+        while (i < res.data.length) {
+          if (res.data[i].Type == "Bug") {
+            feedback.bugs.push(res.data[i])
+          } else if (res.data[i].Type == "Suggestion") {
+            feedback.suggestions.push(res.data[i])
+          } else if (res.data[i].Type == "Feedback") {
+            feedback.feedback.push(res.data[i])
+          }
+          i++
+        }
+        commit("setFeedback", feedback)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async getFeedbackById({ commit }, id) {
+      try {
+        let res = await api.get("/feedback/" + id)
+        commit("setActiveFeedback", res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async editFeedback({ }, feedback) {
+      try {
+        let res = await api.put("/feedback/" + feedback.id, feedback)
+        console.log("editedFeedback", res.data)
       } catch (error) {
         console.error(error)
       }
@@ -456,7 +512,8 @@ export default new Vuex.Store({
       }
       let res = await api.put("/subscriptions/updatesubscription", reqData)
       console.log("Sub Update: ", res.data)
-    }
+    },
+
 
     ////#endregion
 

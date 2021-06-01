@@ -1,3 +1,3 @@
-export const domain = "idleminer.auth0.com";
-export const audience = "timetracker";
-export const clientId = "homlSCRy5mxBZeuV5bm3QfHV01v6sdA0";
+export const domain = "timetrackers.us.auth0.com";
+export const audience = "TimeTracker";
+export const clientId = "9KsPJNlnOZ0pFmORgMhX1U06oLMDfaTk";

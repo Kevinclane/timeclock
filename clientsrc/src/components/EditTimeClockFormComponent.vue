@@ -171,12 +171,21 @@ export default {
         this.editedTime.endMinute +
         " " +
         this.editedTime.endAMPM;
-      let newTimeClock = { ...this.timeClock };
-      newTimeClock.StartTime = moment(startTimeString);
-      newTimeClock.EndTime = moment(endTimeString);
-      newTimeClock.Comment = this.editedTime.comment;
-      this.$store.dispatch("updateTimeClock", newTimeClock);
-      this.$emit("closeModal");
+      let abort = moment(startTimeString).isBefore(moment(this.project.Start));
+      if (!abort) {
+        let newTimeClock = { ...this.timeClock };
+        newTimeClock.StartTime = moment(startTimeString);
+        newTimeClock.EndTime = moment(endTimeString);
+        newTimeClock.Comment = this.editedTime.comment;
+        this.$store.dispatch("updateTimeClock", newTimeClock);
+        this.$emit("closeModal");
+      } else {
+        swal({
+          title:
+            "Cannot change a time clock to a time prior to Project's start date",
+          icon: "warning",
+        });
+      }
     },
     closeModal() {
       this.$emit("closeModal");
@@ -228,6 +237,11 @@ export default {
       }
       this.editedTime.endMinute = moment(this.timeClock.EndTime).format("mm");
       this.editedTime.startDay = moment(this.timeClock.StartTime);
+    },
+  },
+  computed: {
+    project() {
+      return this.$store.state.activeProject;
     },
   },
 };

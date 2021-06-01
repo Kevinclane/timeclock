@@ -5,8 +5,6 @@
     >
       <h1 class="col-6 text-center">Time Tracker</h1>
       <h2 class="col-12">Beta version is now live!</h2>
-      <input type="text" v-model="test" />
-      <button @click="testFN()">test</button>
     </div>
     <div
       class="row my-5 py-3 component2 d-flex justify-content-center align-items-center"
@@ -31,7 +29,7 @@
                 Lots of options to customize such as pay frequency,
                 hourly/salary rate and more!
               </li>
-              <li>Generate Invoices PDF or DOC</li>
+              <li>Generate Invoices as PDF or DOC</li>
             </ul>
           </div>
         </div>
@@ -54,7 +52,9 @@
             </ul>
           </div>
           <div class="col-12">
-            <button class="btn btn-success my-2">Make a suggestion</button>
+            <button @click="toFeedback()" class="btn btn-success my-2">
+              Make a suggestion
+            </button>
           </div>
         </div>
       </div>
@@ -110,6 +110,16 @@ export default {
         this.$store.dispatch("setBearer", this.$auth.bearer);
         this.$store.dispatch("getProfile");
         router.push({ name: "dashboard" });
+      }
+    },
+    async toFeedback() {
+      if (this.$auth.isAuthenticated) {
+        router.push({ name: "feedback" });
+      } else {
+        await this.$auth.loginWithPopup();
+        this.$store.dispatch("setBearer", this.$auth.bearer);
+        this.$store.dispatch("getProfile");
+        router.push({ name: "feedback" });
       }
     },
     testFN() {
