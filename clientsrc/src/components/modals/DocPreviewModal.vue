@@ -71,14 +71,19 @@
         <button class="btn btn-danger" @click="closeModal()">Cancel</button>
       </div>
       <div class="col-6">
-        <button class="btn btn-green" @click="exportToWord()">Download</button>
+        <button class="btn btn-green" @click="generateWordDoc()">
+          Download
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import * as docx from "docx";
+import * as fs from "file-saver";
 import moment from "moment";
+import { AlignmentType, TabStopPosition, TabStopType } from "docx";
 export default {
   name: "DocPreview",
   props: ["weeks"],
@@ -109,6 +114,192 @@ export default {
         i++;
       }
       return total;
+    },
+    invoiceBody() {
+      let body = [
+        new docx.Paragraph({
+          alignment: docx.AlignmentType.CENTER,
+          children: [
+            new docx.TextRun(
+              `Invoice for work performed by ${this.user.Name} to ${this.project.Payee}`
+            ),
+          ],
+        }),
+        new docx.Paragraph({
+          alignment: docx.AlignmentType.CENTER,
+          children: [new docx.TextRun(`Invoice# X`)],
+        }),
+        new docx.Paragraph({
+          alignment: docx.AlignmentType.CENTER,
+          children: [new docx.TextRun(`Invoice date: ${this.today}`)],
+        }),
+        new docx.Paragraph({
+          alignment: docx.AlignmentType.CENTER,
+          children: [
+            new docx.TextRun(`Service Period: ${this.payPeriodSelection}`),
+          ],
+        }),
+        new docx.Paragraph({ text: " " }),
+      ];
+      let i = 0;
+      while (i < this.modifiedWeeks.length) {
+        let currentWeek = this.modifiedWeeks[i];
+        body.push(
+          new docx.Paragraph({
+            children: [new docx.TextRun(`\tWeek of ${currentWeek.readable}`)],
+            tabStops: [
+              {
+                type: TabStopType.CENTER,
+                position: 4513,
+              },
+            ],
+          })
+        );
+        body.push(
+          new docx.Paragraph({
+            children: [
+              new docx.TextRun("Date"),
+              new docx.TextRun("\tService"),
+              new docx.TextRun("\t\tHours"),
+            ],
+            tabStops: [
+              {
+                type: TabStopType.CENTER,
+                position: 4513,
+              },
+              {
+                type: TabStopType.RIGHT,
+                position: 7500,
+              },
+            ],
+          })
+        );
+        let x = 0;
+        while (x < currentWeek.groupedWeek.length) {
+          let currentDay = currentWeek.groupedWeek[x];
+          if (currentWeek.groupedWeek[x + 1] == undefined) {
+            body.push(
+              new docx.Paragraph({
+                children: [
+                  new docx.TextRun(`${currentDay.date}`),
+                  new docx.TextRun(`\t${currentDay.service}`),
+                  new docx.TextRun(`\t\t${currentDay.time}`),
+                ],
+                tabStops: [
+                  {
+                    type: TabStopType.CENTER,
+                    position: 4513,
+                  },
+                  {
+                    type: TabStopType.RIGHT,
+                    position: 7500,
+                  },
+                ],
+                border: {
+                  bottom: {
+                    color: "auto",
+                    space: 1,
+                    value: "single",
+                    size: 6,
+                  },
+                },
+              })
+            );
+          } else {
+            body.push(
+              new docx.Paragraph({
+                children: [
+                  new docx.TextRun(`${currentDay.date}`),
+                  new docx.TextRun(`\t${currentDay.service}`),
+                  new docx.TextRun(`\t\t${currentDay.time}`),
+                ],
+                tabStops: [
+                  {
+                    type: TabStopType.CENTER,
+                    position: 4513,
+                  },
+                  {
+                    type: TabStopType.RIGHT,
+                    position: 7500,
+                  },
+                ],
+              })
+            );
+          }
+          x++;
+        }
+        body.push(
+          new docx.Paragraph({
+            children: [
+              new docx.TextRun(`EOW Total: ${currentWeek.totalTimes}`),
+            ],
+            alignment: AlignmentType.RIGHT,
+          })
+        );
+        i++;
+      }
+      body.push(
+        new docx.Paragraph({
+          children: [new docx.TextRun(" ")],
+        })
+      );
+      body.push(
+        new docx.Paragraph({
+          children: [new docx.TextRun(" ")],
+        })
+      );
+      i = 0;
+      while (i < this.modifiedWeeks.length) {
+        body.push(
+          new docx.Paragraph({
+            children: [
+              new docx.TextRun(" "),
+              new docx.TextRun(``),
+              new docx.TextRun(
+                `\t${this.modifiedWeeks[i].totalTimes} x $${this.project.Rate}/hr`
+              ),
+              new docx.TextRun(`\t\t$${this.modifiedWeeks[i].pay}`),
+            ],
+            tabStops: [
+              {
+                type: TabStopType.CENTER,
+                position: 6500,
+              },
+              {
+                type: TabStopType.RIGHT,
+                position: 7500,
+              },
+            ],
+          })
+        );
+        i++;
+      }
+      body.push(
+        new docx.Paragraph({
+          children: [new docx.TextRun(" ")],
+        })
+      );
+      body.push(
+        new docx.Paragraph({
+          children: [new docx.TextRun("Balance Due")],
+          alignment: AlignmentType.RIGHT,
+          border: {
+            bottom: {
+              color: "auto",
+              space: 1,
+              value: "single",
+              size: 6,
+            },
+          },
+        })
+      );
+      body.push(
+        new docx.Paragraph({
+          children: [new docx.TextRun(`$${this.totalPay}`)],
+          alignment: AlignmentType.RIGHT,
+        })
+      );
+      return body;
     },
   },
   methods: {
@@ -153,45 +344,18 @@ export default {
         i++;
       }
     },
-    exportToWord() {
-      let element = "docTemplate";
-      let filename = "test";
-      var preHtml =
-        "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML To Doc</title></head><body>";
-      var postHtml = "</body></html>";
-      var html =
-        preHtml + document.getElementById(element).innerHTML + postHtml;
-      var blob = new Blob(["\ufeff", html], {
-        type: "application/msword",
+    generateWordDoc() {
+      let doc = new docx.Document();
+
+      doc.addSection({
+        children: this.invoiceBody,
+        // new docx.Paragraph[this.generatedWeeksForInvoice](),
+        // this.generatedWeeksForInvoice,
       });
 
-      // Specify link url
-      var url =
-        "data:application/vnd.ms-word;charset=utf-8," +
-        encodeURIComponent(html);
-
-      // Specify file name
-      filename = filename ? filename + ".doc" : "document.doc";
-
-      // Create download link element
-      var downloadLink = document.createElement("a");
-
-      document.body.appendChild(downloadLink);
-
-      if (navigator.msSaveOrOpenBlob) {
-        navigator.msSaveOrOpenBlob(blob, filename);
-      } else {
-        // Create a link to the file
-        downloadLink.href = url;
-
-        // Setting the file name
-        downloadLink.download = filename;
-
-        //triggering the function
-        downloadLink.click();
-      }
-
-      document.body.removeChild(downloadLink);
+      docx.Packer.toBlob(doc).then((blob) => {
+        fs.saveAs(blob, "Test.docx");
+      });
     },
   },
 };

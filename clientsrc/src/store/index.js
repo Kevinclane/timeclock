@@ -1,5 +1,7 @@
 import moment from "moment"
 import swal from "sweetalert"
+// const fs = require("fs")
+import * as fs from "file-saver"
 import Vue from 'vue'
 import Vuex from 'vuex'
 import router from '../router/index'
@@ -480,6 +482,20 @@ export default new Vuex.Store({
     },
     //#endregion
 
+
+    //#region INVOICES
+
+    async createWordDoc({ }, invoiceData) {
+      try {
+        let res = await api.post("/invoices/doc", invoiceData)
+        // console.log("FS: ", fs)
+        fs.saveAs("TestDoc.docx", res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+
+    //#endregion END INVOICES
 
 
 
