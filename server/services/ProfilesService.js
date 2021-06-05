@@ -6,7 +6,8 @@ async function createProfileIfNeeded(profile, user) {
       Email: user.email,
       Name: user.name,
       Picture: user.picture,
-      Subs: [user.sub]
+      Subs: [user.sub],
+      ContactInfo: [{ Email: user.email }]
     });
   }
   return profile;
@@ -78,14 +79,37 @@ class ProfileService {
     await mergeSubsIfNeeded(profile, user);
     return profile;
   }
-  async updateProfile(user, body) {
-    let update = sanitizeBody(body);
-    let profile = await dbContext.Profile.findOneAndUpdate(
+  // async updateProfile(user, body) {
+  //   let update = sanitizeBody(body);
+  //   let profile = await dbContext.Profile.findOneAndUpdate(
+  //     { Email: user.email },
+  //     { $set: update },
+  //     { runValidators: true, setDefaultsOnInsert: true, new: true }
+  //   );
+  //   return profile;
+  // }
+  async updateProfilePic(body, user) {
+    let data = await dbContext.Profile.findOneAndUpdate(
       { Email: user.email },
-      { $set: update },
+      { Picture: body.picString },
       { runValidators: true, setDefaultsOnInsert: true, new: true }
-    );
-    return profile;
+    )
+    return data.Picture
+  }
+  async updateContactInfo(body, user) {
+    await dbContext.Profile.findOneAndUpdate(
+      { Email: user.email },
+      {
+        FirstName: body.FirstName,
+        LastName: body.LastName,
+        Phone: body.Phone,
+        Website: body.Website,
+        LinkedIn: body.LinkedIn,
+      },
+      { runValidators: true, setDefaultsOnInsert: true, new: true }
+    )
+    let data = await dbContext.Profile.findOne({ Email: user.email })
+    return data.ContactInfo
   }
 }
 export const profilesService = new ProfileService();

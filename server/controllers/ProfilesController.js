@@ -9,7 +9,9 @@ export class ProfilesController extends BaseController {
     this.router
       .use(auth0provider.getAuthorizedUserInfo)
       .get("", this.getUserProfile)
-      .put("/:id", this.edit);
+      // .put("/:id", this.edit)
+      .put("/profilepic", this.updateProfilePic)
+      .put("/updatecontactinfo", this.updateContactInfo);
   }
   async getUserProfile(req, res, next) {
     try {
@@ -19,12 +21,28 @@ export class ProfilesController extends BaseController {
       next(error);
     }
   }
-  async edit(req, res, next) {
+  // async edit(req, res, next) {
+  //   try {
+  //     req.body.creatorId = req.user.sub;
+  //     res.send(req.body);
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
+  async updateProfilePic(req, res, next) {
     try {
-      req.body.creatorId = req.user.sub;
-      res.send(req.body);
+      let data = await profilesService.updateProfilePic(req.body, req.userInfo)
+      res.send(data)
     } catch (error) {
-      next(error);
+      next(error)
+    }
+  }
+  async updateContactInfo(req, res, next) {
+    try {
+      let data = await profilesService.updateContactInfo(req.body, req.userInfo)
+      res.send(data)
+    } catch (error) {
+      next(error)
     }
   }
 }

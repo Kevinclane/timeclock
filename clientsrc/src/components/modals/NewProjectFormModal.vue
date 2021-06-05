@@ -1,6 +1,6 @@
 <template>
   <div>
-    <form @submit="addProject" class="row pb-4">
+    <form @submit="addProject" class="row pb-4 text-dark">
       <div class="col-12 my-1">
         <div class="row">
           <div class="col-4 bold d-flex flex-end">

@@ -156,30 +156,37 @@ export default {
     },
     addTimeClock(e) {
       e.preventDefault();
-
-      if (this.newTime.startAMPM == "PM") {
+      if (this.newTime.startAMPM == "PM" && this.newTime.startHour != "12") {
         this.newTime.startHour = (
           parseInt(this.newTime.startHour) + 12
         ).toString();
-      }
-      if (this.newTime.startHour == "12" && this.newTime.startAMPM == "AM") {
+      } else if (
+        this.newTime.startHour == "12" &&
+        this.newTime.startAMPM == "AM"
+      ) {
         this.newTime.startHour = "00";
+      } else {
+        this.newTime.startHour = this.toDoubleDigits(this.newTime.startHour);
       }
-      if (this.newTime.startHour.length == 1) {
-        this.newTime.startHour = "0" + this.newTime.startHour;
-      }
-      if (this.newTime.startMinute.length == 1) {
-        this.newTime.startMinute = "0" + this.newTime.startMinute;
-      }
-      if (this.newTime.endAMPM == "PM") {
+      // if (this.newTime.startHour.length == 1) {
+      //   this.newTime.startHour = "0" + this.newTime.startHour;
+      // }
+      this.newTime.startMinute = this.toDoubleDigits(this.newTime.startMinute);
+      // if (this.newTime.startMinute.length == 1) {
+      //   this.newTime.startMinute = "0" + this.newTime.startMinute;
+      // }
+      if (this.newTime.endAMPM == "PM" && this.newTime.endHour != "12") {
         this.newTime.endHour = (parseInt(this.newTime.endHour) + 12).toString();
+      } else {
+        this.newTime.endHour = this.toDoubleDigits(this.newTime.endHour);
       }
-      if (this.newTime.endHour.length == 1) {
-        this.newTime.endHour = "0" + this.newTime.endHour;
-      }
-      if (this.newTime.endMinute.length == 1) {
-        this.newTime.endMinute = "0" + this.newTime.endMinute;
-      }
+      //  if (this.newTime.endHour.length == 1) {
+      //   this.newTime.endHour = "0" + this.newTime.endHour;
+      // }
+      this.newTime.endMinute = this.toDoubleDigits(this.newTime.endMinute);
+      // if (this.newTime.endMinute.length == 1) {
+      //   this.newTime.endMinute = "0" + this.newTime.endMinute;
+      // }
       let startString =
         this.newTime.startDate +
         "T" +
@@ -211,6 +218,12 @@ export default {
           icon: "warning",
         });
       }
+    },
+    toDoubleDigits(input) {
+      if (input.length == 1) {
+        input = "0" + input;
+      }
+      return input;
     },
   },
 };

@@ -24,7 +24,7 @@
 
     <div class="container-fluid text-light" v-if="view == 'Feedback'">
       <div class="row">
-        <div class="col-12 p-3 bg-midnight">Bugs</div>
+        <div class="col-12 p-3 bg-primary">Bugs</div>
       </div>
       <div class="row bg-secondary">
         <div class="col-3">Email</div>
@@ -56,7 +56,7 @@
         </div>
       </div>
       <div class="row mt-3">
-        <div class="col-12 p-3 bg-midnight">Suggestions</div>
+        <div class="col-12 p-3 bg-primary">Suggestions</div>
       </div>
       <div class="row bg-secondary">
         <div class="col-3">Email</div>
@@ -88,7 +88,7 @@
         </div>
       </div>
       <div class="row mt-3">
-        <div class="col-12 p-3 bg-midnight">Feedback</div>
+        <div class="col-12 p-3 bg-primary">Feedback</div>
       </div>
       <div class="row bg-secondary">
         <div class="col-3">Email</div>
@@ -211,7 +211,7 @@
           </div>
         </div>
       </form>
-      <div class="row bg-midnight text-white">
+      <div class="row bg-primary text-white">
         <h5 class="col-2">Title</h5>
         <h5 class="col-4">Description</h5>
         <h5 class="col-1">Status</h5>

@@ -4,7 +4,7 @@
       <div class="col-12 text-light bg-dark py-3 dynamic-header2">
         Please fill out this form to provide feedback.
       </div>
-      <div class="col-10 offset-1 my-5 bg-secondary rounded p-4">
+      <div class="col-10 offset-1 my-5 rounded p-4">
         <div class="row">
           <div class="col-12 my-1">
             <select v-model="feedback.Type">

@@ -29,12 +29,21 @@ export default new Vuex.Store({
     setUser(state, user) {
       state.user = user
     },
-    setProjects(state, projects) {
-      state.projects = projects
+    setProfilePic(state, pic) {
+      state.user.Picture = pic
+    },
+    setContactInfo(state, contacts) {
+      state.user.ContactInfo = contacts
+    },
+    deleteContactInfo(state, index) {
+      state.user.ContactInfo.splice(index, 1)
     },
     //#endregion END USER/PROFILE
 
     //#region PROJECT STUFF
+    setProjects(state, projects) {
+      state.projects = projects
+    },
     setActiveProject(state, project) {
       if (project.Start) {
         let SZ = project.Start[project.Start.length - 1]
@@ -139,6 +148,35 @@ export default new Vuex.Store({
         commit("setUser", res.data)
       } catch (err) {
         console.error(err)
+      }
+    },
+    async uploadProfilePicture({ commit }, pic) {
+      try {
+        let apiObj = {
+          picString: pic
+        }
+        let res = await api.put("profile/profilepic", apiObj)
+        commit("setProfilePic", res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async updateContactInfo({ commit }, contacts) {
+      try {
+        debugger
+        let res = await api.put("profile/updatecontactinfo", contacts)
+        commit("setContactInfo", res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async deleteContactInfo({ commit }, index) {
+      try {
+        debugger
+        let res = await api.put("profile/deletecontactinfo", index)
+        commit("deleteContactInfo", index)
+      } catch (error) {
+        console.error(error)
       }
     },
 
@@ -260,7 +298,12 @@ export default new Vuex.Store({
         tempArr.sort((a, b) => moment(a.StartTime).format('HH') - moment(b.StartTime).format('HH'))
         finishedArr.push(tempArr);
       }
-      finishedArr.sort((a, b) => moment(a[0].StartTime).format("DD") - moment(b[0].StartTime).format("DD"))
+      // finishedArr.sort((a, b) => moment(a[0].StartTime).format("DD") - moment(b[0].StartTime).format("DD"))
+      finishedArr.sort((a, b) =>
+        (moment(a[0].StartTime).format("MM")
+          + moment(a[0].StartTime).format("DD"))
+        - (moment(b[0].StartTime).format("MM")
+          + moment(b[0].StartTime).format("DD")))
       await commit("setTimeClockGroups", finishedArr)
       dispatch("updatePPSelection", finishedArr)
     },
