@@ -166,4 +166,31 @@ button {
     font-size: 2rem;
   }
 }
+.dynamic-header3 {
+  font-size: 3rem;
+}
+@media screen and (min-width: 992px) {
+  .dynamic-header3 {
+    font-size: 7rem;
+  }
+}
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
 </style>

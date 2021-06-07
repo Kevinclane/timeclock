@@ -1,13 +1,28 @@
 <template>
   <div class="home bgimg container-fluid text-white header-height">
     <div
-      class="row my-5 d-flex align-items-center justify-content-center component1"
+      class="
+        row
+        my-5
+        d-flex
+        align-items-center
+        justify-content-center
+        home-section-min100
+      "
     >
-      <h1 class="col-6 text-center">Time Tracker</h1>
+      <h1 class="col-12 text-center dynamic-header3">Time Trackers</h1>
       <h2 class="col-12">Beta version is now live!</h2>
     </div>
     <div
-      class="row my-5 py-3 component2 d-flex justify-content-center align-items-center"
+      class="
+        row
+        py-3
+        bg-darker
+        home-section-min30
+        d-flex
+        justify-content-center
+        align-items-center
+      "
     >
       <h4 class="col-12">Online time tracking system</h4>
       <h4 class="col-12">Track hours as a contractor or as a team</h4>
@@ -15,7 +30,16 @@
         <h3 class="outline-success">Try it now for free!</h3>
       </div>
     </div>
-    <div class="row component3 d-flex justify-content-around align-items-start">
+    <div
+      class="
+        row
+        home-section-min75
+        d-flex
+        justify-content-around
+        align-items-start
+        bg-secondary
+      "
+    >
       <div class="col-lg-4 col-10 mt-5 bg-dark rounded-large">
         <div class="row">
           <div class="col-12 border-bottom bg-primary rounded-top-large">
@@ -29,7 +53,9 @@
                 Lots of options to customize such as pay frequency,
                 hourly/salary rate and more!
               </li>
-              <li>Generate Invoices as PDF or DOC</li>
+              <li>Track multiple projects at a time</li>
+              <li>Feedback/bug reporting for optimal user experience</li>
+              <li>Generate Invoices as .DOCX</li>
             </ul>
           </div>
         </div>
@@ -48,6 +74,8 @@
               </li>
               <li>Live messaging system</li>
               <li>Website redesign</li>
+              <li>Paypal direct invoice generation and sending</li>
+              <li>Quickbooks integration</li>
               <li>Want something else added? Leave a suggestion here!</li>
             </ul>
           </div>
@@ -154,22 +182,15 @@ export default {
 .header-height {
   height: -webkit-fill-available;
 }
-.component1 {
-  min-height: 40vh;
+.home-section-min100 {
+  height: 100vh;
 }
-.component2 {
+.home-section-min30 {
   min-height: 30vh;
-  background-color: rgb(48, 48, 48, 0.9);
 }
-.component3 {
-  min-height: 50vh;
-  margin-bottom: 2.5rem;
-}
-@media screen and (max-width: 768px) {
-  .component3 {
-    min-height: 50vh;
-    margin-bottom: 10rem;
-  }
+.home-section-min75 {
+  min-height: 75vh;
+  height: fit-content;
 }
 .outline-success {
   border: 2px solid #00bc8c;
@@ -181,8 +202,5 @@ export default {
 .rounded-top-large {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-}
-.bg-cstm-blue {
-  background-color: midnightblue;
 }
 </style>
