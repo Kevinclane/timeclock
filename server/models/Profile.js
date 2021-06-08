@@ -16,7 +16,9 @@ const Profile = new Schema(
     Subscription: { type: ObjectId, ref: "Subscription" },
     UserSettings: { type: ObjectId, ref: "UserSettings" },
     IsAdmin: { type: Boolean, default: false },
-
+    BusinessName: { type: String },
+    BusinessAddress: { type: String },
+    BusinessWebsite: { type: String }
   },
   { timestamps: true, toJSON: { virtuals: true } }
 );

@@ -70,6 +70,9 @@ export default new Vuex.Store({
     clearProjects(state) {
       state.projects = []
     },
+    setProjectSettings(state, settings) {
+      state.activeProject.ProjectSettings = settings
+    },
 
     //#endregion END PROJECT STUFF
 
@@ -223,6 +226,15 @@ export default new Vuex.Store({
         let data = await api.delete("/projects/" + id)
         console.log(data.data)
         router.push({ name: "dashboard" });
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async saveProjectSettings({ commit }, settings) {
+      try {
+        debugger
+        let res = await api.put("/projects/projectsettings/update/" + settings.projId, settings)
+        commit("setProjectSettings", res.data)
       } catch (error) {
         console.error(error)
       }

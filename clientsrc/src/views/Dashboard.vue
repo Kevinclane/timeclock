@@ -30,10 +30,22 @@
         </div>
         <div v-if="selectedTab == 'projects'" class="row">
           <div
-            class="col-lg-4 col-md-5 col-10 offset-1 offset-md-0 offset-lg-0 mb-2"
+            class="
+              col-lg-4 col-md-5 col-10
+              offset-1 offset-md-0 offset-lg-0
+              mb-2
+            "
           >
             <div
-              class="card border-primary mb-3 project-card card-height d-flex justify-content-center"
+              class="
+                card
+                border-primary
+                mb-3
+                project-card
+                card-height
+                d-flex
+                justify-content-center
+              "
               type="button"
               @click="toggleProjectForm"
             >
@@ -73,8 +85,8 @@
             </button>
           </div>
           <div class="col-lg-7 col-10 offset-1 offset-lg-0">
-            <div class="row bg-light text-dark">
-              <div class="col-12 text-center text-light bg-midnight py-3">
+            <div class="row bg-dark text-light box-shadow-245">
+              <div class="col-12 text-center bg-primary py-3 mb-2">
                 Contact Info
               </div>
               <div class="col-12">
@@ -123,18 +135,18 @@
                 </div>
                 <div v-else class="row text-left">
                   <div class="col-3">First Name:</div>
-                  <div class="col-8">{{ profile.FirstName }}</div>
+                  <div class="col-8 limit-length">{{ profile.FirstName }}</div>
                   <div class="col-3">Last Name:</div>
-                  <div class="col-8">{{ profile.LastName }}</div>
+                  <div class="col-8 limit-length">{{ profile.LastName }}</div>
                   <div class="col-3">Phone:</div>
-                  <div class="col-8">{{ profile.Phone }}</div>
+                  <div class="col-8 limit-length">{{ profile.Phone }}</div>
                   <div class="col-3">Website:</div>
-                  <div class="col-8">{{ profile.Website }}</div>
+                  <div class="col-8 limit-length">{{ profile.Website }}</div>
                   <div class="col-3">LinkedIn:</div>
-                  <div class="col-8">{{ profile.LinkedIn }}</div>
+                  <div class="col-8 limit-length">{{ profile.LinkedIn }}</div>
 
                   <div
-                    class="col-12 text-center"
+                    class="col-12 text-center mt-3 mb-1"
                     type="button"
                     @click="toggleShowEditContact()"
                   >
@@ -142,6 +154,12 @@
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="row bg-dark text-light my-5 box-shadow-245">
+              <div class="col-12 text-center bg-primary py-3 mb-2">
+                Business Info
+              </div>
+              <div class="col-12"></div>
             </div>
           </div>
         </div>
@@ -322,5 +340,9 @@ export default {
   .dynamic-d-flex {
     display: flex;
   }
+}
+.limit-length {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

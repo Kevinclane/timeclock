@@ -10,8 +10,10 @@
         home-section-min100
       "
     >
-      <h1 class="col-12 text-center dynamic-header3">Time Trackers</h1>
-      <h2 class="col-12">Beta version is now live!</h2>
+      <h1 class="col-12 text-center dynamic-header3 text-shadow">
+        Time Trackers
+      </h1>
+      <h2 class="col-12 text-shadow">Beta version is now live!</h2>
     </div>
     <div
       class="

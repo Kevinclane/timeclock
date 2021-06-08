@@ -23,7 +23,11 @@ function clearExcessData(projectData) {
 
 async function createProjectSettingsIfNeeded(project) {
   if (!project.ProjectSettings) {
-    let newSettings = await dbContext.ProjectSettings.create({ CreatorEmail: project.CreatorEmail })
+    let newSettings = await dbContext.ProjectSettings.create(
+      {
+        CreatorEmail: project.CreatorEmail
+      }
+    )
     project.ProjectSettings = newSettings._id
     project = await dbContext.Project.findOneAndUpdate({
       _id: project.id,
@@ -33,7 +37,7 @@ async function createProjectSettingsIfNeeded(project) {
       {
         new: true
       }
-    )
+    ).populate("ProjectSettings")
   }
   return project
 }
@@ -130,6 +134,17 @@ class ProjectsService {
       _id: id,
       CreatorEmail: email
     })
+  }
+
+  async updateProjectSettings(settings, id) {
+    settings.Completed = true
+    let project = await dbContext.Project.findById(id)
+    let data = await dbContext.ProjectSettings.findOneAndUpdate(
+      { _id: project.ProjectSettings._id },
+      settings,
+      { new: true }
+    )
+    return data
   }
 
 }

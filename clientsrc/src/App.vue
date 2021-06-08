@@ -174,6 +174,12 @@ button {
     font-size: 7rem;
   }
 }
+.text-shadow {
+  text-shadow: 2px 2px 2px black;
+}
+.box-shadow-245 {
+  box-shadow: 2px 4px 5px black;
+}
 /* width */
 ::-webkit-scrollbar {
   width: 10px;

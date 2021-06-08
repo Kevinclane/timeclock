@@ -15,6 +15,7 @@
       />
     </div>
     <!--END CLOCKOUT MODAL-->
+
     <!--DOC PREVIEW MODAL-->
     <div v-if="showDocPreview" class="backdrop">
       <doc-preview-modal
@@ -23,7 +24,15 @@
         @closeModal="toggleDocPreview"
       />
     </div>
-    <!--DOC PREVIEW MODAL-->
+    <!--END DOC PREVIEW MODAL-->
+
+    <!-- PROJECT SETUP MODAL -->
+    <div v-if="!activeProject.ProjectSettings.Completed" class="backdrop">
+      <project-setup-modal class="modal-content" />
+    </div>
+
+    <!-- END PROJECT SETUP MODAL -->
+
     <div v-if="editProject" class="backdrop">
       <div class="container modal-content">
         <edit-project-form-modal @closeModal="toggleProjectEditor" />
@@ -58,7 +67,7 @@
     <div class="container-fluid mt-5">
       <div class="row d-flex justify-content-around">
         <div class="col-lg-7 col-12 my-2 order-2 order-lg-1">
-          <div class="row bg-primary rounded-top text-white">
+          <div class="row bg-primary rounded-top text-white box-shadow-245">
             <div
               class="col-12 d-flex justify-content-center"
               v-if="activeProject.PayPeriod != 'Milestone'"
@@ -93,7 +102,13 @@
               />
             </div>
             <div
-              class="col-12 bg-light rounded-bottom d-flex justify-content-between"
+              class="
+                col-12
+                bg-light
+                rounded-bottom
+                d-flex
+                justify-content-between
+              "
             >
               <button
                 v-if="!showAddTimeComp"
@@ -123,7 +138,7 @@
         <div class="col-lg-3 mx-2 col-12 order-1 order-lg-2">
           <div class="row">
             <!--REGION TOTAL TIME-->
-            <div class="container my-2">
+            <div class="container my-2 box-shadow-245">
               <div class="row bg-primary text-white rounded-top">
                 <div class="col-12">Total Time</div>
                 <div class="col-12 bg-light rounded-bottom">
@@ -138,7 +153,7 @@
             <!--END REGION TOTAL TIME-->
 
             <!--REGION ESTIMATED PAY-->
-            <div class="container my-2">
+            <div class="container my-2 box-shadow-245">
               <div class="row bg-primary text-white rounded-top">
                 <div v-if="activeProject.PayType == 'Hourly'" class="col-12">
                   Estimated Pay
@@ -167,7 +182,7 @@
             <!--END REGION ESTIMATED PAY-->
 
             <!-- REGION INVOICE BUTTON -->
-            <div class="container my-2">
+            <div class="container my-2 box-shadow-245">
               <div
                 v-if="invoiceReady"
                 class="row bg-primary text-white rounded-top"
@@ -217,6 +232,7 @@ import HourlyComponent from "../components/PayCalcComponents/HourlyComponent.vue
 import SalaryComponent from "../components/PayCalcComponents/SalaryComponent.vue";
 import MilestoneComponent from "../components/PayCalcComponents/MilestoneComponent.vue";
 import EditProjectFormModal from "../components/modals/EditProjectFormModal.vue";
+import ProjectSetupModal from "../components/modals/ProjectSetupModal.vue";
 import PayPeriodComponent from "../components/PayPeriodComponent.vue";
 import ClockInModal from "../components/modals/TimeClockCommentModal.vue";
 import AddTimeComponent from "../components/AddTimeComponent.vue";
@@ -420,6 +436,7 @@ export default {
     PayPeriodComponent,
     ClockInModal,
     DocPreviewModal,
+    ProjectSetupModal,
   },
 };
 </script>
@@ -481,14 +498,16 @@ li {
 .modal-content {
   position: fixed;
   padding: 2rem;
-  top: 20vh;
+  top: 10vh;
   left: 10vw;
   right: 10vw;
   z-index: 100;
   border-radius: 20px;
   background-color: rgba(171, 180, 187, 0.95);
-  max-height: 80vh;
+  max-height: 90vh;
   max-width: 80vw;
+  /* overflow-y: scroll; */
+  overflow-y: auto;
 }
 .xxl-modal {
   position: fixed;
