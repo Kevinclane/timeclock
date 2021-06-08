@@ -27,21 +27,6 @@
       />
     </div>
     <div class="row my-3 pb-2 d-flex justify-content-center border-bottom">
-      <div class="col-12">Have you billed this client before?</div>
-      <select class="col-10" v-model="settings.NewOld">
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-      </select>
-      <div v-if="settings.NewOld == 'Yes'" class="col-12">
-        The next invoice billed should show invoice #:
-      </div>
-      <input
-        v-if="settings.NewOld == 'Yes'"
-        v-model="settings.InvoiceNumber"
-        type="text"
-      />
-    </div>
-    <div class="row my-3 pb-2 d-flex justify-content-center border-bottom">
       <div class="col-12">Do you earn overtime on this project?</div>
       <select class="col-10" v-model="settings.OT">
         <option value="Yes">Yes</option>
@@ -101,12 +86,10 @@ export default {
         OtherName: null,
         OT: null,
         OTRate: 1.5,
-        InvoiceNumber: null,
         NameOnInvoice: null,
         RoundTime: null,
         RoundTo: null,
         RoundFrequency: null,
-        NewOld: null,
       },
       loading: false,
     };
@@ -120,19 +103,12 @@ export default {
       let res = true;
       if (
         this.settings.NameOnInvoice &&
-        this.settings.NewOld &&
         this.settings.OT &&
         this.settings.RoundTime
       ) {
         if (
           this.settings.NameOnInvoice === "Other" &&
           (this.settings.OtherName === "" || !this.settings.OtherName)
-        ) {
-          res = false;
-        }
-        if (
-          this.settings.NewOld === "Yes" &&
-          (this.settings.InvoiceNumber === "" || !this.settings.InvoiceNumber)
         ) {
           res = false;
         }
@@ -167,10 +143,6 @@ export default {
         settingsObj.NameOnInvoice = this.profile.BusinessName;
       } else if (this.settings.NameOnInvoice == "Other") {
         settingsObj.NameOnInvoice = this.settings.OtherName;
-      }
-
-      if (this.settings.NewOld == "Yes") {
-        settingsObj.InvoiceNumber = parseInt(this.settings.InvoiceNumber);
       }
 
       if (this.settings.OT == "Yes") {

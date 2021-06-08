@@ -13,6 +13,7 @@ export default new Vuex.Store({
     user: {},
     projects: [],
     activeProject: {},
+    activeInvoiceGroup: {},
     timeClockGroups: [],
     weeks: [],
     totalPPTimes: 0,
@@ -72,6 +73,12 @@ export default new Vuex.Store({
     },
     setProjectSettings(state, settings) {
       state.activeProject.ProjectSettings = settings
+    },
+    setActiveInvoiceGroup(state, IG) {
+      state.activeInvoiceGroup = IG
+    },
+    setIGs(state, IGs) {
+      state.activeProject.InvoiceGroups = IGs
     },
 
     //#endregion END PROJECT STUFF
@@ -173,15 +180,6 @@ export default new Vuex.Store({
         console.error(error)
       }
     },
-    async deleteContactInfo({ commit }, index) {
-      try {
-        debugger
-        let res = await api.put("profile/deletecontactinfo", index)
-        commit("deleteContactInfo", index)
-      } catch (error) {
-        console.error(error)
-      }
-    },
 
     //#endregion --END PROFILE STUFF
 
@@ -232,9 +230,24 @@ export default new Vuex.Store({
     },
     async saveProjectSettings({ commit }, settings) {
       try {
-        debugger
         let res = await api.put("/projects/projectsettings/update/" + settings.projId, settings)
         commit("setProjectSettings", res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async updateInvoiceNumbers({ commit, dispatch }, IG) {
+      try {
+        let IGs = [...this.state.activeProject.InvoiceGroups]
+        let index = IGs.findIndex(i => i.StartDay == IG.StartDay)
+        let i = 0
+        while (i < IGs.length) {
+          IGs[i].InvoiceNumber = IG.InvoiceNumber - index + i
+          i++
+        }
+        console.log("newIGS: ", IGs)
+        let res = api.put("/projects/invoicegroups/update", [...IGs])
+        await commit("setIGs", res.data)
       } catch (error) {
         console.error(error)
       }
@@ -377,6 +390,7 @@ export default new Vuex.Store({
         let boolE = moment(IG.EndDay).isSameOrBefore(end);
         if (boolS && boolE) {
           //sets correct timeClockGroups within query dates
+          commit("setActiveInvoiceGroup", IG)
           let PPRender = timeClockGroups.filter(
             (tcg) =>
               moment(tcg[0].StartTime).isSameOrAfter(moment(IG.StartDay)) &&

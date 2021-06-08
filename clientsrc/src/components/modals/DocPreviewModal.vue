@@ -3,10 +3,61 @@
     <div id="docTemplate" class="row">
       <div class="col-12">
         <div class="row">
-          <div class="col-12">
-            Invoice for work performed by {{ user.Name }} to {{ project.Payee }}
+          <div v-if="!showEditName" class="col-12">
+            Invoice for work performed by
+            {{ project.ProjectSettings.NameOnInvoice }} to
+            {{ project.Payee }}
+            <i
+              class="fas fa-edit"
+              type="button"
+              @click="toggleShowEditName()"
+            ></i>
           </div>
-          <div class="col-12">Invoice #</div>
+          <div v-else class="col-12">
+            Invoice for work performed by
+            <input
+              type="text"
+              v-model="project.ProjectSettings.NameOnInvoice"
+            />
+            to {{ project.Payee }}
+            <i
+              class="fa fa-check text-green ml-4"
+              aria-hidden="true"
+              type="button"
+              @click="saveNameChange()"
+            >
+            </i>
+            <i
+              class="fa fa-times text-red ml-4"
+              aria-hidden="true"
+              type="button"
+              @click="toggleShowEditName()"
+            ></i>
+          </div>
+          <div v-if="!showEditNumber" class="col-12">
+            Invoice #{{ activeIG.InvoiceNumber }}
+            <i
+              class="fas fa-edit"
+              type="button"
+              @click="toggleShowEditNumber()"
+            ></i>
+          </div>
+          <div v-else class="col-12">
+            Invoice # <input type="text" v-model="activeIG.InvoiceNumber" />
+            <i
+              class="fa fa-check text-green ml-4"
+              aria-hidden="true"
+              type="button"
+              @click="saveNumberChange()"
+            >
+            </i>
+            <i
+              class="fa fa-times text-red ml-4"
+              aria-hidden="true"
+              type="button"
+              @click="toggleShowEditNumber()"
+            ></i>
+          </div>
           <div class="col-12">Invoice Date: {{ today }}</div>
           <div class="col-12">Service Period: {{ payPeriodSelection }}</div>
         </div>
@@ -91,6 +142,9 @@ export default {
     return {
       today: moment().format("MM/DD/YYYY"),
       modifiedWeeks: [],
+      showEditName: false,
+      showEditNumber: false,
+      changedData: false,
     };
   },
   mounted() {
@@ -121,13 +175,15 @@ export default {
           alignment: docx.AlignmentType.CENTER,
           children: [
             new docx.TextRun(
-              `Invoice for work performed by ${this.user.Name} to ${this.project.Payee}`
+              `Invoice for work performed by ${this.project.ProjectSettings.NameOnInvoice} to ${this.project.Payee}`
             ),
           ],
         }),
         new docx.Paragraph({
           alignment: docx.AlignmentType.CENTER,
-          children: [new docx.TextRun(`Invoice# X`)],
+          children: [
+            new docx.TextRun(`Invoice # ${this.activeIG.InvoiceNumber}`),
+          ],
         }),
         new docx.Paragraph({
           alignment: docx.AlignmentType.CENTER,
@@ -301,9 +357,15 @@ export default {
       );
       return body;
     },
+    activeIG() {
+      return this.$store.state.activeInvoiceGroup;
+    },
   },
   methods: {
     closeModal() {
+      if (this.changedData) {
+        this.$store.dispatch("getActiveProject", this.$route.params.projectId);
+      }
       this.$emit("closeModal");
     },
     groupWeeks() {
@@ -356,6 +418,23 @@ export default {
       docx.Packer.toBlob(doc).then((blob) => {
         fs.saveAs(blob, "Test.docx");
       });
+    },
+    toggleShowEditName() {
+      this.showEditName = !this.showEditName;
+    },
+    saveNameChange() {
+      this.project.ProjectSettings.projId = this.$route.params.projectId;
+      this.$store.dispatch("saveProjectSettings", this.project.ProjectSettings);
+      this.changedData = true;
+      this.toggleShowEditName();
+    },
+    toggleShowEditNumber() {
+      this.showEditNumber = !this.showEditNumber;
+    },
+    saveNumberChange() {
+      this.$store.dispatch("updateInvoiceNumbers", this.activeIG);
+      this.changedData = true;
+      this.toggleShowEditNumber();
     },
   },
 };

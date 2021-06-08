@@ -138,6 +138,7 @@ class ProjectsService {
 
   async updateProjectSettings(settings, id) {
     settings.Completed = true
+    settings.ProjectId = id
     let project = await dbContext.Project.findById(id)
     let data = await dbContext.ProjectSettings.findOneAndUpdate(
       { _id: project.ProjectSettings._id },

@@ -19,14 +19,17 @@ async function updatePayPeriodRouter(ppObj, type) {
 async function updateWeeklyPayPeriod(ppObj, x) {
   let today = moment()
   let currentPP = { ...ppObj }
+  let currentInvoiceNumber = ppObj.InvoiceNumber + 1
   let newPPs = []
   while (today.isAfter(moment(currentPP.EndDay))) {
     let rawObj = {
       ProjectId: ppObj.ProjectId,
       CreatorEmail: ppObj.CreatorEmail,
       StartDay: moment(currentPP.StartDay).add(x, "days"),
-      EndDay: moment(currentPP.EndDay).add(x, "days")
+      EndDay: moment(currentPP.EndDay).add(x, "days"),
+      InvoiceNumber: currentInvoiceNumber
     }
+    currentInvoiceNumber++
     let newPP = await dbContext.PayPeriod.create(rawObj)
     currentPP = newPP
     newPPs.push(newPP)
@@ -37,12 +40,15 @@ async function updateWeeklyPayPeriod(ppObj, x) {
 async function updateFirstAndFivePayPeriod(ppObj) {
   let today = moment()
   let currentPP = { ...ppObj }
+  let currentInvoiceNumber = ppObj.InvoiceNumber + 1
   let newPPs = []
   while (today.isAfter(moment(currentPP.EndDay))) {
     let rawObj = {
       ProjectId: ppObj.ProjectId,
       CreatorEmail: ppObj.CreatorEmail,
+      InvoiceNumber: currentInvoiceNumber
     }
+    currentInvoiceNumber++
     let e = parseInt(moment(currentPP.EndDay).format("DD"))
     if (e >= 28) {
       let nextYearMo = moment(ppObj.EndDay).add(1, "month").format("YYYY-MM")
@@ -65,14 +71,17 @@ async function updateFirstAndFivePayPeriod(ppObj) {
 async function updateMonthlyPayPeriod(ppObj) {
   let today = moment()
   let currentPP = { ...ppObj }
+  let currentInvoiceNumber = ppObj.InvoiceNumber + 1
   let newPPs = []
   while (today.isAfter(moment(currentPP.EndDay))) {
     let rawObj = {
       ProjectId: ppObj.ProjectId,
       CreatorEmail: ppObj.CreatorEmail,
       StartDay: moment(currentPP.StartDay).add(1, "month"),
-      EndDay: moment(currentPP.EndDay).add(1, "month")
+      EndDay: moment(currentPP.EndDay).add(1, "month"),
+      InvoiceNumber: currentInvoiceNumber
     }
+    currentInvoiceNumber++
     let newPP = await dbContext.PayPeriod.create(rawObj)
     currentPP = newPP
     newPPs.push(newPP)
@@ -102,6 +111,7 @@ class PayPeriodsService {
     let payPeriodObject = {
       ProjectId: project._id,
       CreatorEmail: email,
+      InvoiceNumber: 1
     }
 
     if (project.PayPeriod == "Weekly" || project.PayPeriod == "Bi-Weekly" || project.PayPeriod == "FirstAndFive") {
@@ -171,6 +181,21 @@ class PayPeriodsService {
       i++
     }
     return delCount
+  }
+
+  async updateInvoiceGroups(IGs) {
+    let updatedIGs = []
+    let i = 0
+    while (i < IGs.length) {
+      let data = await dbContext.PayPeriod.findOneAndUpdate(
+        { _id: IGs[i]._id },
+        IGs[i],
+        { new: true }
+      )
+      updatedIGs.push(data)
+      i++
+    }
+    return updatedIGs
   }
 }
 

@@ -6,6 +6,7 @@ const PayPeriod = new Schema({
   CreatorEmail: { type: String, required: true },
   StartDay: { type: Date, required: true },
   EndDay: { type: Date, required: true },
+  InvoiceNumber: { type: Number, default: 1 },
   Current: { type: Boolean, default: false }
 },
   { timestamps: true, toJSON: { virtuals: true } }

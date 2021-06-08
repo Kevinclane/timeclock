@@ -15,6 +15,7 @@ export class ProjectsController extends BaseController {
       .get("/:id", this.getProjectById)
       .post("", this.createProject)
       .put("/:id", this.editProject)
+      .put("/invoicegroups/update/", this.updateInvoiceGroups)
       .delete("/:id", this.deleteProject)
       .put("/projectsettings/update/:id", this.updateProjectSettings)
   }
@@ -84,6 +85,14 @@ export class ProjectsController extends BaseController {
   async updateProjectSettings(req, res, next) {
     try {
       let data = await projectsService.updateProjectSettings(req.body, req.params.id)
+      res.send(data)
+    } catch (error) {
+      next(error)
+    }
+  }
+  async updateInvoiceGroups(req, res, next) {
+    try {
+      let data = await payPeriodsService.updateInvoiceGroups(req.body)
       res.send(data)
     } catch (error) {
       next(error)
