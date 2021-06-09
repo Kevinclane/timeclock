@@ -58,7 +58,30 @@
               @click="toggleShowEditNumber()"
             ></i>
           </div>
-          <div class="col-12">Invoice Date: {{ today }}</div>
+          <div v-if="!showEditToday" class="col-12">
+            Invoice Date: {{ today }}
+            <i
+              class="fas fa-edit"
+              type="button"
+              @click="toggleShowEditToday()"
+            ></i>
+          </div>
+          <div v-else class="col-12">
+            Invoice Date: <input type="date" v-model="today" />
+            <i
+              class="fa fa-check text-green ml-4"
+              aria-hidden="true"
+              type="button"
+              @click="saveTodayChange()"
+            >
+            </i>
+            <i
+              class="fa fa-times text-red ml-4"
+              aria-hidden="true"
+              type="button"
+              @click="toggleShowEditToday()"
+            ></i>
+          </div>
           <div class="col-12">Service Period: {{ payPeriodSelection }}</div>
         </div>
         <div
@@ -144,6 +167,7 @@ export default {
       modifiedWeeks: [],
       showEditName: false,
       showEditNumber: false,
+      showEditToday: false,
       changedData: false,
     };
   },
@@ -435,6 +459,13 @@ export default {
       this.$store.dispatch("updateInvoiceNumbers", this.activeIG);
       this.changedData = true;
       this.toggleShowEditNumber();
+    },
+    toggleShowEditToday() {
+      this.showEditToday = !this.showEditToday;
+    },
+    saveTodayChange() {
+      this.today = moment(this.today).format("MM/DD/YYYY");
+      this.toggleShowEditToday();
     },
   },
 };
