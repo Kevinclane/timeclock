@@ -11,6 +11,7 @@ export class ProfilesController extends BaseController {
       .get("", this.getUserProfile)
       // .put("/:id", this.edit)
       .put("/profilepic", this.updateProfilePic)
+      .put("/updatebusinessinfo", this.updateBusinessInfo)
       .put("/updatecontactinfo", this.updateContactInfo);
   }
   async getUserProfile(req, res, next) {
@@ -40,6 +41,14 @@ export class ProfilesController extends BaseController {
   async updateContactInfo(req, res, next) {
     try {
       let data = await profilesService.updateContactInfo(req.body, req.userInfo)
+      res.send(data)
+    } catch (error) {
+      next(error)
+    }
+  }
+  async updateBusinessInfo(req, res, next) {
+    try {
+      let data = await profilesService.updateBusinessInfo(req.body, req.userInfo)
       res.send(data)
     } catch (error) {
       next(error)

@@ -20,6 +20,7 @@ export default new Vuex.Store({
     payPeriodSelection: "",
     payPeriodDisplay: [],
     allPlans: [],
+    planStatuses: [],
     feedback: [],
     activeFeedback: {}
   },
@@ -32,12 +33,6 @@ export default new Vuex.Store({
     },
     setProfilePic(state, pic) {
       state.user.Picture = pic
-    },
-    setContactInfo(state, contacts) {
-      state.user.ContactInfo = contacts
-    },
-    deleteContactInfo(state, index) {
-      state.user.ContactInfo.splice(index, 1)
     },
     //#endregion END USER/PROFILE
 
@@ -123,6 +118,9 @@ export default new Vuex.Store({
     setAllPlans(state, plans) {
       state.allPlans = plans
     },
+    setPlanStatuses(state, statuses) {
+      state.planStatuses = statuses
+    },
     setFeedback(state, feedback) {
       state.feedback = feedback
     },
@@ -154,7 +152,6 @@ export default new Vuex.Store({
     async getProfile({ commit }) {
       try {
         let res = await api.get("/profile")
-        console.log("UserData: ", res.data)
         commit("setUser", res.data)
       } catch (err) {
         console.error(err)
@@ -175,7 +172,15 @@ export default new Vuex.Store({
       try {
         debugger
         let res = await api.put("profile/updatecontactinfo", contacts)
-        commit("setContactInfo", res.data)
+        commit("setUser", res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async updateBusinessInfo({ commit }, BInfo) {
+      try {
+        let res = await api.put("profile/updatebusinessinfo", BInfo)
+        commit("setUser", res.data)
       } catch (error) {
         console.error(error)
       }
@@ -515,7 +520,7 @@ export default new Vuex.Store({
         let feedback = {
           bugs: [],
           suggestions: [],
-          feedback: []
+          feedbacks: []
         }
         let i = 0
         while (i < res.data.length) {
@@ -524,7 +529,7 @@ export default new Vuex.Store({
           } else if (res.data[i].Type == "Suggestion") {
             feedback.suggestions.push(res.data[i])
           } else if (res.data[i].Type == "Feedback") {
-            feedback.feedback.push(res.data[i])
+            feedback.feedbacks.push(res.data[i])
           }
           i++
         }
@@ -551,36 +556,56 @@ export default new Vuex.Store({
     },
     //#endregion
 
+    //#region ADMIN ONLY
 
-    //#region INVOICES
-
-    async createWordDoc({ }, invoiceData) {
+    async insertPlan({ commit }, rawData) {
       try {
-        let res = await api.post("/invoices/doc", invoiceData)
-        // console.log("FS: ", fs)
-        fs.saveAs("TestDoc.docx", res.data)
+        let res = await api.post("/plans", rawData)
+        commit("insertNewPlan", res.data)
+        console.log("New SubId:", res.data)
       } catch (error) {
         console.error(error)
       }
     },
 
-    //#endregion END INVOICES
-
-
-
-    //#region ADMIN ONLY
-
-    async insertPlan({ commit }, rawData) {
-      let res = await api.post("/plans", rawData)
-      commit("insertNewPlan", res.data)
-      console.log("New SubId:", res.data)
-    },
-
     async getAllPlans({ commit }) {
-      let res = await api.get("/plans")
-      commit("setAllPlans", res.data)
-      // console.log("Plans:", res.data)
+      try {
+        let res = await api.get("/plans")
+        commit("setAllPlans", res.data)
+      } catch (error) {
+        console.error(error)
+      }
     },
+
+    async getPlanStatuses({ commit }) {
+      try {
+        let res = await api.get("/plans/planstatuses")
+        commit("setPlanStatuses", res.data[0].Title)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+
+    async addPlanStatus({ commit }, status) {
+      try {
+        let res = await api.put("/plans/planstatuses", status)
+        debugger
+        commit("setPlanStatuses", res.data.Title)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+
+    async removePlanStatus({ commit }, apiObj) {
+      try {
+        let res = await api.put("/plans/planstatuses/remove", apiObj)
+        debugger
+        commit("setPlanStatuses", res.data.Title)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+
     async updateUserSubscription({ commit, dispatch }, paypalRes) {
       let reqData = {
         user: this.state.user,

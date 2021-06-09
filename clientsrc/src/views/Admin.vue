@@ -1,28 +1,8 @@
 <template>
   <div>
-    <div class="container-fluid">
-      <div class="row text-light d-flex justify-content-between mt-3">
-        <div
-          type="button"
-          @click="setView('Feedback')"
-          class="col-2 rounded-top bg-dark mx-1 py-2"
-        >
-          Feedback
-        </div>
-        <div
-          type="button"
-          @click="setView('Subscriptions')"
-          class="col-2 rounded-top bg-dark mx-1 py-2"
-        >
-          Subs
-        </div>
-        <div class="col-2 rounded-top bg-dark mx-1 py-2"></div>
-        <div class="col-2 rounded-top bg-dark mx-1 py-2"></div>
-        <div class="col-2 rounded-top bg-dark mx-1 py-2"></div>
-      </div>
-    </div>
+    <admin-navbar @setView="setView" />
 
-    <div class="container-fluid text-light" v-if="view == 'Feedback'">
+    <div class="container-fluid text-light" v-if="view == 'Bugs'">
       <div class="row">
         <div class="col-12 p-3 bg-primary">Bugs</div>
       </div>
@@ -55,7 +35,10 @@
           Closed
         </div>
       </div>
-      <div class="row mt-3">
+    </div>
+
+    <div class="container-fluid text-light" v-if="view == 'Suggestions'">
+      <div class="row">
         <div class="col-12 p-3 bg-primary">Suggestions</div>
       </div>
       <div class="row bg-secondary">
@@ -73,7 +56,7 @@
         <div
           v-if="suggestion.Active"
           type="button"
-          @click="toggleActiveBug(index)"
+          @click="toggleActiveSuggestion(index)"
           class="col-2 text-green"
         >
           Open
@@ -81,13 +64,16 @@
         <div
           v-else
           type="button"
-          @click="toggleActiveBug(index)"
+          @click="toggleActiveSuggestion(index)"
           class="col-2 text-red"
         >
           Closed
         </div>
       </div>
-      <div class="row mt-3">
+    </div>
+
+    <div class="container-fluid text-light" v-if="view == 'Feedback'">
+      <div class="row">
         <div class="col-12 p-3 bg-primary">Feedback</div>
       </div>
       <div class="row bg-secondary">
@@ -105,7 +91,7 @@
         <div
           v-if="feedback.Active"
           type="button"
-          @click="toggleActiveBug(index)"
+          @click="toggleActiveFeedback(index)"
           class="col-2 text-green"
         >
           Open
@@ -113,7 +99,7 @@
         <div
           v-else
           type="button"
-          @click="toggleActiveBug(index)"
+          @click="toggleActiveFeedback(index)"
           class="col-2 text-red"
         >
           Closed
@@ -122,8 +108,55 @@
     </div>
 
     <div class="container-fluid" v-if="view == 'Subscriptions'">
+      <div class="row bg-primary text-white">
+        <div class="col-12 my-2 dynamic-header2">Active Plans</div>
+        <div class="col-lg-2 col-3">Title</div>
+        <div class="col-4">Description</div>
+        <div class="col-lg-1 col-2">Status</div>
+        <div class="col-lg-3 col-3">PlanId</div>
+        <div class="col-1 hide-sm">Edit</div>
+        <div class="col-1 hide-sm">Delete</div>
+      </div>
+      <div
+        class="
+          row
+          text-white
+          bg-secondary
+          border-black-1
+          p-2
+          d-flex
+          align-items-center
+        "
+        v-for="plan in allPlans"
+        :key="plan.Id"
+      >
+        <div class="col-lg-2 col-3">{{ plan.Title }}</div>
+        <ul class="col-4">
+          <li
+            v-for="(description, index) in plan.Description"
+            :key="`description-${index}`"
+          >
+            {{ description }}
+          </li>
+        </ul>
+        <div class="col-lg-1 col-2">{{ plan.SubStatus }}</div>
+        <div class="col-lg-3 col-3">{{ plan.PlanId }}</div>
+        <div class="col-lg-1 col-6">
+          <i class="fa fa-edit" aria-hidden="true"></i>
+        </div>
+        <div class="col-lg-1 col-6">
+          <i class="fa fa-trash text-red" aria-hidden="true"></i>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid" v-if="view == 'EditPlans'">
       <form @submit="insertPlan" class="row">
-        <div class="col-6 offset-3 my-3">
+        <div class="col-lg-4 offset-lg-1 col-12 my-3">
+          <div class="row">
+            <div class="col-12 dynamic-header2 bg-primary text-light">
+              Add Plan
+            </div>
+          </div>
           <div class="row p-3 rounded bg-secondary">
             <input
               class="my-1 col-6"
@@ -210,38 +243,44 @@
             <button type="submit" class="btn btn-info mt-2">Insert Plan</button>
           </div>
         </div>
+        <div class="col-lg-4 offset-lg-1 col-12 my-3">
+          <div class="row">
+            <div class="col-12 dynamic-header2 bg-primary text-light">
+              Edit Plan Statuses
+            </div>
+          </div>
+          <div class="row p-3 rounded bg-secondary">
+            <form @submit="addPlanStatus" class="col-12">
+              <input type="text" v-model="newStatus" />
+              <button class="btn btn-green" type="submit">Add</button>
+            </form>
+            <div class="col-12 text-light text-left">
+              <div
+                v-for="(status, index) in statuses"
+                :key="`status-${index}`"
+                class="row"
+              >
+                <div
+                  class="
+                    col-12
+                    d-flex
+                    justify-content-around
+                    align-items-center
+                    my-2
+                  "
+                >
+                  {{ status }}
+                  <i
+                    class="fa fa-trash text-red"
+                    type="button"
+                    @click="removePlanStatus(status)"
+                  ></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </form>
-      <div class="row bg-primary text-white">
-        <h5 class="col-2">Title</h5>
-        <h5 class="col-4">Description</h5>
-        <h5 class="col-1">Status</h5>
-        <h5 class="col-3">PlanId</h5>
-        <h5 class="col-1">Edit</h5>
-        <h5 class="col-1">Delete</h5>
-      </div>
-      <div
-        class="row text-white bg-secondary border-black-1 p-2 d-flex align-items-center"
-        v-for="plan in allPlans"
-        :key="plan.Id"
-      >
-        <div class="col-2">{{ plan.Title }}</div>
-        <ul class="col-4">
-          <li
-            v-for="(description, index) in plan.Description"
-            :key="`description-${index}`"
-          >
-            {{ description }}
-          </li>
-        </ul>
-        <div class="col-1">{{ plan.SubStatus }}</div>
-        <div class="col-3">{{ plan.PlanId }}</div>
-        <div class="col-1">
-          <i class="fa fa-pencil" aria-hidden="true"></i>
-        </div>
-        <div class="col-1">
-          <i class="fa fa-trash text-red" aria-hidden="true"></i>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -250,6 +289,7 @@
 <script>
 import swal from "sweetalert";
 import PlanCard from "../components/Cards/PlanCard";
+import AdminNavbar from "../components/AdminNavbar.vue";
 export default {
   name: "Admin",
   data() {
@@ -261,29 +301,14 @@ export default {
         PlanId: "",
         Status: "",
       },
-      statuses: [
-        "Basic",
-        "Team0",
-        "Team10",
-        "Team20",
-        "Team30",
-        "Team40",
-        "Team50",
-        "Team60",
-        "Team70",
-        "Team80",
-        "Team90",
-        "Team100",
-        "Ultimate",
-        "Grandfather",
-        "Admin",
-      ],
-      view: "Feedback",
+      newStatus: "",
+      view: "",
     };
   },
   mounted() {
     this.$store.dispatch("getAllPlans");
     this.$store.dispatch("getFeedback");
+    this.$store.dispatch("getPlanStatuses");
   },
   methods: {
     insertPlan(e) {
@@ -314,14 +339,27 @@ export default {
       this.$store.dispatch("editFeedback", this.allFeedback.bugs[i]);
     },
     toggleActiveSuggestion(i) {
-      this.allFeedback.suggestions[i].Active = !this.allFeedback.suggestions[i]
-        .Active;
+      this.allFeedback.suggestions[i].Active =
+        !this.allFeedback.suggestions[i].Active;
       this.$store.dispatch("editFeedback", this.allFeedback.suggestions[i]);
     },
     toggleActiveFeedback(i) {
-      this.allFeedback.feedback[i].Active = !this.allFeedback.feedback[i]
-        .Active;
-      this.$store.dispatch("editFeedback", this.allFeedback.feedback[i]);
+      this.allFeedback.feedbacks[i].Active =
+        !this.allFeedback.feedbacks[i].Active;
+      this.$store.dispatch("editFeedback", this.allFeedback.feedbacks[i]);
+    },
+    addPlanStatus(e) {
+      e.preventDefault();
+      let apiObj = {
+        Type: "PlanStatuses",
+        Title: this.newStatus,
+      };
+      this.$store.dispatch("addPlanStatus", { ...apiObj });
+      this.newStatus = "";
+    },
+    removePlanStatus(status) {
+      let apiObj = { Title: status };
+      this.$store.dispatch("removePlanStatus", apiObj);
     },
   },
   computed: {
@@ -331,9 +369,30 @@ export default {
     allFeedback() {
       return this.$store.state.feedback;
     },
+    statuses() {
+      return this.$store.state.planStatuses;
+    },
   },
   components: {
     PlanCard,
+    AdminNavbar,
   },
 };
 </script>
+
+<style scoped>
+input {
+  background-color: lightgray;
+}
+select {
+  background-color: lightgray;
+}
+.hide-sm {
+  visibility: hidden;
+}
+@media screen and (min-width: 992px) {
+  .hide-sm {
+    visibility: visible;
+  }
+}
+</style>

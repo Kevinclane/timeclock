@@ -144,7 +144,6 @@
                   <div class="col-8 limit-length">{{ profile.Website }}</div>
                   <div class="col-3">LinkedIn:</div>
                   <div class="col-8 limit-length">{{ profile.LinkedIn }}</div>
-
                   <div
                     class="col-12 text-center mt-3 mb-1"
                     type="button"
@@ -159,7 +158,70 @@
               <div class="col-12 text-center bg-primary py-3 mb-2">
                 Business Info
               </div>
-              <div class="col-12"></div>
+              <div class="col-12">
+                <div v-if="showEditBusiness" class="row">
+                  <div class="col-3 my-1">Business Name:</div>
+                  <input
+                    class="col-8 my-1"
+                    type="text"
+                    v-model="profile.BusinessName"
+                  />
+                  <div class="col-3 my-1">Business Phone:</div>
+                  <input
+                    class="col-8 my-1"
+                    type="text"
+                    v-model="profile.BusinessPhone"
+                  />
+                  <div class="col-3 my-1">Business Address:</div>
+                  <input
+                    class="col-8 my-1"
+                    type="text"
+                    v-model="profile.BusinessAddress"
+                  />
+                  <div class="col-3 my-1">Business Website:</div>
+                  <input
+                    class="col-8 my-1"
+                    type="text"
+                    v-model="profile.BusinessWebsite"
+                  />
+                  <div class="col-12 my-2 d-flex justify-content-around">
+                    <button
+                      class="btn btn-danger"
+                      @click="toggleShowEditBusiness()"
+                    >
+                      Cancel
+                    </button>
+                    <button class="btn btn-green" @click="updateBusinessInfo()">
+                      Save
+                    </button>
+                  </div>
+                </div>
+                <div v-else class="row text-left">
+                  <div class="col-3">Business Name:</div>
+                  <div class="col-8 limit-length">
+                    {{ profile.BusinessName }}
+                  </div>
+                  <div class="col-3">Business Phone:</div>
+                  <div class="col-8 limit-length">
+                    {{ profile.BusinessPhone }}
+                  </div>
+                  <div class="col-3">Business Address:</div>
+                  <div class="col-8 limit-length">
+                    {{ profile.BusinessAddress }}
+                  </div>
+                  <div class="col-3">BusinessWebsite:</div>
+                  <div class="col-8 limit-length">
+                    {{ profile.BusinessWebsite }}
+                  </div>
+                  <div
+                    class="col-12 text-center mt-3 mb-1"
+                    type="button"
+                    @click="toggleShowEditBusiness()"
+                  >
+                    <i class="fas fa-pen"></i>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -180,6 +242,7 @@ export default {
       showProjectForm: false,
       showUploadPhoto: false,
       showEditContact: false,
+      showEditBusiness: false,
       loading: true,
       selectedTab: "projects",
       newImg: "",
@@ -215,6 +278,9 @@ export default {
     },
     toggleShowEditContact() {
       this.showEditContact = !this.showEditContact;
+    },
+    toggleShowEditBusiness() {
+      this.showEditBusiness = !this.showEditBusiness;
     },
     getProfile() {
       this.$store.dispatch("getProfile");
@@ -261,6 +327,15 @@ export default {
         LinkedIn: this.profile.LinkedIn,
       });
       this.toggleShowEditContact();
+    },
+    updateBusinessInfo() {
+      this.$store.dispatch("updateBusinessInfo", {
+        BusinessName: this.profile.BusinessName,
+        BusinessPhone: this.profile.BusinessPhone,
+        BusinessAddress: this.profile.BusinessAddress,
+        BusinessWebsite: this.profile.BusinessWebsite,
+      });
+      this.toggleShowEditBusiness();
     },
   },
   computed: {
@@ -344,5 +419,8 @@ export default {
 .limit-length {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+input {
+  height: 2rem;
 }
 </style>

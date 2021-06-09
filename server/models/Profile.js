@@ -17,6 +17,7 @@ const Profile = new Schema(
     UserSettings: { type: ObjectId, ref: "UserSettings" },
     IsAdmin: { type: Boolean, default: false },
     BusinessName: { type: String },
+    BusinessPhone: { type: Number },
     BusinessAddress: { type: String },
     BusinessWebsite: { type: String }
   },

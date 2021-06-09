@@ -12,6 +12,9 @@ export class PlansController extends BaseController {
       .use(auth0provider.getAuthorizedUserInfo)
       .post("", this.insertPlan)
       .get("", this.getAllPlans)
+      .get("/planstatuses", this.getPlanStatuses)
+      .put("/planstatuses", this.addPlanStatus)
+      .put("/planstatuses/remove", this.removePlanStatus)
   }
   async insertPlan(req, res, next) {
     try {
@@ -27,6 +30,30 @@ export class PlansController extends BaseController {
       res.send(plans);
     } catch (error) {
       next(error);
+    }
+  }
+  async addPlanStatus(req, res, next) {
+    try {
+      let statuses = await plansService.addPlanStatus(req.body, req.userInfo)
+      res.send(statuses)
+    } catch (error) {
+      next(error)
+    }
+  }
+  async getPlanStatuses(req, res, next) {
+    try {
+      let statuses = await plansService.getPlanStatuses(req.userInfo);
+      res.send(statuses)
+    } catch (error) {
+      next(error)
+    }
+  }
+  async removePlanStatus(req, res, next) {
+    try {
+      let statuses = await plansService.removePlanStatus(req.body, req.userInfo)
+      res.send(statuses)
+    } catch (error) {
+      next(error)
     }
   }
 }

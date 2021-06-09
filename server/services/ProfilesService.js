@@ -92,7 +92,7 @@ class ProfileService {
     let data = await dbContext.Profile.findOneAndUpdate(
       { Email: user.email },
       { Picture: body.picString },
-      { runValidators: true, setDefaultsOnInsert: true, new: true }
+      { runValidators: true, new: true }
     )
     return data.Picture
   }
@@ -109,7 +109,21 @@ class ProfileService {
       { runValidators: true, setDefaultsOnInsert: true, new: true }
     )
     let data = await dbContext.Profile.findOne({ Email: user.email })
-    return data.ContactInfo
+    return data
+  }
+  async updateBusinessInfo(body, user) {
+    await dbContext.Profile.findOneAndUpdate(
+      { Email: user.email },
+      {
+        BusinessName: body.BusinessName,
+        BusinessPhone: body.BusinessPhone,
+        BusinessAddress: body.BusinessAddress,
+        BusinessWebsite: body.BusinessWebsite
+      },
+      { runValidators: true, setDefaultsOnInsert: true, new: true }
+    )
+    let data = await dbContext.Profile.findOne({ Email: user.email })
+    return data
   }
 }
 export const profilesService = new ProfileService();

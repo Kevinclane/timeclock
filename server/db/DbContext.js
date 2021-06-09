@@ -10,6 +10,7 @@ import UserSettingsSchema from "../models/UserSettings"
 import ProjectSettingsSchema from "../models/ProjectSettings"
 import ServerCacheSchema from "../models/ServerCache"
 import FeedbackSchema from "../models/Feedback"
+import ExtraSchema from "../models/Extra"
 
 class DbContext {
   Profile = mongoose.model("Profile", ProfileSchema);
@@ -23,6 +24,7 @@ class DbContext {
   ProjectSettings = mongoose.model("ProjectSettings", ProjectSettingsSchema)
   ServerCache = mongoose.model("ServerCache", ServerCacheSchema)
   Feedback = mongoose.model("FeedbackSchema", FeedbackSchema)
+  Extra = mongoose.model("ExtraSchema", ExtraSchema)
 }
 
 export const dbContext = new DbContext();
