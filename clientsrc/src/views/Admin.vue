@@ -150,24 +150,27 @@
       </div>
     </div>
     <div class="container-fluid" v-if="view == 'EditPlans'">
-      <form @submit="insertPlan" class="row">
-        <div class="col-lg-4 offset-lg-1 col-12 my-3">
+      <div class="row">
+        <form @submit="insertPlan" class="col-lg-4 offset-lg-1 col-12 my-3">
           <div class="row">
             <div class="col-12 dynamic-header2 bg-primary text-light">
               Add Plan
             </div>
           </div>
-          <div class="row p-3 rounded bg-secondary">
+          <div class="row p-3 bg-secondary text-left text-light">
+            <div class="col-12">Title</div>
             <input
-              class="my-1 col-6"
+              class="my-1 col-12"
               type="text"
               placeholder="Title..."
               name="Title"
+              id="Title"
               v-model="newPlan.Title"
               required
             />
+            <div class="col-12">Plan Type</div>
             <select
-              class="my-1 col-6"
+              class="my-1 col-12"
               name="status"
               v-model="newPlan.Status"
               required
@@ -180,23 +183,25 @@
                 {{ status }}
               </option>
             </select>
-
+            <div class="col-12">Price per charge</div>
             <input
-              class="my-1 col-6"
+              class="my-1 col-12"
               type="text"
               placeholder="Price..."
               name="Price"
               v-model="newPlan.Price"
               required
             />
+            <div class="col-12">PlanId</div>
             <input
-              class="my-1 col-6"
+              class="my-1 col-12"
               type="text"
               placeholder="PlanId..."
               name="PlanId"
               v-model="newPlan.PlanId"
               required
             />
+            <div class="col-12">Bullet points about plan</div>
             <input
               class="col-12 my-1"
               v-model="newPlan.Description[0]"
@@ -239,20 +244,19 @@
               name="Description5"
               id="Description1"
             />
-
             <button type="submit" class="btn btn-info mt-2">Insert Plan</button>
           </div>
-        </div>
+        </form>
         <div class="col-lg-4 offset-lg-1 col-12 my-3">
           <div class="row">
             <div class="col-12 dynamic-header2 bg-primary text-light">
-              Edit Plan Statuses
+              Plan Types
             </div>
           </div>
-          <div class="row p-3 rounded bg-secondary">
+          <div class="row p-3 bg-secondary">
             <form @submit="addPlanStatus" class="col-12">
               <input type="text" v-model="newStatus" />
-              <button class="btn btn-green" type="submit">Add</button>
+              <button class="btn btn-sm btn-green" type="submit">Add</button>
             </form>
             <div class="col-12 text-light text-left">
               <div
@@ -280,7 +284,7 @@
             </div>
           </div>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </template>
@@ -367,7 +371,11 @@ export default {
       return this.$store.state.allPlans;
     },
     allFeedback() {
-      return this.$store.state.feedback;
+      let allFeedback = this.$store.state.feedback;
+      allFeedback.bugs.sort((a, b) => b.Active - a.Active);
+      allFeedback.suggestions.sort((a, b) => b.Active - a.Active);
+      allFeedback.feedbacks.sort((a, b) => b.Active - a.Active);
+      return allFeedback;
     },
     statuses() {
       return this.$store.state.planStatuses;
@@ -383,9 +391,11 @@ export default {
 <style scoped>
 input {
   background-color: lightgray;
+  height: 2rem;
 }
 select {
   background-color: lightgray;
+  height: 2rem;
 }
 .hide-sm {
   visibility: hidden;

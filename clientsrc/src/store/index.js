@@ -589,7 +589,6 @@ export default new Vuex.Store({
     async addPlanStatus({ commit }, status) {
       try {
         let res = await api.put("/plans/planstatuses", status)
-        debugger
         commit("setPlanStatuses", res.data.Title)
       } catch (error) {
         console.error(error)
@@ -599,7 +598,6 @@ export default new Vuex.Store({
     async removePlanStatus({ commit }, apiObj) {
       try {
         let res = await api.put("/plans/planstatuses/remove", apiObj)
-        debugger
         commit("setPlanStatuses", res.data.Title)
       } catch (error) {
         console.error(error)
