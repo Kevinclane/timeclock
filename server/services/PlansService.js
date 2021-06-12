@@ -26,6 +26,7 @@ class PlansService {
         Title: reqData.Title,
         Description: reqData.Description,
         Price: reqData.Price,
+        Frequency: reqData.Frequency,
         PlanId: reqData.PlanId,
         SubStatus: reqData.Status
       })

@@ -5,7 +5,7 @@ import * as fs from "file-saver"
 import Vue from 'vue'
 import Vuex from 'vuex'
 import router from '../router/index'
-import { api, payPalApi } from "./AxiosService"
+import { api } from "./AxiosService"
 
 Vue.use(Vuex)
 export default new Vuex.Store({
@@ -138,12 +138,6 @@ export default new Vuex.Store({
     },
     resetBearer() {
       api.defaults.headers.authorization = "";
-    },
-    setPayPalBearer({ }, bearer) {
-      payPalApi.defaults.headers.authorization = bearer;
-    },
-    resetPayPalBearer() {
-      payPalApi.defaults.headers.authorization = "";
     },
 
     //#endregion -- END AUTH STUFF --

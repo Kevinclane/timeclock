@@ -9,14 +9,12 @@
           <div type="button" @click="setView('Feedback')">Feedback</div>
         </div>
       </div>
-      <div class="col-2 rounded-top bg-dark mx-1 py-2 dropdown">
-        <div type="button" class="dropbtn">Subs</div>
-        <div class="dropdown-content">
-          <div type="button" @click="setView('EditPlans')">Edit Plans</div>
-          <div type="button" @click="setView('Subscriptions')">
-            Subscriptions
-          </div>
-        </div>
+      <div
+        class="col-2 rounded-top bg-dark mx-1 py-2"
+        type="button"
+        @click="setView('Subscriptions')"
+      >
+        Subscriptions
       </div>
       <div class="col-2 rounded-top bg-dark mx-1 py-2"></div>
       <div class="col-2 rounded-top bg-dark mx-1 py-2"></div>

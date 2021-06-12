@@ -2,6 +2,7 @@ import express from "express";
 import BaseController from "../utils/BaseController";
 import auth0provider from "@bcwdev/auth0provider";
 import { profilesService } from "../services/ProfilesService";
+import { subscriptionsService } from "../services/SubscriptionsService";
 
 export class ProfilesController extends BaseController {
   constructor() {
@@ -17,6 +18,7 @@ export class ProfilesController extends BaseController {
   async getUserProfile(req, res, next) {
     try {
       let profile = await profilesService.getProfile(req.userInfo);
+      profile = await subscriptionsService.getSubscriptionData(profile)
       res.send(profile);
     } catch (error) {
       next(error);

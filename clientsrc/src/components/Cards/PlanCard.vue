@@ -1,7 +1,19 @@
 <template>
-  <div class="col-lg-4 col-12 text-white bg-secondary rounded">
+  <div
+    class="
+      col-lg-3 col-8
+      offset-2 offset-lg-0
+      text-white
+      bg-secondary
+      rounded
+      my-3
+    "
+  >
     <div class="row">
       <h4 class="col-12 bg-midnight p-2">{{ plan.Title }}</h4>
+      <div class="col-12 py-3 bg-gold text-black mb-2">
+        {{ plan.Frequency }} Subscription
+      </div>
       <ul class="col-8 offset-2 col-lg-10 offset-lg-1">
         <li
           v-for="(description, index) in plan.Description"
@@ -67,3 +79,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.bg-gold {
+  background-color: gold;
+}
+</style>

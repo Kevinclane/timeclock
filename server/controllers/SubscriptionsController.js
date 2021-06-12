@@ -9,6 +9,7 @@ export class SubscriptionsController extends BaseController {
   constructor() {
     super("api/subscriptions");
     this.router
+      .get("/test", this.test)
       .use(auth0provider.getAuthorizedUserInfo)
       .put("/updatesubscription", this.updateSubscription)
   }
@@ -29,6 +30,14 @@ export class SubscriptionsController extends BaseController {
       res.send(data)
     } catch (error) {
       next(error);
+    }
+  }
+  async test(req, res, next) {
+    try {
+      let data = await subscriptionsService.test()
+      res.send(data)
+    } catch (error) {
+      next(error)
     }
   }
 

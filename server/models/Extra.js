@@ -5,7 +5,9 @@ let ObjectId = Schema.Types.ObjectId;
 const Extra = new Schema(
   {
     Type: { type: String },
-    Title: [{ type: String }]
+    Title: [{ type: String }],
+    Field1: { type: String },
+    Field2: { type: String }
   },
   { timestamps: true, toJSON: { virtuals: true } }
 );

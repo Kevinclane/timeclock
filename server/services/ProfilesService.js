@@ -23,7 +23,9 @@ async function createSubscriptionIfNeeded(profile) {
       { Subscription: profile.Subscription._id }
     )
   }
-  if (profile.Subscription.SubStatus != "Free") {
+  if (profile.Subscription.SubStatus == "Admin" || profile.Subscription.SubStatus == "Grandfather") {
+    return profile
+  } else if (profile.Subscription.SubStatus != "Free") {
     profile.Subscription.PayPalData = {
       billingToken: profile.Subscription.PayPalData.billingToken,
       orderID: profile.Subscription.PayPalData.orderID,
