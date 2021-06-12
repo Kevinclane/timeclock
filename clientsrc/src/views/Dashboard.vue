@@ -11,9 +11,6 @@
           Projects
         </div>
         <div class="my-3" type="button" @click="setTab('profile')">Profile</div>
-        <div class="my-3" type="button" @click="setTab('subscription')">
-          Subscriptions
-        </div>
       </div>
       <div class="col-9 col-lg-10">
         <div class="row my-3">
@@ -62,7 +59,7 @@
           <div class="col-lg-4 col-12">
             <img
               class="border-r-50 img-size"
-              :src="`${profile.Picture}`"
+              :src="`${user.Picture}`"
               alt="profile picture"
             />
             <div v-if="!showUploadPhoto">
@@ -83,6 +80,34 @@
             >
               Cancel
             </button>
+            <div class="row my-4">
+              <div class="col-10 offset-1 bg-secondary rounded">
+                <div class="row">
+                  <div class="col-12 py-2">
+                    Plan: {{ user.Subscription.SubStatus }}
+                  </div>
+                  <div v-if="activeSub" class="col-12">
+                    <div class="row">
+                      <div class="col-12 py-2">Frequency: X</div>
+                      <div class="col-12 py-2">
+                        Status: {{ user.PPSubData.status }}
+                      </div>
+                      <div class="col-12 py-2">
+                        Next Charge:
+                        {{ nextBill }}
+                      </div>
+                      <div class="col-12 py-2">Charge Amount: X</div>
+                    </div>
+                  </div>
+                  <div v-else class="col-12 py-2"></div>
+                  <div class="col-12 py-2">
+                    <button class="btn btn-sm btn-green" @click="toSubView()">
+                      Update Subscription
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="col-lg-7 col-10 offset-1 offset-lg-0">
             <div class="row bg-dark text-light box-shadow-245">
@@ -95,31 +120,27 @@
                   <input
                     class="col-8 my-1"
                     type="text"
-                    v-model="profile.FirstName"
+                    v-model="user.FirstName"
                   />
                   <div class="col-3 my-1">Last Name:</div>
                   <input
                     class="col-8 my-1"
                     type="text"
-                    v-model="profile.LastName"
+                    v-model="user.LastName"
                   />
                   <div class="col-3 my-1">Phone:</div>
-                  <input
-                    class="col-8 my-1"
-                    type="text"
-                    v-model="profile.Phone"
-                  />
+                  <input class="col-8 my-1" type="text" v-model="user.Phone" />
                   <div class="col-3 my-1">Website:</div>
                   <input
                     class="col-8 my-1"
                     type="text"
-                    v-model="profile.Website"
+                    v-model="user.Website"
                   />
                   <div class="col-3 my-1">LinkedIn:</div>
                   <input
                     class="col-8 my-1"
                     type="text"
-                    v-model="profile.LinkedIn"
+                    v-model="user.LinkedIn"
                   />
                   <div class="col-12 my-2 d-flex justify-content-around">
                     <button
@@ -135,15 +156,15 @@
                 </div>
                 <div v-else class="row text-left">
                   <div class="col-3">First Name:</div>
-                  <div class="col-8 limit-length">{{ profile.FirstName }}</div>
+                  <div class="col-8 limit-length">{{ user.FirstName }}</div>
                   <div class="col-3">Last Name:</div>
-                  <div class="col-8 limit-length">{{ profile.LastName }}</div>
+                  <div class="col-8 limit-length">{{ user.LastName }}</div>
                   <div class="col-3">Phone:</div>
-                  <div class="col-8 limit-length">{{ profile.Phone }}</div>
+                  <div class="col-8 limit-length">{{ user.Phone }}</div>
                   <div class="col-3">Website:</div>
-                  <div class="col-8 limit-length">{{ profile.Website }}</div>
+                  <div class="col-8 limit-length">{{ user.Website }}</div>
                   <div class="col-3">LinkedIn:</div>
-                  <div class="col-8 limit-length">{{ profile.LinkedIn }}</div>
+                  <div class="col-8 limit-length">{{ user.LinkedIn }}</div>
                   <div
                     class="col-12 text-center mt-3 mb-1"
                     type="button"
@@ -164,25 +185,25 @@
                   <input
                     class="col-8 my-1"
                     type="text"
-                    v-model="profile.BusinessName"
+                    v-model="user.BusinessName"
                   />
                   <div class="col-3 my-1">Business Phone:</div>
                   <input
                     class="col-8 my-1"
                     type="text"
-                    v-model="profile.BusinessPhone"
+                    v-model="user.BusinessPhone"
                   />
                   <div class="col-3 my-1">Business Address:</div>
                   <input
                     class="col-8 my-1"
                     type="text"
-                    v-model="profile.BusinessAddress"
+                    v-model="user.BusinessAddress"
                   />
                   <div class="col-3 my-1">Business Website:</div>
                   <input
                     class="col-8 my-1"
                     type="text"
-                    v-model="profile.BusinessWebsite"
+                    v-model="user.BusinessWebsite"
                   />
                   <div class="col-12 my-2 d-flex justify-content-around">
                     <button
@@ -199,19 +220,19 @@
                 <div v-else class="row text-left">
                   <div class="col-3">Business Name:</div>
                   <div class="col-8 limit-length">
-                    {{ profile.BusinessName }}
+                    {{ user.BusinessName }}
                   </div>
                   <div class="col-3">Business Phone:</div>
                   <div class="col-8 limit-length">
-                    {{ profile.BusinessPhone }}
+                    {{ user.BusinessPhone }}
                   </div>
                   <div class="col-3">Business Address:</div>
                   <div class="col-8 limit-length">
-                    {{ profile.BusinessAddress }}
+                    {{ user.BusinessAddress }}
                   </div>
                   <div class="col-3">BusinessWebsite:</div>
                   <div class="col-8 limit-length">
-                    {{ profile.BusinessWebsite }}
+                    {{ user.BusinessWebsite }}
                   </div>
                   <div
                     class="col-12 text-center mt-3 mb-1"
@@ -225,7 +246,6 @@
             </div>
           </div>
         </div>
-        <div v-if="selectedTab == 'subscription'" class="row">SUBS</div>
       </div>
     </div>
   </div>
@@ -233,6 +253,7 @@
 
 <script>
 import swal from "sweetalert";
+import moment from "moment";
 import NewProjectFormModal from "../components/modals/NewProjectFormModal.vue";
 import ProjectCard from "../components/Cards/ProjectCardComponent.vue";
 export default {
@@ -250,10 +271,9 @@ export default {
   },
   async mounted() {
     await this.$store.dispatch("getProjects");
-    if (!this.profile) {
-      this.getProfile();
+    if (!this.$store.state.user) {
+      await this.getProfile();
     }
-    await this.getProfile();
     this.loading = false;
   },
   beforeDestroy() {
@@ -320,22 +340,25 @@ export default {
     },
     updateContactInfo() {
       this.$store.dispatch("updateContactInfo", {
-        FirstName: this.profile.FirstName,
-        LastName: this.profile.LastName,
-        Phone: this.profile.Phone,
-        Website: this.profile.Website,
-        LinkedIn: this.profile.LinkedIn,
+        FirstName: this.user.FirstName,
+        LastName: this.user.LastName,
+        Phone: this.user.Phone,
+        Website: this.user.Website,
+        LinkedIn: this.user.LinkedIn,
       });
       this.toggleShowEditContact();
     },
     updateBusinessInfo() {
       this.$store.dispatch("updateBusinessInfo", {
-        BusinessName: this.profile.BusinessName,
-        BusinessPhone: this.profile.BusinessPhone,
-        BusinessAddress: this.profile.BusinessAddress,
-        BusinessWebsite: this.profile.BusinessWebsite,
+        BusinessName: this.user.BusinessName,
+        BusinessPhone: this.user.BusinessPhone,
+        BusinessAddress: this.user.BusinessAddress,
+        BusinessWebsite: this.user.BusinessWebsite,
       });
       this.toggleShowEditBusiness();
+    },
+    toSubView() {
+      this.$router.push({ name: "subscriptions" });
     },
   },
   computed: {
@@ -347,7 +370,7 @@ export default {
     },
     activeSub() {
       let status = this.$store.state.user.Subscription.SubStatus;
-      if (status == "Basic") {
+      if (status != "Free") {
         return true;
       } else return false;
     },
@@ -358,8 +381,13 @@ export default {
         return true;
       } else return false;
     },
-    profile() {
+    user() {
       return this.$store.state.user;
+    },
+    nextBill() {
+      return moment(
+        this.$store.state.user.PPSubData.billing_info.next_billing_time
+      ).format("MM/DD/YYYY");
     },
   },
   components: { NewProjectFormModal, ProjectCard },

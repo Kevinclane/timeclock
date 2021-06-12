@@ -7,7 +7,8 @@ const Extra = new Schema(
     Type: { type: String },
     Title: [{ type: String }],
     Field1: { type: String },
-    Field2: { type: String }
+    Field2: { type: String },
+    ExpDate: { type: Date }
   },
   { timestamps: true, toJSON: { virtuals: true } }
 );

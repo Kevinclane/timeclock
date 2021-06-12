@@ -613,7 +613,7 @@ export default new Vuex.Store({
         paypal: paypalRes
       }
       let res = await api.put("/subscriptions/updatesubscription", reqData)
-      console.log("Sub Update: ", res.data)
+      router.push({ name: "dashboard" })
     },
 
 

@@ -15,6 +15,7 @@ const Profile = new Schema(
     Picture: { type: String },
     Subscription: { type: ObjectId, ref: "Subscription" },
     UserSettings: { type: ObjectId, ref: "UserSettings" },
+    PPSubData: { type: Object },
     IsAdmin: { type: Boolean, default: false },
     BusinessName: { type: String },
     BusinessPhone: { type: Number },

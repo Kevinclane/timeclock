@@ -1,10 +1,10 @@
 import { dbContext } from "../db/DbContext";
 import { BadRequest } from "../utils/Errors";
 import Axios from "axios"
+import moment from "moment"
 
 
-
-async function getSubStatus() {
+async function createToken() {
   try {
     let data = await dbContext.Extra.findOne({ Type: "PayPalCred" })
     let buff = Buffer.from(`${data.Field1}:${data.Field2}`, "utf8");
@@ -20,7 +20,51 @@ async function getSubStatus() {
       }
     })
     let res = await payPalApi.post("/v1/oauth2/token", "grant_type=client_credentials")
-    return res.data
+    let PPBT = await dbContext.Extra.create(
+      {
+        Type: "PPBT",
+        Field1: res.data.access_token,
+        ExpDate: moment().add(15, "minutes")
+      }
+    )
+    return PPBT
+  } catch (error) {
+    throw new BadRequest(error)
+  }
+}
+
+async function findToken() {
+  try {
+    let data = await dbContext.Extra.findOne({ Type: "PPBT" })
+    if (!data) {
+      data = await createToken()
+    }
+    let expired = moment(data.ExpDate).isSameOrBefore(moment())
+    if (expired) {
+      await dbContext.Extra.findOneAndDelete({ Type: "PPBT" })
+      data = await createToken()
+    }
+    return data.Field1
+  } catch (error) {
+    throw new BadRequest(error)
+  }
+}
+
+async function getSubStatus(id) {
+  try {
+    let token = await findToken()
+    const payPalApi = Axios.create({
+      baseURL: "https://api-m.paypal.com",
+      timeout: 30000,
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json",
+        "Accept-Language": "en_US",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    let status = await payPalApi.get("/v1/billing/subscriptions/" + id)
+    return status.data
   } catch (error) {
     throw new BadRequest(error)
   }
@@ -43,8 +87,14 @@ class SubscriptionsService {
     )
     return data
   }
-  // async getSubscriptionData(profile) {
-  // }
+  async getSubscriptionData(profile) {
+    if (profile.Subscription.SubStatus == "Free" || profile.Subscription.SubStatus == "Admin" || profile.SubStatus == "Grandfather") {
+      return profile
+    } else {
+      profile.PPSubData = await getSubStatus(profile.Subscription.PayPalData.subscriptionID)
+      return profile
+    }
+  }
 
   async test() {
     let data = await getSubStatus()

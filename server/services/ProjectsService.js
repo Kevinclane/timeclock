@@ -134,6 +134,19 @@ class ProjectsService {
       _id: id,
       CreatorEmail: email
     })
+    await dbContext.ProjectSettings.findOneAndDelete({ ProjectId: id })
+    let pps = await dbContext.PayPeriod.find({ ProjectId: id })
+    let i = 0
+    while (i < pps.length) {
+      await dbContext.PayPeriod.findByIdAndDelete(pps[i]._id)
+      i++
+    }
+    let tcs = await dbContext.TimeClock.find({ ProjectId: id })
+    i = 0
+    while (i < tcs.length) {
+      await dbContext.TimeClock.findByIdAndDelete(tcs[i]._id)
+      i++
+    }
   }
 
   async updateProjectSettings(settings, id) {
