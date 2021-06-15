@@ -173,6 +173,7 @@ export default {
   },
   mounted() {
     this.groupWeeks();
+    this.activeCheck();
   },
   computed: {
     user() {
@@ -466,6 +467,11 @@ export default {
     saveTodayChange() {
       this.today = moment(this.today).format("MM/DD/YYYY");
       this.toggleShowEditToday();
+    },
+    activeCheck() {
+      if (!this.project.Active) {
+        this.$router.push({ name: "dashboard" });
+      }
     },
   },
 };

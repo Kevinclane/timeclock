@@ -17,14 +17,7 @@
         <option v-if="profile.BusinessName" value="Business">
           Business Name: {{ profile.BusinessName }}
         </option>
-        <option value="Other">Other</option>
       </select>
-      <input
-        class="col-10 mt-3"
-        v-if="settings.NameOnInvoice == 'Other'"
-        type="text"
-        v-model="settings.OtherName"
-      />
     </div>
     <div class="row my-3 pb-2 d-flex justify-content-center border-bottom">
       <div class="col-12">Do you earn overtime on this project?</div>
@@ -133,7 +126,7 @@ export default {
     save() {
       this.loading = true;
       let settingsObj = {
-        projId: this.$route.params.projectId,
+        ProjectId: this.$route.params.projectId,
       };
 
       if (this.settings.NameOnInvoice == "Personal") {

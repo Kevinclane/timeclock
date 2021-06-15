@@ -246,7 +246,7 @@ export default new Vuex.Store({
     },
     async saveProjectSettings({ commit }, settings) {
       try {
-        let res = await api.put("/projects/projectsettings/update/" + settings.projId, settings)
+        let res = await api.put("/projects/projectsettings/update/" + settings.ProjectId, settings)
         commit("setProjectSettings", res.data)
       } catch (error) {
         console.error(error)

@@ -94,14 +94,93 @@
 
       <!--END SALARY OPTIONS-->
 
-      <button
-        class="btn btn-danger btn-cancel"
-        type="button"
-        @click="closeModal"
-      >
-        Cancel
-      </button>
-      <button type="submit" class="btn btn-green btn-submit">Update</button>
+      <div class="col-12 my-1">
+        <div class="row my-3 pb-2 d-flex justify-content-center border-bottom">
+          <div class="col-12">
+            What name do you want to show up in the "from" field on the
+            invoices?
+          </div>
+          <select v-model="project.ProjectSettings.NameOnInvoice">
+            <option
+              :value="name"
+              v-for="(name, index) in nameOptions"
+              :key="`name-${index}`"
+            >
+              {{ name }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="col-12 my-1">
+        <div class="row my-3 pb-2 d-flex justify-content-center border-bottom">
+          <div class="col-12">Do you earn overtime on this project?</div>
+          <select class="col-12" v-model="project.ProjectSettings.OT">
+            <option :value="true">Yes</option>
+            <option :value="false">No</option>
+          </select>
+          <div v-if="project.ProjectSettings.OT" class="col-12">
+            Overtime Multiplier
+          </div>
+          <div
+            v-if="project.ProjectSettings.OT"
+            class="col-12 d-flex justify-content-center"
+          >
+            <span>
+              <i class="fas fa-exclamation-triangle mr-1 coco"
+                ><span class="tooltiptext">ie: 1.5 for time and a half</span></i
+              >
+            </span>
+            <span>
+              <input v-model="project.ProjectSettings.OTRate" type="text" />
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 my-1">
+        <div class="row mt-3 d-flex justify-content-center">
+          <div class="col-12">Do you want to round your hours?</div>
+          <select class="col-12" v-model="project.ProjectSettings.RoundTime">
+            <option :value="true">Yes</option>
+            <option :value="false">No</option>
+          </select>
+          <div class="col-12">
+            <div class="row" v-if="project.ProjectSettings.RoundTime">
+              <div class="col-12">Round to:</div>
+              <select class="col-12" v-model="project.ProjectSettings.RoundTo">
+                <option
+                  :value="option"
+                  v-for="(option, index) in roundToOptions"
+                  :key="`${option - index}`"
+                >
+                  Nearest {{ option }}min
+                </option>
+              </select>
+              <div class="col-12">When?</div>
+              <select
+                class="col-12"
+                v-model="project.ProjectSettings.RoundFrequency"
+              >
+                <option
+                  :value="option.value"
+                  v-for="(option, index) in roundFrequencyOptions"
+                  :key="`${option - index}`"
+                >
+                  {{ option.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 mt-5 d-flex justify-content-between">
+        <button class="btn btn-danger" type="button" @click="closeModal">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-green">Update</button>
+      </div>
     </form>
   </div>
 </template>
@@ -146,8 +225,35 @@ export default {
         emptyFields.push("(Rate) ");
         abort = true;
       }
+      if (
+        this.project.ProjectSettings.OT &&
+        (this.project.ProjectSettings.OTRate == 0 ||
+          !this.project.ProjectSettings.OTRate ||
+          this.project.ProjectSettings.OTRate == "")
+      ) {
+        emptyFields.push("(OTRate)");
+        abort = true;
+      }
+      if (this.project.ProjectSettings.RoundTime) {
+        if (
+          this.project.ProjectSettings.RoundTo == "" ||
+          !this.ProjectSettings.RoundTo
+        ) {
+          emptyFields.push("(Round To)");
+          abort = true;
+        }
+        if (
+          this.project.ProjectSettings.RoundFrequency == "" ||
+          !this.ProjectSettings.RoundFrequency
+        ) {
+          emptyFields.push("(Round Frequency)");
+        }
+      }
       if (!abort) {
         this.$store.dispatch("editProject", { ...this.project });
+        this.$store.dispatch("saveProjectSettings", {
+          ...this.project.ProjectSettings,
+        });
         this.$emit("closeModal");
       } else {
         let i = 0;
@@ -202,6 +308,41 @@ export default {
   computed: {
     project() {
       return this.$store.state.activeProject;
+    },
+    user() {
+      return this.$store.state.user;
+    },
+    nameOptions() {
+      let names = [];
+      let personal = this.user.FirstName + " " + this.user.LastName;
+      names.push(personal);
+      if (this.user.BusinessName) {
+        names.push(this.user.BusinessName);
+      }
+      return names;
+    },
+    roundToOptions() {
+      return [5, 10, 15, 30, 60];
+    },
+    roundFrequencyOptions() {
+      return [
+        {
+          name: "Every time I clock out",
+          value: "TC",
+        },
+        {
+          name: "End of every day",
+          value: "Day",
+        },
+        {
+          name: "End of every week",
+          value: "Week",
+        },
+        {
+          name: "End of the pay period",
+          value: "Total",
+        },
+      ];
     },
   },
 };

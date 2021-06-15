@@ -57,8 +57,6 @@
           <button class="btn btn-danger my-1" @click="deleteProject">
             Delete Project
           </button>
-          <input type="check-box" />
-          <button class="btn btn-info my-1">Overtime</button>
         </div>
         <div class="dynamic-header">{{ activeProject.Payee }}</div>
       </div>
@@ -239,8 +237,6 @@ import AddTimeComponent from "../components/AddTimeComponent.vue";
 import DocPreviewModal from "../components/modals/DocPreviewModal.vue";
 import swal from "sweetalert";
 import moment from "moment";
-import * as docx from "docx";
-import * as fs from "fs";
 export default {
   name: "ProjectDetails",
   data() {
@@ -252,7 +248,6 @@ export default {
       forceShowInvoice: false,
       showDocPreview: false,
       payPeriodSelection: "",
-      // payPeriodDisplay: [],
       loading: true,
       OTEnabled: true,
       clicked: false,
@@ -263,6 +258,7 @@ export default {
       "getActiveProject",
       this.$route.params.projectId
     );
+    await this.activeCheck();
     if (this.activeProject !== {}) {
       this.setPPSelection();
     }
@@ -275,14 +271,22 @@ export default {
     async clockIn() {
       this.clicked = true;
       setTimeout((this.clicked = false), 1000);
-      let timeObj = {
-        ProjectId: this.$route.params.projectId,
-        StartTime: moment(),
-      };
-      await this.$store.dispatch("clockIn", timeObj);
+      if (this.activeProject.Active) {
+        let timeObj = {
+          ProjectId: this.$route.params.projectId,
+          StartTime: moment(),
+        };
+        await this.$store.dispatch("clockIn", timeObj);
+      } else {
+        this.$router.push({ name: "dashboard" });
+      }
     },
     clockOut() {
-      this.toggleClockOutForm();
+      if (this.activeProject.Active) {
+        this.toggleClockOutForm();
+      } else {
+        this.$router.push({ name: "dashboard" });
+      }
     },
     toggleSettingsBox() {
       this.showSettingsBox = !this.showSettingsBox;
@@ -294,7 +298,11 @@ export default {
       }
     },
     toggleShowAddTimeComp() {
-      this.showAddTimeComp = !this.showAddTimeComp;
+      if (this.activeProject.Active) {
+        this.showAddTimeComp = !this.showAddTimeComp;
+      } else {
+        this.$router.push({ name: "dashboard" });
+      }
     },
     toggleClockOutForm() {
       this.showClockOutForm = !this.showClockOutForm;
@@ -331,35 +339,10 @@ export default {
     toggleDocPreview() {
       this.showDocPreview = !this.showDocPreview;
     },
-    createDoc() {
-      // debugger;
-      // console.log("test");
-      const doc = new docx.Document({
-        sections: [
-          {
-            properties: {},
-            children: [
-              new docx.Paragraph({
-                children: [
-                  new docx.TextRun("Hello World"),
-                  new docx.TextRun({
-                    text: "Foo Bar",
-                    bold: true,
-                  }),
-                  new docx.TextRun({
-                    text: "\tGithub is the best",
-                    bold: true,
-                  }),
-                ],
-              }),
-            ],
-          },
-        ],
-      });
-      docx.saveDocumentToFile(doc, "New Document.docx");
-      // docx.Packer.toBuffer(doc).then((buffer) => {
-      //   fs.writeFileSync("My Document.docx", buffer);
-      // });
+    activeCheck() {
+      if (!this.activeProject.Active) {
+        this.$router.push({ name: "dashboard" });
+      }
     },
   },
   computed: {
@@ -529,7 +512,7 @@ li {
   }
 }
 .backdrop {
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.6);
   position: fixed;
   top: 0;
   right: 0;

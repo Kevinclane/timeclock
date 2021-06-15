@@ -81,13 +81,16 @@
               Cancel
             </button>
             <div class="row my-4">
-              <div class="col-10 offset-1 bg-secondary rounded">
+              <div
+                v-if="!adminOrGrand"
+                class="col-10 offset-1 bg-secondary rounded"
+              >
                 <div class="row">
                   <div class="col-12 py-2">
                     Plan: {{ user.Subscription.SubStatus }}
                   </div>
                   <div v-if="activeSub" class="col-12">
-                    <div class="row">
+                    <div v-if="user.Plan" class="row">
                       <div class="col-12 py-2">
                         Frequency: {{ user.Plan.Frequency }}
                       </div>
@@ -392,6 +395,12 @@ export default {
       return moment(
         this.$store.state.user.PPSubData.billing_info.next_billing_time
       ).format("MM/DD/YYYY");
+    },
+    adminOrGrand() {
+      let status = this.$store.state.user.Subscription.SubStatus;
+      if (status == "Admin" || status == "Grandfather") {
+        return true;
+      } else return false;
     },
   },
   components: { NewProjectFormModal, ProjectCard },

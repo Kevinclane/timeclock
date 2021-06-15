@@ -149,6 +149,7 @@ class ProjectsService {
     }
   }
 
+  //this function can probably be reduced later. 
   async updateProjectSettings(settings, id) {
     settings.Completed = true
     settings.ProjectId = id
