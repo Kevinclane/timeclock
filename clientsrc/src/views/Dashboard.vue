@@ -6,7 +6,7 @@
   </div>
   <div v-else class="container-fluid text-light">
     <div class="row">
-      <div class="col-3 col-lg-2 h-100 bg-primary border-top side-bar">
+      <div class="col-3 col-lg-2 bg-primary border-top side-bar">
         <div class="my-3" type="button" @click="setTab('projects')">
           Projects
         </div>
