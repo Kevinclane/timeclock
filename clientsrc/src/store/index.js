@@ -22,7 +22,10 @@ export default new Vuex.Store({
     allPlans: [],
     planStatuses: [],
     feedback: [],
-    activeFeedback: {}
+    activeFeedback: {},
+    promoCodeData: {},
+    promoCodeCounts: {},
+    promoCodes: []
   },
 
 
@@ -65,6 +68,11 @@ export default new Vuex.Store({
     },
     clearProjects(state) {
       state.projects = []
+    },
+    clearPromoCodes(state) {
+      state.promoCodes = [],
+        state.codeCounts = {},
+        state.promoCodeData = {}
     },
     setProjectSettings(state, settings) {
       state.activeProject.ProjectSettings = settings
@@ -126,7 +134,16 @@ export default new Vuex.Store({
     },
     setActiveFeedback(state, feedback) {
       state.activeFeedback = feedback
-    }
+    },
+    setPromoCodeData(state, data) {
+      state.promoCodeData = data
+    },
+    setPromoCodeCounts(state, codeCounts) {
+      state.promoCodeCounts = codeCounts
+    },
+    setPromoCodes(state, promoCodes) {
+      state.promoCodes = promoCodes
+    },
 
   },
 
@@ -361,6 +378,9 @@ export default new Vuex.Store({
     },
     clearProjects({ commit }) {
       commit("clearProjects")
+    },
+    clearPromoCodes({ commit }) {
+      commit("clearPromoCodes")
     },
 
     //#endregion -- END DATA CLEARING --
@@ -598,23 +618,78 @@ export default new Vuex.Store({
       }
     },
 
-    async updateUserSubscription({ commit, dispatch }, paypalRes) {
-      let reqData = {
-        user: this.state.user,
-        paypal: paypalRes
+    async updateSubscription({ }, data) {
+      if (data.type == "cancel") {
+        await api.put("/subscription/cancel")
+      } else if (data.type == "update") {
+        await api.put("/subscriptions/updatesubscription", data.paypalRes)
       }
-      let res = await api.put("/subscriptions/updatesubscription", reqData)
-      console.log("Sub Update: ", res.data)
-    },
-    async subscribe({ commit, dispatch }, paypalRes) {
-      debugger
-      let reqData = {
-        user: this.state.user,
-        paypal: paypalRes
-      }
-      let res = await api.put("/subscriptions/updatesubscription", reqData)
       router.push({ name: "dashboard" })
     },
+    async subscribe({ }, paypalRes) {
+      await api.put("/subscriptions/updatesubscription", paypalRes)
+      router.push({ name: "dashboard" })
+    },
+    async createPromoCodes({ commit, dispatch }, codeData) {
+      try {
+        let apiObj = {}
+        if (codeData.Type == "FreeAccess") {
+          apiObj = {
+            Amount: codeData.Amount,
+            SubStatus: "Grandfather",
+            Details: "Free Lifetime Access!",
+            Type: codeData.Type
+          }
+        }
+        let res = await api.post("/subscriptions/addpromocodes", apiObj)
+        console.log(res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async checkPromoCode({ commit, dispatch }, reqObj) {
+      try {
+        let res = await api.get("/subscriptions/getpromocode", reqObj)
+        commit("setPromoCodeData", res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async usePromoCode({ commit, dispatch }, reqObj) {
+      try {
+        let res = await api.put("/subscriptions/usepromocode", reqObj)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async getPromoCodeCounts({ commit }) {
+      try {
+        let res = await api.get("/subscriptions/getpromocodecount")
+        commit("setPromoCodeCounts", res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async getPromoCodes({ commit }, apiObj) {
+      try {
+        let res = await api.put("/subscriptions/getallpromocodes", apiObj)
+        if (res.data) {
+          commit("setPromoCodes", res.data)
+        }
+      } catch (error) {
+        window.alert(error)
+        console.error(error)
+      }
+    },
+    async togglePromoCodeReleased({ commit }, id) {
+      try {
+        let res = await api.put("/subscriptions/togglePromoCodeReleased/" + id)
+        commit("setPromoCodes", res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
 
 
     ////#endregion

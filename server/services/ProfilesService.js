@@ -74,7 +74,7 @@ class ProfileService {
   async getProfile(user) {
     let profile = await dbContext.Profile.findOne({
       Email: user.email
-    }).populate("Subscription").populate("UserSettings");
+    }).populate("Subscription").populate("UserSettings").populate("Plan");
     profile = await createProfileIfNeeded(profile, user);
     profile = await createSubscriptionIfNeeded(profile)
     profile = await createUserSettingsIfNeeded(profile)

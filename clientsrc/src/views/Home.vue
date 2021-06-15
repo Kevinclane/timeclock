@@ -152,15 +152,6 @@ export default {
         router.push({ name: "feedback" });
       }
     },
-    testFN() {
-      debugger;
-      if (this.test.includes(".")) {
-        let split = this.test.split(".");
-        let isnum0 = /^\d+$/.test(split[0]);
-        let isnum1 = /^\d+$/.test(split[1]);
-        console.log(this.test);
-      }
-    },
   },
   components: {},
 };

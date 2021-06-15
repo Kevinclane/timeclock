@@ -14,6 +14,7 @@ const Profile = new Schema(
     LinkedIn: { type: String },
     Picture: { type: String },
     Subscription: { type: ObjectId, ref: "Subscription" },
+    Plan: { type: ObjectId, ref: "Plan" },
     UserSettings: { type: ObjectId, ref: "UserSettings" },
     PPSubData: { type: Object },
     IsAdmin: { type: Boolean, default: false },

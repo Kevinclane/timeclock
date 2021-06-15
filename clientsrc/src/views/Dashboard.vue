@@ -88,7 +88,9 @@
                   </div>
                   <div v-if="activeSub" class="col-12">
                     <div class="row">
-                      <div class="col-12 py-2">Frequency: X</div>
+                      <div class="col-12 py-2">
+                        Frequency: {{ user.Plan.Frequency }}
+                      </div>
                       <div class="col-12 py-2">
                         Status: {{ user.PPSubData.status }}
                       </div>
@@ -96,7 +98,9 @@
                         Next Charge:
                         {{ nextBill }}
                       </div>
-                      <div class="col-12 py-2">Charge Amount: X</div>
+                      <div class="col-12 py-2">
+                        Charge Amount: ${{ user.Plan.Price }}
+                      </div>
                     </div>
                   </div>
                   <div v-else class="col-12 py-2"></div>

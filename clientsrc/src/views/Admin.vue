@@ -107,7 +107,7 @@
       </div>
     </div>
 
-    <div class="container-fluid" v-if="view == 'Subscriptions'">
+    <div class="container-fluid text-light" v-if="view == 'Subscriptions'">
       <div class="row">
         <form @submit="insertPlan" class="col-lg-4 offset-lg-1 col-12 my-3">
           <div class="row">
@@ -289,6 +289,78 @@
         </div>
       </div>
     </div>
+    <div class="container-fluid text-light" v-if="view == 'PromoCodes'">
+      <div class="row my-2">
+        <div class="col-12 dynamic-header2">Promo Codes</div>
+        <div class="col-12">Codes by Type</div>
+        <div class="col-12">Free Access: {{ promoCodeCounts.FreeAccess }}</div>
+        <div class="col-12 mt-3">
+          <button
+            v-if="!showCodesSection"
+            class="btn btn-info"
+            @click="showCodes()"
+          >
+            Show Codes
+          </button>
+          <button v-else class="btn btn-danger" @click="showCodes()">
+            Hide Codes
+          </button>
+        </div>
+        <div v-if="showCodesSection" class="col-12 my-5 bg-secondary">
+          <div class="row">
+            <div v-if="showPWField" class="col-12">
+              Password: <input type="text" v-model="pw" />
+              <button class="btn btn-green btn-sm" @click="getPromoCodes()">
+                Enter
+              </button>
+            </div>
+            <div v-else class="col-12">
+              <div class="row border-bottom-black">
+                <div class="col-2">Code</div>
+                <div class="col-4">Details</div>
+                <div class="col-4">Type</div>
+                <div class="col-2">Released</div>
+              </div>
+              <div class="row" v-for="code in promoCodes" :key="code._id">
+                <div class="col-2">{{ code.Code }}</div>
+                <div class="col-4">{{ code.Details }}</div>
+                <div class="col-4">{{ code.Type }}</div>
+                <div
+                  type="button"
+                  @click="toggleReleased(code._id)"
+                  v-if="code.Released"
+                  class="col-2"
+                >
+                  <i class="fa fa-circle text-red" aria-hidden="true"></i>
+                </div>
+                <div
+                  type="button"
+                  @click="toggleReleased(code._id)"
+                  v-else
+                  class="col-2"
+                >
+                  <i class="fa fa-circle text-green" aria-hidden="true"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row"></div>
+        </div>
+        <div class="col-12 mt-3">
+          <input
+            type="text"
+            placeholder="# of new codes..."
+            v-model="newCodes.Amount"
+          />
+          <select v-model="newCodes.Type">
+            <option value="FreeAccess">Free Access</option>
+          </select>
+          <button class="btn btn-green btn-sm" @click="createPromoCodes()">
+            Create Codes
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -311,12 +383,20 @@ export default {
       },
       newStatus: "",
       view: "",
+      newCodes: {
+        Amount: 0,
+        Type: "",
+      },
+      pw: "",
+      showCodesSection: false,
+      showPWField: true,
     };
   },
   mounted() {
     this.$store.dispatch("getAllPlans");
     this.$store.dispatch("getFeedback");
     this.$store.dispatch("getPlanStatuses");
+    this.$store.dispatch("getPromoCodeCounts");
   },
   methods: {
     insertPlan(e) {
@@ -369,6 +449,26 @@ export default {
       let apiObj = { Title: status };
       this.$store.dispatch("removePlanStatus", apiObj);
     },
+    createPromoCodes() {
+      this.$store.dispatch("createPromoCodes", { ...this.newCodes });
+      this.newCodes = {
+        Amount: 0,
+        Type: "",
+      };
+    },
+    showCodes() {
+      this.showCodesSection = !this.showCodesSection;
+    },
+    async getPromoCodes() {
+      await this.$store.dispatch("getPromoCodes", { pw: this.pw });
+      this.pw = "";
+      if (this.$store.state.promoCodes.length > 0) {
+        this.showPWField = false;
+      }
+    },
+    toggleReleased(id) {
+      this.$store.dispatch("togglePromoCodeReleased", id);
+    },
   },
   computed: {
     allPlans() {
@@ -384,6 +484,15 @@ export default {
     statuses() {
       return this.$store.state.planStatuses;
     },
+    promoCodeCounts() {
+      return this.$store.state.promoCodeCounts;
+    },
+    promoCodes() {
+      return this.$store.state.promoCodes;
+    },
+  },
+  beforeDestroy() {
+    this.$store.dispatch("clearPromoCodes");
   },
   components: {
     PlanCard,

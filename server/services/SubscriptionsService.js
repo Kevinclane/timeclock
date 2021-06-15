@@ -3,6 +3,18 @@ import { BadRequest } from "../utils/Errors";
 import Axios from "axios"
 import moment from "moment"
 
+async function generateCode() {
+  var result = "";
+  var characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var charactersLength = characters.length;
+  for (var i = 0; i < 6; i++) {
+    result += characters.charAt(
+      Math.floor(Math.random() * charactersLength)
+    );
+  }
+  return result;
+}
 
 async function createToken() {
   try {
@@ -71,7 +83,7 @@ async function getSubStatus(id) {
 }
 
 class SubscriptionsService {
-  async updateSubscription(reqData) {
+  async updateSubscription(reqData, user) {
     let plan = await dbContext.Plan.findOne({
       PlanId: reqData.paypal.plan_id
     })
@@ -85,6 +97,14 @@ class SubscriptionsService {
       },
       { runValidators: true, setDefaultsOnInsert: true, new: true }
     )
+    await dbContext.Profile.findOneAndUpdate(
+      {
+        Email: user.email
+      },
+      {
+        Plan: plan._id
+      }
+    )
     return data
   }
   async getSubscriptionData(profile) {
@@ -96,9 +116,76 @@ class SubscriptionsService {
     }
   }
 
-  async test() {
-    let data = await getSubStatus()
+  // cancelSubscription(user) {
+  //   let profile = await dbContext.Profile.findOneAndUpdate(
+  //     { Email: user.email },
+  //     {
+
+  //     },
+  //     { new: true }
+  //   )
+  // }
+
+  async addPromoCodes(codes) {
+    let i = 0
+    while (i < codes.Amount) {
+      let code = await generateCode()
+      let codeObj = {
+        Code: code,
+        Details: codes.Details,
+        Type: codes.Type
+      }
+      if (codes.SubStatus) {
+        codeObj.SubStatus = codes.SubStatus
+      }
+      await dbContext.PromoCode.create(codeObj)
+      i++
+    }
+    return `Created ${i} codes`
+  }
+
+  async getPromoCode(code) {
+    let data = await dbContext.PromoCode.findOne({ Code: code })
     return data
+  }
+  async getAllPromoCodes(reqObj) {
+    let pwObj = await dbContext.Extra.findOne(
+      {
+        Type: "PromoCodePW",
+        Field2: reqObj.pw
+      }
+    )
+    if (!pwObj) {
+      throw new BadRequest("Incorrect Password")
+    } else {
+      let codes = await dbContext.PromoCode.find()
+      return codes
+    }
+  }
+
+  async getPromoCodeCount() {
+    let codes = await dbContext.PromoCode.find()
+    let counts = {
+      FreeAccess: 0
+    }
+    let i = 0
+    while (i < codes.length) {
+      counts[codes[i].Type]++
+      i++
+    }
+    return counts
+  }
+  async togglePromoCodeReleased(id) {
+    let code = await dbContext.PromoCode.findOne(
+      { _id: id }
+    )
+    await dbContext.PromoCode.findOneAndUpdate(
+      { _id: id },
+      { Released: !code.Released },
+      { new: true }
+    )
+    let codes = await dbContext.PromoCode.find()
+    return codes
   }
 
 }
