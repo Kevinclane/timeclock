@@ -82,6 +82,21 @@ async function getSubStatus(id) {
   }
 }
 
+async function cancelPayPal(id) {
+  let token = await findToken()
+  const payPalApi = Axios.create({
+    baseURL: "https://api-m.paypal.com",
+    timeout: 30000,
+    withCredentials: true,
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Language": "en_US",
+      "Authorization": `Bearer ${token}`
+    }
+  })
+  await payPalApi.post(`/v1/billing/subscriptions/${id}/cancel`)
+}
+
 class SubscriptionsService {
   async updateSubscription(reqData, user) {
     let plan = await dbContext.Plan.findOne({
@@ -116,15 +131,60 @@ class SubscriptionsService {
     }
   }
 
-  // cancelSubscription(user) {
-  //   let profile = await dbContext.Profile.findOneAndUpdate(
-  //     { Email: user.email },
-  //     {
+  async cancelledCheck(profile) {
+    let data = await dbContext.Extra.findOne(
+      {
+        Type: "PPCancelled",
+        Field1: profile._id
+      }
+    )
+    if (!data) {
+      let cycles = profile.PPSubData.billing_info.cycle_executions[1].cycles_completed
+      let modifier = null
+      if (profile.Plan.Frequency == "Monthly") {
+        modifier = 1
+      } else if (profile.Plan.Frequency == "3 Month") {
+        modifier = 3
+      } else if (profile.Plan.Frequency == "Yearly") {
+        modifier = 12
+      }
+      let months = cycles * modifier + 1
+      let expireDate = moment(profile.PPSubData.start_time).add(months, "months")
 
-  //     },
-  //     { new: true }
-  //   )
-  // }
+      data = await dbContext.Extra.create(
+        {
+          Type: "PPCancelled",
+          Field1: profile._id,
+          ExpDate: expireDate
+        }
+      )
+    }
+    if (moment(data.ExpDate).isSameOrAfter(moment())) {
+      await dbContext.Subscription.findOneAndUpdate(
+        { UserId: profile._id },
+        {
+          SubStatus: "Free"
+        }
+      )
+      profile = await dbContext.Profile.findOneAndUpdate(
+        {
+          _id: profile._id
+        },
+        {
+          Plan: null
+        },
+        { new: true }
+      )
+    }
+    return profile
+  }
+
+  async cancelSubscription(user, paypalData) {
+    await cancelPayPal(paypalData.id)
+    let profile = await dbContext.Profile.findOne({ Email: user.email })
+    profile = await this.getSubscriptionData(profile)
+    await this.cancelledCheck(profile)
+  }
 
   async usePromoCode(reqObj, user) {
     let profile = await dbContext.Profile.findOne({ Email: user.email })
@@ -134,6 +194,11 @@ class SubscriptionsService {
       {
         SubStatus: promoCode.SubStatus
       },
+      { new: true }
+    )
+    await dbContext.Profile.findOneAndUpdate(
+      { Email: user.email },
+      { Plan: null },
       { new: true }
     )
     profile = await dbContext.Profile.findOne({

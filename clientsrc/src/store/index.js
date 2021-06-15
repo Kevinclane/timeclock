@@ -517,6 +517,10 @@ export default new Vuex.Store({
       }
       commit("setWeeks", weeks)
     },
+    //#endregion MISC
+
+    //#region FEEDBACK
+
     async submitFeedback({ }, feedback) {
       try {
         let res = await api.post("/feedback", feedback)
@@ -568,9 +572,10 @@ export default new Vuex.Store({
         console.error(error)
       }
     },
-    //#endregion
 
-    //#region ADMIN ONLY
+    //#endregion END REGION FEEDBACK
+
+    //#region PLANS
 
     async insertPlan({ commit }, rawData) {
       try {
@@ -618,6 +623,10 @@ export default new Vuex.Store({
       }
     },
 
+    //#endregion PLANS
+
+    //#region SUBSCRIPTIONS
+
     async updateSubscription({ }, data) {
       if (data.type == "cancel") {
         await api.put("/subscription/cancel")
@@ -630,6 +639,19 @@ export default new Vuex.Store({
       await api.put("/subscriptions/updatesubscription", paypalRes)
       router.push({ name: "dashboard" })
     },
+    async cancelSubscription({ }, paypalData) {
+      try {
+        await api.put("subscriptions/cancel", paypalData)
+        router.push({ name: 'dashboard' })
+      } catch (error) {
+        console.error(error)
+      }
+    },
+
+    //#endregion SUBSCRIPTIONS
+
+    //#region PROMOCODES
+
     async createPromoCodes({ commit, dispatch }, codeData) {
       try {
         let apiObj = {}
@@ -693,9 +715,7 @@ export default new Vuex.Store({
       }
     }
 
-
-
-    ////#endregion
+    //#endregion PROMOCODES
 
   },
   modules: {

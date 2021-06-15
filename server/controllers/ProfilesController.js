@@ -19,6 +19,11 @@ export class ProfilesController extends BaseController {
     try {
       let profile = await profilesService.getProfile(req.userInfo);
       profile = await subscriptionsService.getSubscriptionData(profile)
+      if (profile.PPSubData) {
+        if (profile.PPSubData.status == "CANCELLED") {
+          profile = await subscriptionsService.cancelledCheck(profile)
+        }
+      }
       res.send(profile);
     } catch (error) {
       next(error);

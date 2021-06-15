@@ -10,14 +10,14 @@ export class SubscriptionsController extends BaseController {
     super("api/subscriptions");
     this.router
       .use(auth0provider.getAuthorizedUserInfo)
+      .get("/getpromocodecount", this.getPromoCodeCount)
       .put("/updatesubscription", this.updateSubscription)
-      // .put("/cancel", this.cancelSubscription)
+      .put("/cancel", this.cancelSubscription)
       .put("/usepromocode", this.usePromoCode)
-      .post("/addpromocodes", this.addPromoCodes)
       .put("/getpromocode", this.getPromoCode)
       .put("/getallpromocodes", this.getAllPromoCodes)
-      .get("/getpromocodecount", this.getPromoCodeCount)
       .put("/togglePromoCodeReleased/:id", this.togglePromoCodeReleased)
+      .post("/addpromocodes", this.addPromoCodes)
   }
   async updateSubscription(req, res, next) {
     try {
@@ -35,13 +35,13 @@ export class SubscriptionsController extends BaseController {
       next(error);
     }
   }
-  // async cancelSubscription(req, res, next) {
-  //   try {
-  //     await subscriptionsService.cancelSubscription(req.userInfo)
-  //   } catch (error) {
-  //     next(error)
-  //   }
-  // }
+  async cancelSubscription(req, res, next) {
+    try {
+      await subscriptionsService.cancelSubscription(req.body, req.userInfo)
+    } catch (error) {
+      next(error)
+    }
+  }
   async usePromoCode(req, res, next) {
     try {
       let profile = await subscriptionsService.usePromoCode(req.body, req.userInfo)
