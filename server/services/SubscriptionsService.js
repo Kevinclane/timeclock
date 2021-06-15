@@ -126,6 +126,23 @@ class SubscriptionsService {
   //   )
   // }
 
+  async usePromoCode(reqObj, user) {
+    let profile = await dbContext.Profile.findOne({ Email: user.email })
+    let promoCode = await dbContext.PromoCode.findOne({ Code: reqObj.code })
+    await dbContext.Subscription.findOneAndUpdate(
+      { UserId: profile._id },
+      {
+        SubStatus: promoCode.SubStatus
+      },
+      { new: true }
+    )
+    profile = await dbContext.Profile.findOne({
+      Email: user.email
+    }).populate("Subscription").populate("UserSettings").populate("Plan");
+    await dbContext.PromoCode.findByIdAndDelete(promoCode._id)
+    return profile
+  }
+
   async addPromoCodes(codes) {
     let i = 0
     while (i < codes.Amount) {
@@ -144,8 +161,8 @@ class SubscriptionsService {
     return `Created ${i} codes`
   }
 
-  async getPromoCode(code) {
-    let data = await dbContext.PromoCode.findOne({ Code: code })
+  async getPromoCode(reqData) {
+    let data = await dbContext.PromoCode.findOne({ Code: reqData.code })
     return data
   }
   async getAllPromoCodes(reqObj) {

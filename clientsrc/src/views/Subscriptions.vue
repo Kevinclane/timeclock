@@ -36,13 +36,33 @@
       v-if="showPromoCodeData"
       class="col-8 offset-2 text-light my-5 bg-secondary p-3"
     >
-      <div class="row">
-        <div class="col-12">Code: {{ promoCode }}</div>
-        <div class="col-12">Plan:</div>
-        <div class="col-12">Details:</div>
+      <div v-if="foundPromoCodeData" class="row">
+        <div class="col-12">Code: {{ promoCodeData.Code }}</div>
+        <div class="col-12">Plan: {{ promoCodeData.Type }}</div>
+        <div class="col-12">Details: {{ promoCodeData.Details }}</div>
         <div class="col-12 d-flex justify-content-around mt-3">
-          <button class="btn btn-info btn-sm">Enter different Code</button>
-          <button class="btn btn-green btn-sm">Activate</button>
+          <button
+            class="btn btn-info btn-sm"
+            @click="toggleShowPromoCodeData()"
+          >
+            Enter different Code
+          </button>
+          <button class="btn btn-green btn-sm" @click="usePromoCode()">
+            Activate
+          </button>
+        </div>
+      </div>
+      <div v-else class="row">
+        <div class="col-12">
+          Sorry, there was no data for code: {{ promoCode }}
+        </div>
+        <div class="col-12">
+          <button
+            class="btn btn-info btn-sm"
+            @click="toggleShowPromoCodeData()"
+          >
+            Enter different Code
+          </button>
         </div>
       </div>
     </div>
@@ -67,6 +87,7 @@ export default {
       loading: true,
       promoCode: "",
       showPromoCodeData: false,
+      foundPromoCodeData: false,
     };
   },
   async mounted() {
@@ -102,12 +123,15 @@ export default {
     toggleShowPromoCodeData() {
       this.showPromoCodeData = !this.showPromoCodeData;
     },
-    checkPromoCode() {
+    async checkPromoCode() {
       let reqObj = {
         code: this.promoCode,
       };
-      this.$store.dispatch("checkPromoCode", reqObj);
       this.toggleShowPromoCodeData();
+      await this.$store.dispatch("checkPromoCode", reqObj);
+      if (this.$store.state.promoCodeData.Code) {
+        this.foundPromoCodeData = true;
+      }
     },
     usePromoCode() {
       let reqObj = {
@@ -127,6 +151,9 @@ export default {
       return moment(
         this.$store.state.user.PPSubData.billing_info.next_billing_time
       ).format("MM/DD/YYYY");
+    },
+    promoCodeData() {
+      return this.$store.state.promoCodeData;
     },
   },
   components: {

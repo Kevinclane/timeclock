@@ -649,7 +649,7 @@ export default new Vuex.Store({
     },
     async checkPromoCode({ commit, dispatch }, reqObj) {
       try {
-        let res = await api.get("/subscriptions/getpromocode", reqObj)
+        let res = await api.put("/subscriptions/getpromocode", reqObj)
         commit("setPromoCodeData", res.data)
       } catch (error) {
         console.error(error)
@@ -658,6 +658,9 @@ export default new Vuex.Store({
     async usePromoCode({ commit, dispatch }, reqObj) {
       try {
         let res = await api.put("/subscriptions/usepromocode", reqObj)
+        commit("setUser", res.data)
+        swal("You're all set! Thanks for choosing TimeTrackers!")
+        router.push({ name: "dashboard" })
       } catch (error) {
         console.error(error)
       }
