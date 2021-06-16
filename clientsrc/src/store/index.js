@@ -517,11 +517,10 @@ export default new Vuex.Store({
       }
       commit("setWeeks", weeks)
     },
-    async chooseDowngradeProject({ }, project) {
+    async chooseDowngradeProject({ commit }, project) {
       try {
-        debugger
-        let res = await api.put("/projects/lockprojects", project)
-        router.push({ name: 'dashboard' })
+        let res = await api.post("/projects/lockprojects", project)
+        commit("setProjects", res.data)
       } catch (error) {
         console.error(error)
       }

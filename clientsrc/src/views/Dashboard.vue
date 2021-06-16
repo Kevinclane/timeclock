@@ -30,6 +30,7 @@
               <downgrade-project-pick-modal
                 class="modal-content"
                 :projects="projects"
+                @projectPicked="closeShowProjectPick"
               />
             </div>
 
@@ -283,7 +284,7 @@ export default {
       showUploadPhoto: false,
       showEditContact: false,
       showEditBusiness: false,
-      showProjectPick: true,
+      showProjectPick: false,
       loading: true,
       selectedTab: "projects",
       newImg: "",
@@ -398,6 +399,9 @@ export default {
       if (active > 1) {
         this.showProjectPick = true;
       }
+    },
+    closeShowProjectPick() {
+      this.showProjectPick = false;
     },
   },
   computed: {

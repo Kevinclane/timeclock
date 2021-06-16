@@ -21,6 +21,7 @@
         >
           {{ description }}
         </li>
+        <li v-if="plan.Trial">Act now to get your first month for FREE!</li>
       </ul>
     </div>
     <div class="col-12" :id="paypalButtonContainer"></div>

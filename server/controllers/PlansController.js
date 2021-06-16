@@ -26,7 +26,7 @@ export class PlansController extends BaseController {
   }
   async getAllPlans(req, res, next) {
     try {
-      let plans = await plansService.getAllPlans();
+      let plans = await plansService.getAllPlans(req.userInfo);
       res.send(plans);
     } catch (error) {
       next(error);

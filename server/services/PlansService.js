@@ -26,6 +26,7 @@ class PlansService {
         Title: reqData.Title,
         Description: reqData.Description,
         Price: reqData.Price,
+        Trial: reqData.Trial,
         Frequency: reqData.Frequency,
         PlanId: reqData.PlanId,
         SubStatus: reqData.Status
@@ -33,7 +34,8 @@ class PlansService {
       return data
     } else throw new BadRequest(`This product with id: ${id} already exists in the database`)
   }
-  async getAllPlans() {
+  async getAllPlans(user) {
+    let profile = await dbContext.Profile.findOne({ Email: user.email })
     let data = await dbContext.Plan.find()
     return data
   }

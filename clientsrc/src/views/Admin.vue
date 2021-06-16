@@ -150,6 +150,10 @@
               v-model="newPlan.Price"
               required
             />
+            <div class="col-12 d-flex align-items-center">
+              Trial
+              <input class="ml-3" type="checkbox" v-model="newPlan.Trial" />
+            </div>
             <div class="col-12">Frequency</div>
             <select class="col-12" v-model="newPlan.Frequency">
               <option value="Monthly">Monthly</option>
@@ -257,7 +261,7 @@
             <div class="col-3">Title</div>
             <div class="col-5">Description</div>
             <div class="col-2">Status</div>
-            <div class="col-2">Edit</div>
+            <div class="col-2">Trial</div>
           </div>
           <div
             class="
@@ -283,7 +287,7 @@
             </ul>
             <div class="col-2">{{ plan.SubStatus }}</div>
             <div class="col-2">
-              <i class="fa fa-edit" aria-hidden="true"></i>
+              {{ plan.Trial }}
             </div>
           </div>
         </div>
@@ -377,6 +381,7 @@ export default {
         Title: "",
         Description: [],
         Price: "",
+        Trial: false,
         Frequency: "",
         PlanId: "",
         Status: "",
@@ -414,6 +419,7 @@ export default {
         Title: "",
         Description: "",
         Frequency: "",
+        Trial: fasle,
         Price: "",
         PlanId: "",
         Status: "",

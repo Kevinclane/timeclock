@@ -16,6 +16,7 @@ const Profile = new Schema(
     Subscription: { type: ObjectId, ref: "Subscription" },
     Plan: { type: ObjectId, ref: "Plan" },
     UserSettings: { type: ObjectId, ref: "UserSettings" },
+    TrialUsed: { type: Boolean, default: false },
     PPSubData: { type: Object },
     IsAdmin: { type: Boolean, default: false },
     BusinessName: { type: String },

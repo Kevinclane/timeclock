@@ -117,7 +117,8 @@ class SubscriptionsService {
         Email: user.email
       },
       {
-        Plan: plan._id
+        Plan: plan._id,
+        TrialUsed: true
       }
     )
     return data

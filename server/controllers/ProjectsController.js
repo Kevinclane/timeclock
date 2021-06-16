@@ -13,10 +13,10 @@ export class ProjectsController extends BaseController {
       .get("/:id", this.getProjectById)
       .post("", this.createProject)
       .put("/:id", this.editProject)
-      .put("/invoicegroups/update/", this.updateInvoiceGroups)
+      .put("/invoicegroups/update", this.updateInvoiceGroups)
       .delete("/:id", this.deleteProject)
       .put("/projectsettings/update/:id", this.updateProjectSettings)
-      .put("/lockprojects/", this.lockProjects)
+      .post("/lockprojects", this.lockProjects)
   }
   async getProjects(req, res, next) {
     try {

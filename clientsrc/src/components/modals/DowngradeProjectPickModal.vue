@@ -56,6 +56,7 @@ export default {
             icon: "success",
           });
           this.$store.dispatch("chooseDowngradeProject", project);
+          this.$emit("projectPicked");
         }
       });
     },
