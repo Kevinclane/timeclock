@@ -23,6 +23,17 @@
               />
             </div>
             <!--END PROJECT MODAL-->
+
+            <!-- DOWNGRADE MODAL -->
+
+            <div v-if="showProjectPick" class="backdrop">
+              <downgrade-project-pick-modal
+                class="modal-content"
+                :projects="projects"
+              />
+            </div>
+
+            <!-- END DOWNGRADE MODAL -->
           </div>
         </div>
         <div v-if="selectedTab == 'projects'" class="row">
@@ -263,6 +274,7 @@ import swal from "sweetalert";
 import moment from "moment";
 import NewProjectFormModal from "../components/modals/NewProjectFormModal.vue";
 import ProjectCard from "../components/Cards/ProjectCardComponent.vue";
+import DowngradeProjectPickModal from "../components/modals/DowngradeProjectPickModal.vue";
 export default {
   name: "Dashboard",
   data() {
@@ -271,6 +283,7 @@ export default {
       showUploadPhoto: false,
       showEditContact: false,
       showEditBusiness: false,
+      showProjectPick: true,
       loading: true,
       selectedTab: "projects",
       newImg: "",
@@ -280,6 +293,11 @@ export default {
     await this.$store.dispatch("getProjects");
     if (!this.$store.state.user) {
       await this.getProfile();
+    }
+    if (this.$store.state.user.PPSubData) {
+      if (this.$store.state.user.PPSubData.Status == "CANCELLED") {
+        this.cancelledCheck();
+      }
     }
     this.loading = false;
   },
@@ -367,6 +385,20 @@ export default {
     toSubView() {
       this.$router.push({ name: "subscriptions" });
     },
+    cancelledCheck() {
+      let projects = this.$store.state.projects;
+      let i = 0;
+      let active = 0;
+      while (i < projects.length) {
+        if (projects[i].Active) {
+          active++;
+        }
+        i++;
+      }
+      if (active > 1) {
+        this.showProjectPick = true;
+      }
+    },
   },
   computed: {
     projects() {
@@ -403,7 +435,11 @@ export default {
       } else return false;
     },
   },
-  components: { NewProjectFormModal, ProjectCard },
+  components: {
+    NewProjectFormModal,
+    ProjectCard,
+    DowngradeProjectPickModal,
+  },
 };
 </script>
 <style scoped>
@@ -420,7 +456,7 @@ export default {
   max-width: 80vw;
 }
 .backdrop {
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.6);
   position: fixed;
   top: 0;
   right: 0;

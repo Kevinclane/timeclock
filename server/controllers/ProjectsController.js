@@ -16,6 +16,7 @@ export class ProjectsController extends BaseController {
       .put("/invoicegroups/update/", this.updateInvoiceGroups)
       .delete("/:id", this.deleteProject)
       .put("/projectsettings/update/:id", this.updateProjectSettings)
+      .put("/lockprojects/", this.lockProjects)
   }
   async getProjects(req, res, next) {
     try {
@@ -92,6 +93,14 @@ export class ProjectsController extends BaseController {
     try {
       let data = await payPeriodsService.updateInvoiceGroups(req.body)
       res.send(data)
+    } catch (error) {
+      next(error)
+    }
+  }
+  async lockProjects(req, res, next) {
+    try {
+      let projects = await projectsService.lockProjects(req.body, req.userInfo)
+      res.send(projects)
     } catch (error) {
       next(error)
     }

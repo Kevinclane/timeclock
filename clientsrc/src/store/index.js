@@ -517,6 +517,15 @@ export default new Vuex.Store({
       }
       commit("setWeeks", weeks)
     },
+    async chooseDowngradeProject({ }, project) {
+      try {
+        debugger
+        let res = await api.put("/projects/lockprojects", project)
+        router.push({ name: 'dashboard' })
+      } catch (error) {
+        console.error(error)
+      }
+    },
     //#endregion MISC
 
     //#region FEEDBACK

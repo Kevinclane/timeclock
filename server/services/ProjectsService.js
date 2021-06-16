@@ -162,5 +162,20 @@ class ProjectsService {
     return data
   }
 
+  async lockProjects(project, user) {
+    let projects = await dbContext.Project.find({ CreatorEmail: user.email })
+    let i = 0
+    while (i < projects.length) {
+      if (projects[i]._id != project._id) {
+        projects[i] = await dbContext.Project.findByIdAndUpdate(
+          projects[i]._id,
+          { Active: false }
+        )
+      }
+      i++
+    }
+    return projects
+  }
+
 }
 export const projectsService = new ProjectsService();
