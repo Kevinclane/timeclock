@@ -53,7 +53,7 @@ async function findToken() {
     }
     let expired = moment(data.ExpDate).isSameOrBefore(moment())
     if (expired) {
-      await dbContext.Extra.findOneAndDelete({ Type: "PPBT" })
+      await dbContext.Extra.findByIdAndDelete(data._id)
       data = await createToken()
     }
     return data.Field1

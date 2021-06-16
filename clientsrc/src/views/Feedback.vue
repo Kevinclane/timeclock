@@ -28,6 +28,13 @@
         </div>
       </div>
     </div>
+    <div class="row mt-5 text-light">
+      <div class="col-12">
+        If you have a more urgent matter or issue that needs addressed, please
+        email me directly at kevin.timetracker@outlook.com and I will respond
+        just as soon as I can.
+      </div>
+    </div>
   </div>
 </template>
 

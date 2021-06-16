@@ -403,10 +403,14 @@ export default {
       return this.$store.state.weeks;
     },
     invoiceReady() {
-      let today = moment();
-      let activePP = this.$store.state.payPeriodSelection;
-      let split = activePP.split("-");
-      return moment(split[1]).isSameOrBefore(today);
+      if (this.activeProject.PayPeriod == "Milestone") {
+        return true;
+      } else {
+        let today = moment();
+        let activePP = this.$store.state.payPeriodSelection;
+        let split = activePP.split("-");
+        return moment(split[1]).isSameOrBefore(today);
+      }
     },
   },
   components: {

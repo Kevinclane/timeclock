@@ -417,9 +417,9 @@ export default {
       this.$store.dispatch("insertPlan", { ...this.newPlan });
       this.newPlan = {
         Title: "",
-        Description: "",
+        Description: [],
         Frequency: "",
-        Trial: fasle,
+        Trial: false,
         Price: "",
         PlanId: "",
         Status: "",

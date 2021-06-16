@@ -29,7 +29,6 @@
       <div class="col-12 my-1">
         <div class="row">
           <div class="col-4 bold d-flex flex-end">Pay Period:</div>
-
           <div class="col-6 d-flex flex-column justify-content-left">
             <select
               v-model="newProjectForm.PayPeriod"
@@ -42,7 +41,7 @@
               <option value="Bi-Weekly">Bi-Weekly</option>
               <option value="FirstAndFive">1st and 15th</option>
               <option value="Monthly">Monthly</option>
-              <option value="Milestone">Milestone</option>
+              <!-- <option value="Milestone">Milestone</option>  -->
             </select>
           </div>
         </div>
