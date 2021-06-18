@@ -9,7 +9,7 @@ import cleanupService from "./services/TestCleanupService";
 export default class Startup {
   static ConfigureGlobalMiddleware(app) {
     // NOTE Configure and Register Middleware
-    let whitelist = ["http://localhost:8080", "http://localhost:8081", "http://www.timetrackers.net", "www.timetrackers.net", "timetrackers.net"];
+    let whitelist = ["http://localhost:8080", "http://localhost:8081", "http://www.timetrackers.net", "https://www.timetrackers.net", "www.timetrackers.net", "timetrackers.net"];
     let corsOptions = {
       origin: function (origin, callback) {
         let originIsWhitelisted = whitelist.indexOf(origin) !== -1;
