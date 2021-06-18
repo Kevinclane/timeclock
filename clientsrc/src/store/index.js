@@ -7,6 +7,51 @@ import Vuex from 'vuex'
 import router from '../router/index'
 import { api } from "./AxiosService"
 
+function roundTime(time, roundTo) {
+  time = time.toString();
+  let hours;
+  let minutes;
+  if (time.includes(".")) {
+    let split = time.split(".");
+    hours = parseInt(split[0]);
+    if (split[1].length == 1) {
+      split[1] = parseInt(split[1] + "0");
+    }
+    minutes = parseInt(split[1]);
+  } else {
+    hours = parseInt(time);
+    minutes = 0;
+  }
+  minutes = minutes * 0.6;
+  let i = 0;
+  while (minutes > roundTo) {
+    i++;
+    minutes = minutes - roundTo;
+  }
+  if (minutes < roundTo / 2) {
+    minutes = i * roundTo;
+  } else {
+    minutes = (i + 1) * roundTo;
+  }
+  if (minutes >= 60) {
+    minutes = 0;
+    hours += 1;
+  }
+  // debugger
+  hours = hours.toString();
+  minutes = (minutes / 60).toString();
+  if (minutes.includes(".")) {
+    minutes = (parseFloat(minutes).toFixed(2)).toString();
+    let minSplit = minutes.split(".");
+    minutes = minSplit[1];
+  }
+  if (minutes.length == 1) {
+    minutes = minutes + "0";
+  }
+  time = parseFloat(hours + "." + minutes);
+  return time;
+}
+
 Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
@@ -339,7 +384,6 @@ export default new Vuex.Store({
         tempArr.sort((a, b) => moment(a.StartTime).format('HH') - moment(b.StartTime).format('HH'))
         finishedArr.push(tempArr);
       }
-      // finishedArr.sort((a, b) => moment(a[0].StartTime).format("DD") - moment(b[0].StartTime).format("DD"))
       finishedArr.sort((a, b) =>
         (moment(a[0].StartTime).format("MM")
           + moment(a[0].StartTime).format("DD"))
@@ -432,7 +476,7 @@ export default new Vuex.Store({
       let tcg = [...this.state.payPeriodDisplay]
       let split = this.state.payPeriodSelection.split("-");
       let start = moment(split[0]);
-      let end = moment(split[1]);
+      // let end = moment(split[1]);
 
       //Split into separate weeks
       let weeks = []
@@ -470,6 +514,8 @@ export default new Vuex.Store({
         tempStart = moment(tempStart).add(7, "days")
       }
 
+      let ps = this.state.activeProject.ProjectSettings
+
       //calculates times per week
       let i = 0;
       //loop through each week
@@ -487,23 +533,35 @@ export default new Vuex.Store({
             let timeDiff = moment.duration(
               moment(currentTCG[y].EndTime).diff(moment(currentTCG[y].StartTime))
             );
-
-            tempTotal += parseFloat(timeDiff.asHours())
+            if (ps.RoundTime && ps.RoundFrequency == "TC") {
+              timeDiff = parseFloat(timeDiff.asHours().toFixed(2));
+              timeDiff = roundTime(timeDiff, ps.RoundTo);
+              tempTotal += timeDiff;
+            } else {
+              tempTotal += parseFloat(timeDiff.asHours());
+            }
+            // tempTotal += parseFloat(timeDiff.asHours())
             y++
+          }
+          if (ps.RoundTime && ps.RoundFrequency == "Day") {
+            tempTotal = tempTotal.toFixed(2)
+            tempTotal = roundTime(tempTotal, ps.RoundTo)
           }
           total += tempTotal
           x++
         }
         weeks[i].totalTimes = total.toFixed(2);
-        let PS = this.state.activeProject.ProjectSettings
-        if (PS.OT && weeks[i].totalTimes > 40) {
+        if (ps.RoundTime && ps.RoundFrequency == "Week") {
+          weeks[i].totalTimes = roundTime(weeks[i].totalTimes, ps.RoundTo)
+        }
+        if (ps.OT && weeks[i].totalTimes > 40) {
           weeks[i].OTHours = parseFloat((weeks[i].totalTimes - 40).toFixed(2))
-          weeks[i].OTRate = parseFloat((this.state.activeProject.Rate * PS.OTRate).toFixed(2))
+          weeks[i].OTRate = parseFloat((this.state.activeProject.Rate * ps.OTRate).toFixed(2))
           weeks[i].regHours = 40
-          weeks[i].OTPay = parseFloat(((weeks[i].totalTimes - 40) * (this.state.activeProject.Rate * PS.OTRate)).toFixed(2))
+          weeks[i].OTPay = parseFloat(((weeks[i].totalTimes - 40) * (this.state.activeProject.Rate * ps.OTRate)).toFixed(2))
           let payTotal = 40 * this.state.activeProject.Rate
           weeks[i].regPay = payTotal.toFixed(2)
-          payTotal += parseFloat((weeks[i].totalTimes - 40) * (this.state.activeProject.Rate * PS.OTRate).toFixed(2))
+          payTotal += parseFloat((weeks[i].totalTimes - 40) * (this.state.activeProject.Rate * ps.OTRate).toFixed(2))
           weeks[i].pay = parseFloat(payTotal.toFixed(2))
         } else {
           let pay = (weeks[i].totalTimes * this.state.activeProject.Rate).toFixed(2)

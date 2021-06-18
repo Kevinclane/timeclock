@@ -11,7 +11,7 @@ const Project = new Schema(
     NameOnInvoice: { type: String },
     RoundTime: { type: Boolean, default: false },
     RoundTo: { type: Number, enum: [5, 10, 15, 30, 60] },
-    RoundFrequency: { type: String, enum: ["TC", "Day", "Week", "Total"] },
+    RoundFrequency: { type: String, enum: ["TC", "Day", "Week"] },
     Completed: { type: Boolean, default: false }
   },
   { timestamps: true, toJSON: { virtuals: true } }

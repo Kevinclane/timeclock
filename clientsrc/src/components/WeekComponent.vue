@@ -20,13 +20,9 @@
 
 <script>
 import TimeClockGroupComponent from "../components/TimeClockGroupComponent.vue";
-import moment from "moment";
 export default {
   name: "Weeks",
   props: ["week"],
-  mounted() {},
-  computed: {},
-  methods: {},
   components: { TimeClockGroupComponent },
 };
 </script>

@@ -54,7 +54,6 @@
             <option value="TC">Every time I clock out</option>
             <option value="Day">End of every day</option>
             <option value="Week">End of every week</option>
-            <option value="Total">End of the pay period</option>
           </select>
         </div>
       </div>

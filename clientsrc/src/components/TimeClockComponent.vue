@@ -11,14 +11,14 @@
       ></span>
     </div>
     <div class="col-lg-4 col-6 order-1 order-lg-1">
-      <span>{{ Start }} -</span>
-      <span v-if="timeClock.EndTime">{{ End }}</span>
+      <span>{{ start }} -</span>
+      <span v-if="timeClock.EndTime">{{ end }}</span>
     </div>
     <div class="col-lg-4 col-12 order-3 order-lg-2 text-center">
       {{ timeClock.Comment }}
     </div>
     <div v-if="timeClock.EndTime" class="col-lg-3 col-4 order-2 order-lg-3">
-      {{ Total }} Hours
+      {{ total }} Hours
     </div>
     <div v-else class="col-lg-3 col-4 order-2 order-lg-3">
       {{ currentTimer.hour }}:
@@ -92,20 +92,74 @@ export default {
         }
       }, 1000);
     },
+    roundTime(time, roundTo) {
+      time = time.toString();
+      let hours;
+      let minutes;
+      if (time.includes(".")) {
+        let split = time.split(".");
+        hours = parseInt(split[0]);
+        if (split[1].length == 1) {
+          split[1] = parseInt(split[1] + "0");
+        }
+        minutes = parseInt(split[1]);
+      } else {
+        hours = parseInt(time);
+        minutes = 0;
+      }
+      minutes = minutes * 0.6;
+      let i = 0;
+      while (minutes > roundTo) {
+        i++;
+        minutes = minutes - roundTo;
+      }
+      if (minutes < roundTo / 2) {
+        minutes = i * roundTo;
+      } else {
+        minutes = (i + 1) * roundTo;
+      }
+      if (minutes >= 60) {
+        minutes = 0;
+        hours += 1;
+      }
+      // debugger
+      hours = hours.toString();
+      minutes = (minutes / 60).toString();
+      if (minutes.includes(".")) {
+        minutes = parseFloat(minutes).toFixed(2).toString();
+        let minSplit = minutes.split(".");
+        minutes = minSplit[1];
+      }
+      if (minutes.length == 1) {
+        minutes = minutes + "0";
+      }
+      time = parseFloat(hours + "." + minutes);
+      return time;
+    },
   },
   computed: {
-    Start() {
+    start() {
       return moment(this.timeClock.StartTime).format("h:mm A");
     },
-    End() {
+    end() {
       return moment(this.timeClock.EndTime).format("h:mm A");
     },
-    Total() {
+    project() {
+      return this.$store.state.activeProject;
+    },
+    total() {
+      let ps = this.project.ProjectSettings;
       if (this.timeClock.EndTime) {
         let timeDiff = moment.duration(
           moment(this.timeClock.EndTime).diff(moment(this.timeClock.StartTime))
         );
-        return timeDiff.asHours().toFixed(2);
+        if (ps.RoundTime && ps.RoundFrequency == "TC") {
+          timeDiff = parseFloat(timeDiff.asHours().toFixed(2));
+          timeDiff = this.roundTime(timeDiff, ps.RoundTo);
+          return timeDiff;
+        } else {
+          return timeDiff.asHours().toFixed(2);
+        }
       }
     },
     canEdit() {

@@ -160,7 +160,7 @@ import moment from "moment";
 import { AlignmentType, TabStopPosition, TabStopType } from "docx";
 export default {
   name: "DocPreview",
-  props: ["weeks"],
+  props: ["weeks", "project"],
   data() {
     return {
       today: moment().format("MM/DD/YYYY"),
@@ -171,16 +171,16 @@ export default {
       changedData: false,
     };
   },
-  mounted() {
-    this.groupWeeks();
-    this.activeCheck();
+  async mounted() {
+    await this.activeCheck();
+    await this.groupWeeks();
+    if (this.project.ProjectSettings.RoundFrequency == "Week") {
+      await this.roundWeeks();
+    }
   },
   computed: {
     user() {
       return this.$store.state.user;
-    },
-    project() {
-      return this.$store.state.activeProject;
     },
     payPeriodSelection() {
       return this.$store.state.payPeriodSelection;
@@ -394,6 +394,7 @@ export default {
       this.$emit("closeModal");
     },
     groupWeeks() {
+      let ps = this.project.ProjectSettings;
       this.modifiedWeeks = [...this.weeks];
       let i = 0;
       //loop through weeks
@@ -419,15 +420,79 @@ export default {
                 moment(currentDay[y].StartTime)
               )
             );
-            day.time += parseFloat(timeDiff.asHours());
+            if (ps.RoundTime && ps.RoundFrequency == "TC") {
+              timeDiff = parseFloat(timeDiff.asHours().toFixed(2));
+              timeDiff = this.roundTime(timeDiff, ps.RoundTo);
+              day.time += timeDiff;
+            } else {
+              day.time += parseFloat(timeDiff.asHours());
+            }
             y++;
           }
           day.time = day.time.toFixed(2);
+          if (ps.RoundTime == "Day") {
+            day.time = this.roundTime(day.time);
+          }
           week.push(day);
           x++;
         }
         this.modifiedWeeks[i].groupedWeek = week;
         // groupedWeeks.push(week);
+        i++;
+      }
+    },
+    //time is a number with or without decimal
+    //numbers after decimal are fractions of an hour
+    roundTime(time, roundTo) {
+      time = time.toString();
+      let hours;
+      let minutes;
+      if (time.includes(".")) {
+        let split = time.split(".");
+        hours = parseInt(split[0]);
+        if (split[1].length == 1) {
+          split[1] = parseInt(split[1] + "0");
+        }
+        minutes = parseInt(split[1]);
+      } else {
+        hours = parseInt(time);
+        minutes = 0;
+      }
+      minutes = minutes * 0.6;
+      let i = 0;
+      while (minutes > roundTo) {
+        i++;
+        minutes = minutes - roundTo;
+      }
+      if (minutes < roundTo / 2) {
+        minutes = i * roundTo;
+      } else {
+        minutes = (i + 1) * roundTo;
+      }
+      if (minutes >= 60) {
+        minutes = 0;
+        hours += 1;
+      }
+      hours = hours.toString();
+      minutes = (minutes / 60).toString();
+      if (minutes.includes(".")) {
+        let minSplit = minutes.split(".");
+        minutes = minSplit[1];
+      }
+      if (minutes.length == 1) {
+        minutes = minutes + "0";
+      }
+      time = parseFloat(hours + "." + minutes);
+      return time;
+    },
+    roundWeeks() {
+      debugger;
+      let i = 0;
+      while (i < this.modifiedWeeks.length) {
+        this.modifiedWeeks[i].totalTimes = this.roundTime(
+          this.modifiedWeeks[i].totalTimes,
+          this.project.ProjectSettings.RoundTo
+        );
         i++;
       }
     },

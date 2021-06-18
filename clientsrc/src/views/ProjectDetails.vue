@@ -21,6 +21,7 @@
       <doc-preview-modal
         class="xxl-modal"
         :weeks="weeks"
+        :project="activeProject"
         @closeModal="toggleDocPreview"
       />
     </div>

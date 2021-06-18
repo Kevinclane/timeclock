@@ -11,7 +11,13 @@
       />
     </div>
     <div
-      class="col-lg-2 col-12 d-flex justify-content-center flex-column border-left-green"
+      class="
+        col-lg-2 col-12
+        d-flex
+        justify-content-center
+        flex-column
+        border-left-green
+      "
     >
       <div>{{ dayTotalHours }} Hours</div>
     </div>
@@ -24,12 +30,59 @@ import moment from "moment";
 export default {
   name: "TimeClockGroupComponent",
   props: ["timeClocks"],
-  methods: {},
+  methods: {
+    roundTime(time, roundTo) {
+      // debugger;
+      time = time.toString();
+      let hours;
+      let minutes;
+      if (time.includes(".")) {
+        let split = time.split(".");
+        hours = parseInt(split[0]);
+        if (split[1].length == 1) {
+          split[1] = parseInt(split[1] + "0");
+        }
+        minutes = parseInt(split[1]);
+      } else {
+        hours = parseInt(time);
+        minutes = 0;
+      }
+      minutes = minutes * 0.6;
+      let i = 0;
+      while (minutes > roundTo) {
+        i++;
+        minutes = minutes - roundTo;
+      }
+      if (minutes < roundTo / 2) {
+        minutes = i * roundTo;
+      } else {
+        minutes = (i + 1) * roundTo;
+      }
+      if (minutes >= 60) {
+        minutes = 0;
+        hours += 1;
+      }
+      // debugger
+      hours = hours.toString();
+      minutes = (minutes / 60).toString();
+      if (minutes.includes(".")) {
+        minutes = parseFloat(minutes).toFixed(2).toString();
+        let minSplit = minutes.split(".");
+        minutes = minSplit[1];
+      }
+      if (minutes.length == 1) {
+        minutes = minutes + "0";
+      }
+      time = parseFloat(hours + "." + minutes);
+      return time;
+    },
+  },
   computed: {
     day() {
       return moment(this.timeClocks[0].StartTime).format("MM/DD/YYYY");
     },
     dayTotalHours() {
+      let ps = this.$store.state.activeProject.ProjectSettings;
       let times = this.timeClocks;
       let i = 0;
       let total = 0;
@@ -37,10 +90,24 @@ export default {
         let timeDiff = moment.duration(
           moment(times[i].EndTime).diff(moment(times[i].StartTime))
         );
-        total += parseFloat(timeDiff.asHours());
+        if (ps.RoundTime && ps.RoundFrequency == "TC") {
+          timeDiff = parseFloat(timeDiff.asHours().toFixed(2));
+          timeDiff = this.roundTime(timeDiff, ps.RoundTo);
+          total += timeDiff;
+        } else {
+          total += parseFloat(timeDiff.asHours());
+        }
+        // total += parseFloat(timeDiff.asHours());
         i++;
       }
-      return total.toFixed(2);
+      if (ps.RoundTime && ps.RoundFrequency == "Day") {
+        // debugger;
+        total = parseFloat(total.toFixed(2));
+        total = this.roundTime(total, ps.RoundTo);
+        return total;
+      } else {
+        return total.toFixed(2);
+      }
     },
   },
   components: {

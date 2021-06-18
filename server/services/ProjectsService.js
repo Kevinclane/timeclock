@@ -61,7 +61,7 @@ async function checkServerCache(email, type) {
       i++
     }
   }
-  if (serverCache.length > 9) {
+  if (serverCache.length > 49) {
     res = true
   }
   return res
@@ -71,7 +71,7 @@ async function createServerCache(email, type) {
   await dbContext.ServerCache.create({
     CreatorEmail: email,
     Type: type,
-    Exp: moment().add(1, "hours")
+    Exp: moment().add(2, "hours")
   })
 }
 

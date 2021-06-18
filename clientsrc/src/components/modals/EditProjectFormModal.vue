@@ -164,8 +164,8 @@
               >
                 <option
                   :value="option.value"
-                  v-for="(option, index) in roundFrequencyOptions"
-                  :key="`${option - index}`"
+                  v-for="option in roundFrequencyOptions"
+                  :key="option.value"
                 >
                   {{ option.name }}
                 </option>
@@ -195,6 +195,7 @@ export default {
       charsAllowed: {
         chars: "- _ ! : ' / ",
       },
+      roundToOptions: [5, 10, 15, 30, 60],
     };
   },
   mounted() {
@@ -237,14 +238,14 @@ export default {
       if (this.project.ProjectSettings.RoundTime) {
         if (
           this.project.ProjectSettings.RoundTo == "" ||
-          !this.ProjectSettings.RoundTo
+          !this.project.ProjectSettings.RoundTo
         ) {
           emptyFields.push("(Round To)");
           abort = true;
         }
         if (
           this.project.ProjectSettings.RoundFrequency == "" ||
-          !this.ProjectSettings.RoundFrequency
+          !this.project.ProjectSettings.RoundFrequency
         ) {
           emptyFields.push("(Round Frequency)");
         }
@@ -254,6 +255,7 @@ export default {
         this.$store.dispatch("saveProjectSettings", {
           ...this.project.ProjectSettings,
         });
+        // location.reload();
         this.$emit("closeModal");
       } else {
         let i = 0;
@@ -321,9 +323,6 @@ export default {
       }
       return names;
     },
-    roundToOptions() {
-      return [5, 10, 15, 30, 60];
-    },
     roundFrequencyOptions() {
       return [
         {
@@ -337,10 +336,6 @@ export default {
         {
           name: "End of every week",
           value: "Week",
-        },
-        {
-          name: "End of the pay period",
-          value: "Total",
         },
       ];
     },
