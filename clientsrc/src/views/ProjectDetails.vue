@@ -193,7 +193,7 @@
                       <button @click="toggleDocPreview()" class="btn btn-info">
                         Word Doc
                       </button>
-                      <button class="btn btn-danger">PDF</button>
+                      <!-- <button class="btn btn-danger">PDF</button> -->
                     </div>
                   </div>
                 </div>
