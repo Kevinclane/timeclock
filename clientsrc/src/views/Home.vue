@@ -88,6 +88,7 @@
           </div>
         </div>
       </div>
+      <div class="col-12 mobile-section"></div>
     </div>
     <footer class="row bg-dark fixed-bottom py-2">
       <div class="col-4"></div>
@@ -195,5 +196,13 @@ export default {
 .rounded-top-large {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
+}
+.mobile-section {
+  height: 30vh;
+}
+@media screen and (min-width: 992px) {
+  .mobile-section {
+    height: 0;
+  }
 }
 </style>
