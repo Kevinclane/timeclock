@@ -169,6 +169,7 @@
                     v-else-if="activeProject.PayType == 'Salary'"
                     :project="activeProject"
                     :times="totalTimes"
+                    :weeks="weeks"
                   />
                   <milestone-component
                     v-else-if="activeProject.PayPeriod == 'Milestone'"
@@ -211,7 +212,7 @@
                       <button @click="toggleDocPreview()" class="btn btn-info">
                         Word Doc
                       </button>
-                      <button class="btn btn-danger">PDF</button>
+                      <!-- <button class="btn btn-danger">PDF</button> -->
                     </div>
                   </div>
                 </div>
@@ -510,11 +511,6 @@ li {
   width: 90vw;
   overflow-y: auto;
   overflow-x: hidden;
-}
-@media screen and (min-width: 992px) {
-  .modal-content {
-    max-width: 40vw;
-  }
 }
 .backdrop {
   background-color: rgba(0, 0, 0, 0.6);

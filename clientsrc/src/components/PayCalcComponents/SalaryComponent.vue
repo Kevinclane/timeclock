@@ -1,11 +1,13 @@
 <template>
   <div class="row bg-secondary text-white border-times m-2">
-    <div class="col-12">Total Hours: {{ totalTimes }}</div>
+    <div class="col-12">Total Hours: {{ times }}</div>
     <div class="col-12">
       <i class="fas fa-exclamation-triangle mr-1 coco"
-        ><span class="tooltiptext"
-          >Salary pay is based on every 8 hours worked</span
-        ></i
+        ><span class="tooltiptext">
+          <div>Day salary requires 8hrs/day</div>
+          <div>Week salary requires 40hrs/week</div>
+          <div>Month salary requires 120hrs/month</div>
+        </span></i
       >
       ${{ estimatedPay }}
     </div>
@@ -15,22 +17,51 @@
 <script>
 export default {
   name: "SalaryComponent",
-  props: ["project", "times"],
-  data() {
-    return {
-      estimatedPay: 0,
-    };
-  },
+  props: ["project", "times", "weeks"],
   computed: {
-    totalTimes() {
-      let times = this.times;
-      if (times) {
-        let total = times.hour;
-        total += times.minute / 60;
-        total = total.toFixed(2);
-        this.estimatedPay = Math.floor(total / 8);
-        return total;
-      } else return 0;
+    estimatedPay() {
+      let pay = 0;
+      let i = 0;
+      if (this.project.SalaryFrequency == "Daily") {
+        let i = 0;
+        while (i < this.weeks.length) {
+          let weekPay = 0;
+          let x = 0;
+          let currentWeek = this.weeks[i];
+          while (x < currentWeek.timeClocks.length) {
+            let y = 0;
+            let dayHours = 0;
+            let currentDay = currentWeek.timeClocks[x];
+            while (y < currentDay.length) {
+              let timeDiff = moment.duration(
+                moment(currentDay[y].EndTime).diff(
+                  moment(currentDay[y].StartTime)
+                )
+              );
+              dayHours += timeDiff.asHours();
+              y++;
+            }
+            if (dayHours >= 8) {
+              weekPay += this.project.Rate;
+            }
+            x++;
+          }
+          i++;
+          pay += weekPay;
+        }
+      } else if (this.project.SalaryFrequency == "Weekly") {
+        while (i < this.weeks.length) {
+          if (this.weeks[i].totalTimes >= 40) {
+            pay += this.project.Rate;
+          }
+          i++;
+        }
+      } else if (this.project.SalaryFrequency == "Monthly") {
+        if (this.times >= 120) {
+          pay = this.project.Rate;
+        }
+      }
+      return pay;
     },
   },
 };
