@@ -124,7 +124,7 @@ class PayPeriodsService {
         let yearMo = moment().format("YYYY-MM")
         let lastDay = moment().daysInMonth()
         payPeriodObject.StartDay = moment(yearMo + '-01')
-        payPeriodObject.EndDay = moment(yearMo + lastDay)
+        payPeriodObject.EndDay = moment(yearMo + "-" + lastDay)
 
       } else {
         let today = moment().format("DD")
