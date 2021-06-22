@@ -36,7 +36,12 @@ class PlansService {
   }
   async getAllPlans(user) {
     let profile = await dbContext.Profile.findOne({ Email: user.email })
-    let data = await dbContext.Plan.find()
+    let data
+    if (profile.TrialUsed) {
+      data = await dbContext.Plan.find({ Trial: false })
+    } else {
+      data = await dbContext.Plan.find({ Trial: true })
+    }
     return data
   }
   async addPlanStatus(reqData, user) {
