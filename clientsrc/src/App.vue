@@ -33,6 +33,7 @@ export default {
 // @import "bootstrap";
 // @import "./assets/_overrides.scss";
 @import "./assets/bootstrap.css";
+@import "./assets/bootstrap.min.css";
 
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
@@ -40,6 +41,12 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+
+input[type="text"],
+input[type="button"] {
+  -webkit-appearance: none;
+  -webkit-border-radius: 0;
 }
 
 #nav {
