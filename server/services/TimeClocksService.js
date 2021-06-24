@@ -74,7 +74,7 @@ class TimeClocksService {
     if (abort) {
       throw new BadRequest("Cannot create time clock prior to project's start date")
     } else {
-      let serverCache = await checkServerCache(projectData.CreatorEmail, "editProject")
+      let serverCache = await checkServerCache(rawData.CreatorEmail, "editProject")
       if (serverCache) {
         throw new BadRequest("You have edited too many time clocks recently. Please wait a little while before trying again.")
       } else {
