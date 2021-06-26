@@ -18,7 +18,7 @@
       {{ timeClock.Comment }}
     </div>
     <div v-if="timeClock.EndTime" class="col-lg-3 col-4 order-2 order-lg-3">
-      {{ total }} Hours
+      {{ timeClock.TCTotalHours }} Hours
     </div>
     <div v-else class="col-lg-3 col-4 order-2 order-lg-3">
       {{ currentTimer.hour }}:
@@ -146,21 +146,6 @@ export default {
     },
     project() {
       return this.$store.state.activeProject;
-    },
-    total() {
-      let ps = this.project.ProjectSettings;
-      if (this.timeClock.EndTime) {
-        let timeDiff = moment.duration(
-          moment(this.timeClock.EndTime).diff(moment(this.timeClock.StartTime))
-        );
-        if (ps.RoundTime && ps.RoundFrequency == "TC") {
-          timeDiff = parseFloat(timeDiff.asHours().toFixed(2));
-          timeDiff = this.roundTime(timeDiff, ps.RoundTo);
-          return timeDiff;
-        } else {
-          return timeDiff.asHours().toFixed(2);
-        }
-      }
     },
     canEdit() {
       if (this.timeClock.EndTime) {

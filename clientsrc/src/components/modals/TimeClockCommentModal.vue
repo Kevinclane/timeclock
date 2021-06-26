@@ -32,6 +32,7 @@ export default {
   methods: {
     async clockOut() {
       let timeObj = {
+        StartTime: this.timeClock.StartTime,
         EndTime: moment(),
         Comment: this.comment,
         id: this.timeClock._id,

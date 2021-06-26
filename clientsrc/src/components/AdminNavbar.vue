@@ -24,7 +24,13 @@
         Promo Codes
       </div>
       <div class="col-2 rounded-top bg-dark mx-1 py-2"></div>
-      <div class="col-2 rounded-top bg-dark mx-1 py-2"></div>
+      <div
+        type="button"
+        @click="setView('DBUpdates')"
+        class="col-2 rounded-top bg-dark mx-1 py-2"
+      >
+        DB Updates
+      </div>
     </div>
   </div>
 </template>

@@ -7,6 +7,8 @@ const TimeClock = new Schema({
   Comment: { type: String },
   StartTime: { type: Date, required: true },
   EndTime: { type: Date },
+  TCTotalHours: { type: Number },
+  TCTotalHM: { type: String },
   Current: { type: Boolean, default: true }
 },
   { timestamps: true, toJSON: { virtuals: true } }

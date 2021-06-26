@@ -97,6 +97,16 @@ class TimeClocksService {
     }
   }
   async clockOut(updateInfo) {
+    let timeDiff = moment.duration(moment(updateInfo.EndTime).diff(moment(updateInfo.StartTime)))
+    updateInfo.TCTotalHours = parseFloat(timeDiff.asHours().toFixed(2))
+    let minutes = Math.round(timeDiff.asMinutes())
+    let hours = 0
+    while (minutes >= 60) {
+      minutes -= 60
+      hours++
+    }
+    updateInfo.TCTotalHM = hours.toString() + ":" + minutes.toString()
+
     let data = await dbContext.TimeClock.findOneAndUpdate(
       {
         _id: updateInfo.id,
@@ -105,7 +115,9 @@ class TimeClocksService {
       {
         EndTime: updateInfo.EndTime,
         Current: false,
-        Comment: updateInfo.Comment
+        Comment: updateInfo.Comment,
+        TCTotalHours: updateInfo.TCTotalHours,
+        TCTotalHM: updateInfo.TCTotalHM
       },
       {
         new: true
@@ -142,6 +154,19 @@ class TimeClocksService {
       i++
     }
     return delCount
+  }
+  async calculateAllTCTotals(user) {
+    let profile = await dbContext.Profile.find({ Email: user.email })
+    if (!profile.IsAdmin) {
+      throw new BadRequest("Unauthorized")
+    } else {
+      let allTCs = await dbContext.TimeClock.find()
+      let i = 0
+      while (i < allTCs.length) {
+        await this.clockOut(allTCs[i])
+        i++
+      }
+    }
   }
 }
 

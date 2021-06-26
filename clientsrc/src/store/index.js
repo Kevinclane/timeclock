@@ -779,9 +779,22 @@ export default new Vuex.Store({
       } catch (error) {
         console.error(error)
       }
-    }
+    },
 
     //#endregion PROMOCODES
+
+    //#region UPDATES
+
+    async updateDBTCTotals({ }) {
+      try {
+        let res = await api.get("/timeclock/calculatetotals")
+        console.log(res.data)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    //#endregion UPDATES
 
   },
   modules: {

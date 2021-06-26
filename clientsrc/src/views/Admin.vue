@@ -365,6 +365,16 @@
         </div>
       </div>
     </div>
+    <div class="container-fluid text-light" v-if="view == 'DBUpdates'">
+      <div class="row">
+        <div class="col-12">
+          Calculate timeclocks totals
+          <button class="btn btn-sm btn-info" @click="updateDBTCTotals()">
+            run
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -474,6 +484,9 @@ export default {
     },
     toggleReleased(id) {
       this.$store.dispatch("togglePromoCodeReleased", id);
+    },
+    updateDBTCTotals() {
+      this.$store.dispatch("updateDBTCTotals");
     },
   },
   computed: {
