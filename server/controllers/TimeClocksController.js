@@ -7,12 +7,12 @@ export class TimeClocksController extends BaseController {
     super("api/timeclock");
     this.router
       .use(auth0provider.getAuthorizedUserInfo)
+      .get("/calculatetotals", this.calculateAllTCTotals)
       .get("/:id", this.getTimeClocks)
       .put("/:id", this.updateTimeClock)
       .put("/out/:id", this.clockOut)
       .post("", this.createTimeClock)
       .delete("/:id", this.deleteTimeClock)
-      .get("/calculatetotals", this.calculateAllTCTotals)
   }
   async getTimeClocks(req, res, next) {
     try {
@@ -69,7 +69,7 @@ export class TimeClocksController extends BaseController {
   async calculateAllTCTotals(req, res, next) {
     try {
       let data = await timeClocksService.calculateAllTCTotals(req.userInfo)
-      res.send("Update Complete")
+      res.send("Update Complete", data)
     } catch (error) {
       next(error)
     }

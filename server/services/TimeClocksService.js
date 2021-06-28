@@ -2,7 +2,27 @@ import { dbContext } from "../db/DbContext";
 import { BadRequest } from "../utils/Errors";
 import moment from "moment"
 
-//returns true if there have been too many projects created within time limit
+//calculates time difference in and returns time in hours.toFixed(2)
+function calculateHH(tc) {
+  let timeDiff = moment.duration(moment(tc.EndTime).diff(moment(tc.StartTime)))
+  let hours = parseFloat(timeDiff.asHours().toFixed(2))
+  return hours
+}
+
+//caluclates time difference and returns an hour:minute string
+function calcualteHHMM(tc) {
+  let timeDiff = moment.duration(moment(tc.EndTime).diff(moment(tc.StartTime)))
+  let minutes = Math.round(timeDiff.asMinutes())
+  let hours = 0
+  while (minutes >= 60) {
+    minutes -= 60
+    hours++
+  }
+  let hhmm = hours.toString() + ":" + minutes.toString()
+  return hhmm
+}
+
+//returns true if there have been too many api calls created within time limit
 async function checkServerCache(email, type) {
   let serverCache = await dbContext.ServerCache.find({
     CreatorEmail: email,
@@ -97,15 +117,8 @@ class TimeClocksService {
     }
   }
   async clockOut(updateInfo) {
-    let timeDiff = moment.duration(moment(updateInfo.EndTime).diff(moment(updateInfo.StartTime)))
-    updateInfo.TCTotalHours = parseFloat(timeDiff.asHours().toFixed(2))
-    let minutes = Math.round(timeDiff.asMinutes())
-    let hours = 0
-    while (minutes >= 60) {
-      minutes -= 60
-      hours++
-    }
-    updateInfo.TCTotalHM = hours.toString() + ":" + minutes.toString()
+    updateInfo.TCTotalHours = await calculateHH(updateInfo)
+    updateInfo.TCTotalHM = await calcualteHHMM(updateInfo)
 
     let data = await dbContext.TimeClock.findOneAndUpdate(
       {
@@ -156,14 +169,20 @@ class TimeClocksService {
     return delCount
   }
   async calculateAllTCTotals(user) {
-    let profile = await dbContext.Profile.find({ Email: user.email })
+    let profile = await dbContext.Profile.findOne({ Email: user.email })
     if (!profile.IsAdmin) {
       throw new BadRequest("Unauthorized")
     } else {
       let allTCs = await dbContext.TimeClock.find()
       let i = 0
       while (i < allTCs.length) {
-        await this.clockOut(allTCs[i])
+        if (allTCs[i].EndTime) {
+          allTCs[i].TCTotalHours = await calculateHH(allTCs[i])
+          allTCs[i].TCTotalHM = await calcualteHHMM(allTCs[i])
+          await dbContext.TimeClock.findByIdAndUpdate(
+            allTCs[i]._id, allTCs[i]
+          )
+        }
         i++
       }
     }
