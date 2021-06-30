@@ -398,13 +398,10 @@ export default new Vuex.Store({
       let i = 0;
       let total = 0
       while (i < tcg.length) {
-        let currentTCG = tcg[i]
+        let currentDay = tcg[i]
         let x = 0
-        while (x < currentTCG.length && currentTCG[x].EndTime) {
-          let timeDiff = moment.duration(
-            moment(currentTCG[x].EndTime).diff(moment(currentTCG[x].StartTime))
-          );
-          total += parseFloat(timeDiff.asHours())
+        while (x < currentDay.length && currentDay[x].EndTime) {
+          total += currentDay[x].TCTotalHours
           x++
         }
         i++
@@ -491,13 +488,13 @@ export default new Vuex.Store({
         let finished = false
         //this loop should collect all of the day arrays that are withing the current week
         while (!finished) {
-          //currentTCG is an array of Timeclocks of the same day
-          let currentTCG = tcg[x]
-          let check = moment(currentTCG[0].StartTime)
+          //currentDay is an array of Timeclocks of the same day
+          let currentDay = tcg[x]
+          let check = moment(currentDay[0].StartTime)
           let inWeekCheck = check.isBefore(weekE)
           //if the day array is within the week, push to the week's array and remove from list
           if (inWeekCheck) {
-            weeklyTcs.push(currentTCG)
+            weeklyTcs.push(currentDay)
             tcg.splice(x, 1)
             if (tcg.length == 0) {
               finished = true;
@@ -525,22 +522,19 @@ export default new Vuex.Store({
         let x = 0
         //loop through each Time Clock day group
         while (x < weeks[i].timeClocks.length) {
-          let currentTCG = weeks[i].timeClocks[x]
+          let currentDay = weeks[i].timeClocks[x]
           let y = 0
           let tempTotal = 0
           //loop through each Time Clock within each day group
-          while (y < currentTCG.length) {
-            let timeDiff = moment.duration(
-              moment(currentTCG[y].EndTime).diff(moment(currentTCG[y].StartTime))
-            );
+          while (y < currentDay.length) {
+            let timeDiff = currentDay[y].TCTotalHours
             if (ps.RoundTime && ps.RoundFrequency == "TC") {
-              timeDiff = parseFloat(timeDiff.asHours().toFixed(2));
+              // timeDiff = parseFloat(timeDiff.asHours().toFixed(2));
               timeDiff = roundTime(timeDiff, ps.RoundTo);
               tempTotal += timeDiff;
             } else {
-              tempTotal += parseFloat(timeDiff.asHours());
+              tempTotal += timeDiff
             }
-            // tempTotal += parseFloat(timeDiff.asHours())
             y++
           }
           if (ps.RoundTime && ps.RoundFrequency == "Day") {

@@ -87,15 +87,17 @@ export default {
       let i = 0;
       let total = 0;
       while (i < times.length && times[i].EndTime) {
-        let timeDiff = moment.duration(
-          moment(times[i].EndTime).diff(moment(times[i].StartTime))
-        );
+        // let timeDiff = moment.duration(
+        //   moment(times[i].EndTime).diff(moment(times[i].StartTime))
+        // );
+        let timeDiff = times[i].TCTotalHours;
         if (ps.RoundTime && ps.RoundFrequency == "TC") {
-          timeDiff = parseFloat(timeDiff.asHours().toFixed(2));
+          // timeDiff = parseFloat(timeDiff.asHours().toFixed(2));
           timeDiff = this.roundTime(timeDiff, ps.RoundTo);
           total += timeDiff;
         } else {
-          total += parseFloat(timeDiff.asHours());
+          // total += parseFloat(timeDiff.asHours());
+          total += timeDiff;
         }
         // total += parseFloat(timeDiff.asHours());
         i++;

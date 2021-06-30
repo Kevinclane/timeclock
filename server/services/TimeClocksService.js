@@ -98,6 +98,8 @@ class TimeClocksService {
       if (serverCache) {
         throw new BadRequest("You have edited too many time clocks recently. Please wait a little while before trying again.")
       } else {
+        rawData.TCTotalHours = await calculateHH(rawData)
+        rawData.TCTotalHM = await calcualteHHMM(rawData)
         let data = await dbContext.TimeClock.findOneAndUpdate({
           _id: id,
           CreatorEmail: rawData.CreatorEmail

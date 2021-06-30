@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import TimeClockGroupComponent from "../components/TimeClockGroupComponent.vue";
+import TimeClockGroupComponent from "./DayComponent.vue";
 export default {
   name: "Weeks",
   props: ["week"],
