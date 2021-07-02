@@ -162,7 +162,6 @@ class PayPeriodsService {
     return data
   }
 
-
   async deletePayPeriods(email, id) {
     let pps = await dbContext.PayPeriod.find({
       CreatorEmail: email,
@@ -197,6 +196,7 @@ class PayPeriodsService {
     }
     return updatedIGs
   }
+
 }
 
 export const payPeriodsService = new PayPeriodsService()

@@ -3,6 +3,31 @@ import { BadRequest } from "../utils/Errors";
 import moment from "moment"
 
 
+//this function takes in an interger or float representing number of hours and returns a string formatted as HH:MM
+function caluclateHHMM(input) {
+  input = input.toString()
+  let Hours = ""
+  let Minutes = ""
+  if (input.includes(".")) {
+    let split = input.split(".")
+    Hours = split[0]
+    Minutes = split[1]
+    Minutes = (Math.round(ParseInt(Minutes) * 60)).toString()
+    if (Minutes.length == 1) {
+      Minutes = "0" + Minutes
+    }
+  } else {
+    Hours = input
+    Minutes = "00"
+  }
+  let output = Hours + ":" + Minutes
+  return output
+}
+
+function roundFromHoursHH(input, roundTo) {
+
+}
+
 function clearExcessData(projectData) {
   if (projectData.PayPeriod == "Weekly" || projectData.PayPeriod == "Bi-Weekly" || projectData.PayPeriod == "FirstAndFive") {
     projectData.InvoiceDay = ""
@@ -175,6 +200,170 @@ class ProjectsService {
       i++
     }
     return projects
+  }
+
+  async projectsToNewFormat(user) {
+    let profile = await dbContext.Profile.findOne({ Email: user.email })
+    if (!profile.IsAdmin) {
+      throw new BadRequest("Unauthorized: Only admins may perform this action")
+    } else {
+      let projects = await dbContext.Project.find().populate("ProjectSettings")
+      let i = 0
+      while (i < projects.length) {
+        if (projects[i].PayPeriod != "Milestone") {
+          let project = await this.setPayPeriods(projects[i])
+          await dbContext.Project.findByIdAndUpdate(project._id, project, { new: true })
+        }
+        i++
+      }
+    }
+  }
+
+  async setPayPeriods(project) {
+    let PPs = await dbContext.PayPeriod.find({ ProjectId: project._id })
+    let i = 0
+    while (i < PPs.length) {
+      let formattedStart = moment(PPs[i].StartDay).format("MM/DD/YYYY")
+      let formattedEnd = moment(PPs[i].EndDay).format("MM/DD/YYYY")
+      let readable = formattedStart + " - " + formattedEnd
+      let weeks = await this.setWeeks(project, PPs[i])
+      //TODO
+      let PPTotalHours
+      //TODO
+      let PPTotalHHMM
+      //TODO
+      let InvoiceTotalBasePay
+      let newPPObj = {
+        StartDay: PPs[i].StartDay,
+        EndDay: PPs[i].EndDay,
+        Readable: readable,
+        Weeks: weeks,
+        PPTotalHours: PPTotalHours,
+        PPTotalHHMM: PPTotalHHMM,
+        InvoiceTotalBasePay: InvoiceTotalBasePay
+      }
+      project.InvoiceGroups.push(newPPObj)
+      i++
+    }
+  }
+
+  async setWeeks(project, PP) {
+    let Weeks = []
+    let weekStart = moment(PP.StartDay)
+    let PPEnd = moment(PP.EndDay)
+    //this loop should go until all of the weeks have been created
+    while (moment(weekStart).isSameOrBefore(PPEnd)) {
+      let weekEnd = moment(weekStart).add(6, "days")
+      let Week = await this.generateWeek(weekStart, weekEnd, PPEnd, project)
+      Weeks.push(Week)
+      weekStart = moment(weekStart).add(7, "days")
+    }
+    return Weeks
+  }
+
+  async generateWeek(weekStart, weekEnd, PPEnd, project) {
+    let ReadableDates = moment(weekStart).format("MM/DD/YYYY") + " - " + moment(weekEnd).format("MM/DD/YYYY");
+    let Days = await this.setDays(weekStart, weekEnd, PPEnd, project)
+    let WeekTotalHours = 0
+    let i = 0
+    while (i < Days.length) {
+      WeekTotalHours += Days[i].DayTotalHours
+      i++
+    }
+    let WeekTotalHHMM = await caluclateHHMM(WeekTotalHours)
+    let WeekRoundedBasePay = null
+
+    let WeekRoundedHours = null
+    let WeekRoundedHHMM = null
+    if (project.ProjectSettings.RoundTime && project.ProjectSettings.RoundFrequency == "Weekly") {
+      WeekRoundedHours = await roundFromHoursHH(WeekTotalHours)
+      WeekRoundedHHMM = await roundFromHoursHHMM(WeekTotalHours)
+      WeekRoundedBasePay = WeekRoundedHours * project.Rate
+    }
+    let WeekTotalBasePay = null
+    if (project.PayType == "Hourly") {
+      WeekTotalBasePay = WeekTotalHours * project.Rate
+    } else if (project.PayType == "Salary") {
+      WeekTotalBasePay = Math.floor(WeekTotalHours / 8) * project.Rate
+    }
+
+    let Week = {
+      ReadableDates: ReadableDates,
+      WeekStart: WeekStart,
+      WeekEnd: WeekEnd,
+      Days: Days,
+      WeekTotalHours,
+      WeekTotalHHMM,
+      WeekRoundedHours,
+      WeekRoundedHHMM,
+      WeekTotalBasePay,
+      WeekRoundedBasePay
+    }
+
+    return Week
+  }
+
+
+  //takes in the start and end of a week
+  //calls generateDay to create the day object for each day
+  //returns a week's worth of days
+  async setDays(weekStart, weekEnd, PPEnd, project) {
+    let Days = []
+    let currentDay = moment(weekStart)
+    while (currentDay.isSameOrBefore(moment(weekEnd)) && currentDay.isBefore(moment(PPEnd))) {
+      let Day = await this.generateDay(currentDay, project)
+      Days.push(Day)
+      currentDay = moment(currentDay).add(1, "days")
+    }
+    return Days
+  }
+
+  //collect timeclocks beloning to this day and group them into an array
+  //then calculate hour and pay totals and return Day
+  async generateDay(currentDay, project) {
+    let allTCs = await dbContext.TimeClock.find({ ProjectId: project._id })
+    let i = 0
+    let TCs = []
+    while (i < allTCs.length) {
+      if (moment(currentDay).isSame(allTCs[i].StartTime, "day")) {
+        TCs.push(allTCs[i])
+      }
+      i++
+    }
+    i = 0
+    let DayTotalHours = 0
+    while (i < TCs.length) {
+      DayTotalHours += TCs[i].TCTotalHours
+      i++
+    }
+    let DayTotalHHMM = await caluclateHHMM(DayTotalHours)
+    let DayRoundedHours = null
+    let DayRoundedHHMM = null
+    if (project.ProjectSettings.RoundTime && project.ProjectSettings.RoundFrequency == "Day") {
+      DayRoundedHours = await roundFromHoursHH(DayTotalHours)
+      DayRoundedHHMM = await roundFromHoursHHMM(DayTotalHours)
+    }
+    let DayTotalBasePay = null
+    if (project.PayType == "Hourly") {
+      DayTotalBasePay = DayTotalHours * project.Rate
+    }
+    let DayRoundedBasePay = null
+    if (project.ProjectSettings.RoundTime && project.ProjectSettings.RoundFrequency == "Day") {
+      DayRoundedBasePay = DayRoundedHours * project.Rate
+    }
+
+    let Day = {
+      ReadableDate: moment(currentDay).format("MM/DD/YYYY"),
+      Date: currentDay,
+      TimeClocks: TCs,
+      DayTotalHours: DayTotalHours,
+      DayTotalHHMM: DayTotalHHMM,
+      DayRoundedHours: DayRoundedHours,
+      DayRoundedHHMM: DayRoundedHHMM,
+      DayTotalBasePay: DayTotalBasePay,
+      DayRoundedBasePay: DayRoundedBasePay
+    }
+    return Day
   }
 
 }

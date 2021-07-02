@@ -22,6 +22,61 @@ function calcualteHHMM(tc) {
   return hhmm
 }
 
+function roundTime(time, roundTo) {
+  time = time.toString();
+  let hours;
+  let minutes;
+  if (time.includes(".")) {
+    let split = time.split(".");
+    hours = parseInt(split[0]);
+    if (split[1].length == 1) {
+      split[1] = parseInt(split[1] + "0");
+    }
+    minutes = parseInt(split[1]);
+  } else {
+    hours = parseInt(time);
+    minutes = 0;
+  }
+  minutes = minutes * 0.6;
+  let i = 0;
+  while (minutes > roundTo) {
+    i++;
+    minutes = minutes - roundTo;
+  }
+  if (minutes < roundTo / 2) {
+    minutes = i * roundTo;
+  } else {
+    minutes = (i + 1) * roundTo;
+  }
+  if (minutes >= 60) {
+    minutes = 0;
+    hours += 1;
+  }
+  hours = hours.toString();
+  minutes = (minutes / 60).toString();
+  if (minutes.includes(".")) {
+    minutes = parseFloat(minutes).toFixed(2).toString();
+    let minSplit = minutes.split(".");
+    minutes = minSplit[1];
+  }
+  if (minutes.length == 1) {
+    minutes = minutes + "0";
+  }
+  time = parseFloat(hours + "." + minutes);
+  return time;
+}
+
+function calculateRoundedTCHH(tc, project) {
+  if (!project.RoundTime) {
+    return null
+  } else {
+    let timeDiff = moment.duration(moment(tc.EndTime).diff(moment(tc.StartTime)))
+    let res = roundTime(timeDiff, project.ProjectSettings.RoundTo)
+    return res
+  }
+
+}
+
 //returns true if there have been too many api calls created within time limit
 async function checkServerCache(email, type) {
   let serverCache = await dbContext.ServerCache.find({
@@ -118,21 +173,22 @@ class TimeClocksService {
       }
     }
   }
-  async clockOut(updateInfo) {
-    updateInfo.TCTotalHours = await calculateHH(updateInfo)
-    updateInfo.TCTotalHM = await calcualteHHMM(updateInfo)
+  async clockOut(rawData) {
+    let project = await dbContext.Project.findOne({ _id: rawData.ProjectId })
+    rawData.TCTotalHours = await calculateHH(rawData)
+    rawData.TCTotalHM = await calcualteHHMM(rawData)
 
     let data = await dbContext.TimeClock.findOneAndUpdate(
       {
-        _id: updateInfo.id,
-        CreatorEmail: updateInfo.email
+        _id: rawData.id,
+        CreatorEmail: rawData.email
       },
       {
-        EndTime: updateInfo.EndTime,
+        EndTime: rawData.EndTime,
         Current: false,
-        Comment: updateInfo.Comment,
-        TCTotalHours: updateInfo.TCTotalHours,
-        TCTotalHM: updateInfo.TCTotalHM
+        Comment: rawData.Comment,
+        TCTotalHours: rawData.TCTotalHours,
+        TCTotalHM: rawData.TCTotalHM
       },
       {
         new: true
