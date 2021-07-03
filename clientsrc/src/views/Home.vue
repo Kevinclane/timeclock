@@ -11,6 +11,7 @@
       "
     >
       <h1 class="col-12 text-center dynamic-header3 text-shadow">
+        <!-- <img src="../assets/Logo.png" alt="Logo" class="" /> -->
         Time Trackers
       </h1>
       <h2 class="col-12 text-shadow">Beta version is now live!</h2>

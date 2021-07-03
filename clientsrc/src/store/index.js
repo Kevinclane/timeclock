@@ -786,6 +786,15 @@ export default new Vuex.Store({
       } catch (error) {
         console.error(error)
       }
+    },
+    async updateProjectFormats({ }) {
+      try {
+        debugger
+        let res = await api.get("/projects/newprojectformat")
+        console.log(res)
+      } catch (error) {
+        console.error(error)
+      }
     }
 
     //#endregion UPDATES

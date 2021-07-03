@@ -24,9 +24,51 @@ function caluclateHHMM(input) {
   return output
 }
 
-function roundFromHoursHH(input, roundTo) {
-
+function roundFromHoursHH(time, roundTo) {
+  time = time.toString();
+  let hours;
+  let minutes;
+  if (time.includes(".")) {
+    let split = time.split(".");
+    hours = parseInt(split[0]);
+    if (split[1].length == 1) {
+      split[1] = parseInt(split[1] + "0");
+    }
+    minutes = parseInt(split[1]);
+  } else {
+    hours = parseInt(time);
+    minutes = 0;
+  }
+  minutes = minutes * 0.6;
+  let i = 0;
+  while (minutes > roundTo) {
+    i++;
+    minutes = minutes - roundTo;
+  }
+  if (minutes < roundTo / 2) {
+    minutes = i * roundTo;
+  } else {
+    minutes = (i + 1) * roundTo;
+  }
+  if (minutes >= 60) {
+    minutes = 0;
+    hours += 1;
+  }
+  // debugger
+  hours = hours.toString();
+  minutes = (minutes / 60).toString();
+  if (minutes.includes(".")) {
+    minutes = (parseFloat(minutes).toFixed(2)).toString();
+    let minSplit = minutes.split(".");
+    minutes = minSplit[1];
+  }
+  if (minutes.length == 1) {
+    minutes = minutes + "0";
+  }
+  time = parseFloat(hours + "." + minutes);
+  return time;
 }
+
 
 function clearExcessData(projectData) {
   if (projectData.PayPeriod == "Weekly" || projectData.PayPeriod == "Bi-Weekly" || projectData.PayPeriod == "FirstAndFive") {
@@ -225,25 +267,42 @@ class ProjectsService {
     while (i < PPs.length) {
       let formattedStart = moment(PPs[i].StartDay).format("MM/DD/YYYY")
       let formattedEnd = moment(PPs[i].EndDay).format("MM/DD/YYYY")
-      let readable = formattedStart + " - " + formattedEnd
-      let weeks = await this.setWeeks(project, PPs[i])
-      //TODO
-      let PPTotalHours
-      //TODO
-      let PPTotalHHMM
-      //TODO
-      let InvoiceTotalBasePay
-      let newPPObj = {
-        StartDay: PPs[i].StartDay,
-        EndDay: PPs[i].EndDay,
-        Readable: readable,
-        Weeks: weeks,
-        PPTotalHours: PPTotalHours,
-        PPTotalHHMM: PPTotalHHMM,
-        InvoiceTotalBasePay: InvoiceTotalBasePay
+      let ReadableDates = formattedStart + " - " + formattedEnd
+      let Weeks = await this.setWeeks(project, PPs[i])
+      let PPTotalHours = 0
+      let PPTotalBasePay = 0
+      let PPRoundedTotalHours = 0
+      let PPRoundedTotalBasePay = 0
+      let x = 0
+      while (x < Weeks.length) {
+        PPTotalHours += Weeks[x].WeekTotalHours
+        PPTotalBasePay += Weeks[x].WeekTotalBasePay
+        if (project.ProjectSettings.RoundTime) {
+          PPRoundedTotalHours += Weeks[x].WeekRoundedHours
+          PPRoundedTotalBasePay += Weeks[x].WeekRoundedBasePay
+        }
+        x++
+      }
+      let PPTotalHHMM = await caluclateHHMM(PPTotalHours)
+      if (project.ProjectSettings.RoundTime) {
+        PPRoundedTotalHHMM = await caluclateHHMM(PPRoundedTotalHours)
       }
       project.InvoiceGroups.push(newPPObj)
       i++
+      await dbContext.PayPeriod.findOneAndUpdate(
+        { _id: PPs[i]._id },
+        {
+          ReadableDates: ReadableDates,
+          PPTotalHours: PPTotalHours,
+          PPTotalHHMM: PPTotalHHMM,
+          PPTotalBasePay: PPTotalBasePay,
+          PPRoundedTotalHours: PPRoundedTotalHours,
+          PPRoundedTotalHHMM: PPRoundedTotalHHMM,
+          PPRoundedTotalBasePay: PPRoundedTotalBasePay,
+          Weeks: Weeks
+        },
+        { new: true }
+      )
     }
   }
 
@@ -292,12 +351,12 @@ class ProjectsService {
       WeekStart: WeekStart,
       WeekEnd: WeekEnd,
       Days: Days,
-      WeekTotalHours,
-      WeekTotalHHMM,
-      WeekRoundedHours,
-      WeekRoundedHHMM,
-      WeekTotalBasePay,
-      WeekRoundedBasePay
+      WeekTotalHours: WeekTotalHours,
+      WeekTotalHHMM: WeekTotalHHMM,
+      WeekRoundedHours: WeekRoundedHours,
+      WeekRoundedHHMM: WeekRoundedHHMM,
+      WeekTotalBasePay: WeekTotalBasePay,
+      WeekRoundedBasePay: WeekRoundedBasePay
     }
 
     return Week

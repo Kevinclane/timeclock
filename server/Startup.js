@@ -4,7 +4,6 @@ import express from "express";
 import helmet from "helmet";
 import { RegisterControllers, Paths } from "../Setup";
 import auth0Provider from "@bcwdev/auth0provider";
-import cleanupService from "./services/TestCleanupService";
 
 export default class Startup {
   static ConfigureGlobalMiddleware(app) {
@@ -33,14 +32,14 @@ export default class Startup {
     RegisterControllers(router);
     app.use(router);
     app.use("", express.static(Paths.Public));
-    app.get("/cleanup", async (req, res, next) => {
-      try {
-        let data = await cleanupService.cleanupAsync();
-        res.send(data);
-      } catch (e) {
-        next(e);
-      }
-    });
+    // app.get("/cleanup", async (req, res, next) => {
+    //   try {
+    //     let data = await cleanupService.cleanupAsync();
+    //     res.send(data);
+    //   } catch (e) {
+    //     next(e);
+    //   }
+    // });
     Startup.registerErrorHandlers(app);
   }
 

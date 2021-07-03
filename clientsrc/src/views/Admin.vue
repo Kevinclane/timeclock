@@ -368,9 +368,17 @@
     <div class="container-fluid text-light" v-if="view == 'DBUpdates'">
       <div class="row">
         <div class="col-12">
-          Calculate timeclocks totals
+          Update TimeClocks in DB to save total time to TC object
+        </div>
+        <div class="col-12 mb-5">
           <button class="btn btn-sm btn-info" @click="updateDBTCTotals()">
-            run
+            Update TimeClocks
+          </button>
+        </div>
+        <div class="col-12">Update core DB. Calculate and save all data</div>
+        <div class="col-12 mb-5">
+          <button class="btn btn-sm btn-info" @click="updateProjectFormats()">
+            Update Projects
           </button>
         </div>
       </div>
@@ -487,6 +495,9 @@ export default {
     },
     updateDBTCTotals() {
       this.$store.dispatch("updateDBTCTotals");
+    },
+    updateProjectFormats() {
+      this.$store.dispatch("updateProjectFormats");
     },
   },
   computed: {

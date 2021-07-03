@@ -10,13 +10,14 @@ export class ProjectsController extends BaseController {
     this.router
       .use(auth0provider.getAuthorizedUserInfo)
       .get("/all", this.getProjects)
+      .get("/newprojectformat", this.projectsToNewFormat)
       .get("/:id", this.getProjectById)
-      .post("", this.createProject)
       .put("/:id", this.editProject)
       .put("/invoicegroups/update", this.updateInvoiceGroups)
-      .delete("/:id", this.deleteProject)
       .put("/projectsettings/update/:id", this.updateProjectSettings)
+      .post("", this.createProject)
       .post("/lockprojects", this.lockProjects)
+      .delete("/:id", this.deleteProject)
   }
   async getProjects(req, res, next) {
     try {
@@ -101,6 +102,15 @@ export class ProjectsController extends BaseController {
     try {
       let projects = await projectsService.lockProjects(req.body, req.userInfo)
       res.send(projects)
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async projectsToNewFormat(req, res, next) {
+    try {
+      await projectsService.projectsToNewFormat(req.userInfo)
+      res.send("Updated Successfully")
     } catch (error) {
       next(error)
     }
