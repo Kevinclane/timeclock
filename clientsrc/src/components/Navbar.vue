@@ -2,7 +2,14 @@
   <nav class="navbar navbar-dark bg-primary container-fluid">
     <div class="row vw100 d-flex justify-content-between">
       <router-link
-        class="navbar-brand col-1 m-0 d-flex align-items-center justify-content-start"
+        class="
+          navbar-brand
+          col-1
+          m-0
+          d-flex
+          align-items-center
+          justify-content-start
+        "
         :to="{ name: 'home' }"
         ><i class="fa fa-2x fa-home text-dark" aria-hidden="true"></i
       ></router-link>
@@ -76,7 +83,7 @@ export default {
   name: "Navbar",
   methods: {
     async login() {
-      await this.$auth.loginWithPopup();
+      await this.$auth.loginWithRedirect();
       this.$store.dispatch("setBearer", this.$auth.bearer);
       console.log("AuthData: ", this.$auth);
       await this.$store.dispatch("getProfile");
