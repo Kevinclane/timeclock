@@ -84,7 +84,7 @@ export default {
   name: "Navbar",
   methods: {
     async login() {
-      await this.$auth.loginWithPopup();
+      await this.$auth.loginWithRedirect();
       this.$store.dispatch("setBearer", this.$auth.bearer);
       await this.$store.dispatch("getProfile");
     },
