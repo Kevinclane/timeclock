@@ -98,6 +98,8 @@ class ProjectsService {
     let serverCache = await checkServerCache(projectData.CreatorEmail, "createProject")
     if (serverCache) {
       throw new BadRequest("You have created too many projects recently. Please wait a little while before trying again.")
+    } else if (moment(projectData.Start).isBefore(moment().subtract(2, "years"))) {
+      throw new BadRequest("Project start date must be within 2 years of today's date.")
     } else {
       let projects = await dbContext.Project.find({ CreatorEmail: projectData.CreatorEmail })
       if (profile.Subscription == "Free" && projects.length >= 1) {
