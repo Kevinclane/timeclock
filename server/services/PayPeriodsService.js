@@ -94,7 +94,7 @@ class PayPeriodsService {
     let data = await dbContext.PayPeriod.find({
       CreatorEmail: email,
       ProjectId: project._id
-    }).lean()
+    })
     let currentCheck = moment().isAfter(moment(data[data.length - 1].EndDay))
     if (currentCheck) {
       let newPPs = await updatePayPeriodRouter(data[data.length - 1], project.PayPeriod)
