@@ -24,51 +24,68 @@ function caluclateHHMM(input) {
   return output
 }
 
+//takes in hours in format nn.nn hours
+//returns rounded hours in format nn.nn
 function roundFromHoursHH(time, roundTo) {
   time = time.toString();
-  let hours;
-  let minutes;
+  let Hours;
+  let Minutes;
   if (time.includes(".")) {
     let split = time.split(".");
-    hours = parseInt(split[0]);
-    if (split[1].length == 1) {
-      split[1] = parseInt(split[1] + "0");
-    }
-    minutes = parseInt(split[1]);
+    Hours = parseInt(split[0]);
+    //At this point, Minutes are a decimal of a whole hour
+    Minutes = parseFloat("." + split[1])
   } else {
-    hours = parseInt(time);
-    minutes = 0;
+    Hours = parseInt(time);
+    Minutes = 0;
   }
-  minutes = minutes * 0.6;
-  let i = 0;
-  while (minutes > roundTo) {
-    i++;
-    minutes = minutes - roundTo;
+  //converts minutes from decimal of an hour into actual minutes
+  Minutes = (Minutes * 60).toFixed(2);
+  Minutes = Math.round(Minutes / roundTo)
+  Minutes = Minutes * roundTo
+  if (Minutes >= 60) {
+    Minutes = 0
+    Hours++
   }
-  if (minutes < roundTo / 2) {
-    minutes = i * roundTo;
-  } else {
-    minutes = (i + 1) * roundTo;
+  Hours = Hours.toString();
+  Minutes = (Math.round(Minutes / 60)).toString();
+  if (Minutes.length == 1) {
+    Minutes = Minutes + "0";
   }
-  if (minutes >= 60) {
-    minutes = 0;
-    hours += 1;
-  }
-  // debugger
-  hours = hours.toString();
-  minutes = (minutes / 60).toString();
-  if (minutes.includes(".")) {
-    minutes = (parseFloat(minutes).toFixed(2)).toString();
-    let minSplit = minutes.split(".");
-    minutes = minSplit[1];
-  }
-  if (minutes.length == 1) {
-    minutes = minutes + "0";
-  }
-  time = parseFloat(hours + "." + minutes);
+  time = parseFloat(Hours + "." + Minutes);
   return time;
 }
 
+function roundFromHoursHHMM(time, roundTo) {
+  time = time.toString()
+  let Hours
+  let Minutes
+  if (time.includes(".")) {
+    let split = time.split(".")
+    Hours = parseInt(split[0])
+    Minutes = split[1]
+    Minutes = (Math.round(ParseInt(Minutes) * 60)).toString()
+    if (Minutes.length == 1) {
+      Minutes = "0" + Minutes
+    }
+  } else {
+    Hours = parseInt(time)
+    Minutes = 0
+  }
+  Minutes = Math.round(Minutes / roundTo)
+  Minutes = Minutes * roundTo
+  if (Minutes >= 60) {
+    Minutes = 0
+    Hours++
+  }
+  Hours = Hours.toString();
+  Minutes = Minutes.toString()
+  if (Minutes.length == 1) {
+    Minutes = Minutes + "0";
+  }
+  time = parseFloat(Hours + "." + Minutes);
+  return time;
+}
 
 function clearExcessData(projectData) {
   if (projectData.PayPeriod == "Weekly" || projectData.PayPeriod == "Bi-Weekly" || projectData.PayPeriod == "FirstAndFive") {
