@@ -37,7 +37,6 @@ function roundTime(time, roundTo) {
     minutes = 0;
     hours += 1;
   }
-  // debugger
   hours = hours.toString();
   minutes = (minutes / 60).toString();
   if (minutes.includes(".")) {
@@ -226,7 +225,6 @@ export default new Vuex.Store({
     },
     async updateContactInfo({ commit }, contacts) {
       try {
-        debugger
         let res = await api.put("profile/updatecontactinfo", contacts)
         commit("setUser", res.data)
       } catch (error) {
@@ -282,8 +280,7 @@ export default new Vuex.Store({
     },
     async deleteProject({ }, id) {
       try {
-        let data = await api.delete("/projects/" + id)
-        console.log(data.data)
+        await api.delete("/projects/" + id)
         router.push({ name: "dashboard" });
       } catch (error) {
         console.error(error)
@@ -306,7 +303,6 @@ export default new Vuex.Store({
           IGs[i].InvoiceNumber = IG.InvoiceNumber - index + i
           i++
         }
-        console.log("newIGS: ", IGs)
         let res = api.put("/projects/invoicegroups/update", [...IGs])
         await commit("setIGs", res.data)
       } catch (error) {
@@ -627,7 +623,6 @@ export default new Vuex.Store({
     async editFeedback({ }, feedback) {
       try {
         let res = await api.put("/feedback/" + feedback.id, feedback)
-        console.log("editedFeedback", res.data)
       } catch (error) {
         console.error(error)
       }
@@ -641,7 +636,6 @@ export default new Vuex.Store({
       try {
         let res = await api.post("/plans", rawData)
         commit("insertNewPlan", res.data)
-        console.log("New SubId:", res.data)
       } catch (error) {
         console.error(error)
       }
@@ -724,7 +718,6 @@ export default new Vuex.Store({
           }
         }
         let res = await api.post("/subscriptions/addpromocodes", apiObj)
-        console.log(res.data)
       } catch (error) {
         console.error(error)
       }
@@ -789,7 +782,6 @@ export default new Vuex.Store({
     },
     async updateProjectFormats({ }) {
       try {
-        debugger
         let res = await api.get("/projects/newprojectformat")
         console.log(res)
       } catch (error) {

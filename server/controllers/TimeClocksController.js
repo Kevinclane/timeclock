@@ -68,8 +68,9 @@ export class TimeClocksController extends BaseController {
   }
   async calculateAllTCTotals(req, res, next) {
     try {
-      let data = await timeClocksService.calculateAllTCTotals(req.userInfo)
-      res.send("Update Complete", data)
+      await timeClocksService.calculateAllTCTotals(req.userInfo)
+      let data = "Update Complete"
+      res.send(data)
     } catch (error) {
       next(error)
     }

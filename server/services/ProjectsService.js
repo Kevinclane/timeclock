@@ -11,8 +11,8 @@ function caluclateHHMM(input) {
   if (input.includes(".")) {
     let split = input.split(".")
     Hours = split[0]
-    Minutes = split[1]
-    Minutes = (Math.round(ParseInt(Minutes) * 60)).toString()
+    Minutes = "." + split[1] //resets to a decimal of an hour
+    Minutes = (Math.round(parseFloat(Minutes) * 60)).toString();
     if (Minutes.length == 1) {
       Minutes = "0" + Minutes
     }
@@ -63,8 +63,8 @@ function roundFromHoursHHMM(time, roundTo) {
   if (time.includes(".")) {
     let split = time.split(".")
     Hours = parseInt(split[0])
-    Minutes = split[1]
-    Minutes = (Math.round(ParseInt(Minutes) * 60)).toString()
+    Minutes = "." + split[1]
+    Minutes = (Math.round(parseFloat(Minutes) * 60)).toString()
     if (Minutes.length == 1) {
       Minutes = "0" + Minutes
     }
@@ -83,7 +83,7 @@ function roundFromHoursHHMM(time, roundTo) {
   if (Minutes.length == 1) {
     Minutes = Minutes + "0";
   }
-  time = parseFloat(Hours + "." + Minutes);
+  time = Hours + ":" + Minutes;
   return time;
 }
 
@@ -276,6 +276,7 @@ class ProjectsService {
         i++
       }
     }
+    return "No Errors"
   }
 
   async setPayPeriods(project) {
@@ -352,8 +353,8 @@ class ProjectsService {
     let WeekRoundedHours = null
     let WeekRoundedHHMM = null
     if (project.ProjectSettings.RoundTime && project.ProjectSettings.RoundFrequency == "Weekly") {
-      WeekRoundedHours = await roundFromHoursHH(WeekTotalHours)
-      WeekRoundedHHMM = await roundFromHoursHHMM(WeekTotalHours)
+      WeekRoundedHours = await roundFromHoursHH(WeekTotalHours, project.ProjectSettings.RoundTo)
+      WeekRoundedHHMM = await roundFromHoursHHMM(WeekTotalHours, project.ProjectSettings.RoundTo)
       WeekRoundedBasePay = WeekRoundedHours * project.Rate
     }
     let WeekTotalBasePay = null
@@ -365,8 +366,8 @@ class ProjectsService {
 
     let Week = {
       ReadableDates: ReadableDates,
-      WeekStart: WeekStart,
-      WeekEnd: WeekEnd,
+      WeekStart: weekStart,
+      WeekEnd: weekEnd,
       Days: Days,
       WeekTotalHours: WeekTotalHours,
       WeekTotalHHMM: WeekTotalHHMM,
@@ -386,7 +387,7 @@ class ProjectsService {
   async setDays(weekStart, weekEnd, PPEnd, project) {
     let Days = []
     let currentDay = moment(weekStart)
-    while (currentDay.isSameOrBefore(moment(weekEnd)) && currentDay.isBefore(moment(PPEnd))) {
+    while (currentDay.isSameOrBefore(moment(weekEnd)) && currentDay.isSameOrBefore(moment(PPEnd))) {
       let Day = await this.generateDay(currentDay, project)
       Days.push(Day)
       currentDay = moment(currentDay).add(1, "days")
@@ -416,8 +417,8 @@ class ProjectsService {
     let DayRoundedHours = null
     let DayRoundedHHMM = null
     if (project.ProjectSettings.RoundTime && project.ProjectSettings.RoundFrequency == "Day") {
-      DayRoundedHours = await roundFromHoursHH(DayTotalHours)
-      DayRoundedHHMM = await roundFromHoursHHMM(DayTotalHours)
+      DayRoundedHours = await roundFromHoursHH(DayTotalHours, project.ProjectSettings.RoundTo)
+      DayRoundedHHMM = await roundFromHoursHHMM(DayTotalHours, project.ProjectSettings.RoundTo)
     }
     let DayTotalBasePay = null
     if (project.PayType == "Hourly") {
