@@ -493,12 +493,6 @@ export default {
     toggleReleased(id) {
       this.$store.dispatch("togglePromoCodeReleased", id);
     },
-    updateDBTCTotals() {
-      this.$store.dispatch("updateDBTCTotals");
-    },
-    updateProjectFormats() {
-      this.$store.dispatch("updateProjectFormats");
-    },
   },
   computed: {
     allPlans() {

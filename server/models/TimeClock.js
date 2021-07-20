@@ -9,8 +9,6 @@ const TimeClock = new Schema({
   EndTime: { type: Date },
   TCTotalHours: { type: Number },
   TCTotalHM: { type: String },
-  RoundedHours: { type: Number },
-  RoundedHM: { type: String },
   Current: { type: Boolean, default: true }
 },
   { timestamps: true, toJSON: { virtuals: true } }

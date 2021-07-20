@@ -41,7 +41,7 @@
       </select>
       <div class="col-10">
         <div class="row" v-if="settings.RoundTime == 'Yes'">
-          <div class="col-12">Round to:</div>
+          <div class="col-12">Round to (daily):</div>
           <select class="col-12" v-model="settings.RoundTo">
             <option value="5">Nearest 5min</option>
             <option value="10">Nearest 10min</option>
@@ -49,12 +49,11 @@
             <option value="30">Nearest 30min</option>
             <option value="60">Nearest hour</option>
           </select>
-          <div class="col-12">When?</div>
+          <!-- <div class="col-12">When?</div>
           <select class="col-12" v-model="settings.RoundFrequency">
-            <option value="TC">Every time I clock out</option>
             <option value="Day">End of every day</option>
             <option value="Week">End of every week</option>
-          </select>
+          </select> -->
         </div>
       </div>
     </div>

@@ -12,10 +12,9 @@ const Project = new Schema(
     End: { type: Date },
     InvoiceDay: { type: String },
     Rate: { type: Number, required: true },
-    SalaryFrequency: { type: String },
     Active: { type: Boolean, default: true },
     TimeClocks: [{ type: Object }],
-    InvoiceGroups: [{ type: Object }],
+    InvoiceGroups: [{ type: ObjectId, ref: "PayPeriod" }],
     Active: { type: Boolean, default: true },
     ProjectSettings: { type: ObjectId, ref: "ProjectSettings" }
   },

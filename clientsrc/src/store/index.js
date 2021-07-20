@@ -264,6 +264,7 @@ export default new Vuex.Store({
     async createProject({ commit }, projectData) {
       try {
         let res = await api.post("/projects", projectData)
+        console.log("New Project Format: ", res.data)
         commit("addProject", res.data)
       } catch (error) {
         console.error(error)
@@ -772,22 +773,7 @@ export default new Vuex.Store({
 
     //#region UPDATES
 
-    async updateDBTCTotals({ }) {
-      try {
-        let res = await api.get("/timeclock/calculatetotals")
-        console.log(res.data)
-      } catch (error) {
-        console.error(error)
-      }
-    },
-    async updateProjectFormats({ }) {
-      try {
-        let res = await api.get("/projects/newprojectformat")
-        console.log(res)
-      } catch (error) {
-        console.error(error)
-      }
-    }
+
 
     //#endregion UPDATES
 

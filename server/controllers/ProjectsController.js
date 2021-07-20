@@ -25,13 +25,11 @@ export class ProjectsController extends BaseController {
       let i = 0
       while (i < data.length) {
         data[i].TimeClocks = await timeClocksService.getTimeClocks(req.userInfo.email, data[i]._id)
-        if (data[i].PayPeriod != 'Milestone') {
-          data[i].InvoiceGroups = await payPeriodsService.getPayPeriods(req.userInfo.email, data[i])
-        }
+        data[i].InvoiceGroups = await payPeriodsService.getPayPeriods(req.userInfo.email, data[i])
         i++
       }
 
-      res.status(200).send(data);
+      res.send(data);
     } catch (error) {
       next(error);
     }
@@ -40,10 +38,8 @@ export class ProjectsController extends BaseController {
     try {
       let data = await projectsService.getProjectById(req.params.id, req.userInfo.email)
       data.TimeClocks = await timeClocksService.getTimeClocks(req.userInfo.email, data._id)
-      if (data.PayPeriod != "Milestone") {
-        data.InvoiceGroups = await payPeriodsService.getPayPeriods(req.userInfo.email, data)
-      }
-      res.status(200).send(data)
+      data.InvoiceGroups = await payPeriodsService.getPayPeriods(req.userInfo.email, data)
+      res.send(data)
     } catch (error) {
       next(error)
     }
@@ -52,10 +48,9 @@ export class ProjectsController extends BaseController {
     try {
       req.body.CreatorEmail = req.userInfo.email;
       let project = await projectsService.createProject(req.body)
-      if (project.PayPeriod != "Milestone") {
-        let data = await payPeriodsService.createFirstPayPeriod(req.userInfo.email, project)
-      }
-      res.status(201).send(project);
+      project.InvoiceGroups = await payPeriodsService.initializePayPeriods(project)
+      // await payPeriodsService.createFirstPayPeriod(req.userInfo.email, project)
+      res.send(project);
     } catch (error) {
       next(error);
     }
@@ -67,7 +62,7 @@ export class ProjectsController extends BaseController {
       req.body.TimeClocks = {}
       let project = await projectsService.editProject(req.body)
       project.TimeClocks = await timeClocksService.getTimeClocks(req.userInfo.email, project._id)
-      res.status(200).send(project)
+      res.send(project)
     } catch (error) {
       next(error)
     }

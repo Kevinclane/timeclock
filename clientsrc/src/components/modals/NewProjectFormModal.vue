@@ -177,7 +177,7 @@
 
       <!--SALARY OPTIONS-->
 
-      <div
+      <!-- <div
         v-show="
           newProjectForm.PayType == 'Salary' &&
           newProjectForm.PayPeriod != 'Milestone'
@@ -199,7 +199,7 @@
             </select>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!--END SALARY OPTIONS-->
 
@@ -230,7 +230,7 @@ export default {
         End: "",
         InvoiceDay: "",
         Rate: "", //req
-        SalaryFrequency: "",
+        // SalaryFrequency: "",
       },
       charsAllowed: {
         chars: "- _ ! : ' / ",
@@ -270,12 +270,12 @@ export default {
           abort = true;
         }
       }
-      if (this.newProjectForm.PayType == "Salary") {
-        if (this.newProjectForm.SalaryFrequency == "") {
-          emptyFields.push("(Every) ");
-          abort = true;
-        }
-      }
+      // if (this.newProjectForm.PayType == "Salary") {
+      //   if (this.newProjectForm.SalaryFrequency == "") {
+      //     emptyFields.push("(Every) ");
+      //     abort = true;
+      //   }
+      // }
       if (this.newProjectForm.Rate == "") {
         emptyFields.push("(Rate) ");
         abort = true;
@@ -293,7 +293,7 @@ export default {
           End: "",
           InvoiceDay: "",
           Rate: "",
-          SalaryFrequency: "",
+          // SalaryFrequency: "",
         };
         this.$emit("closeModal");
       } else {
