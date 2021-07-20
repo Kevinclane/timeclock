@@ -18,7 +18,7 @@ async function updatePayPeriodRouter(ppObj, type) {
 
 async function updateWeeklyPayPeriod(ppObj, x) {
   let today = moment()
-  let currentPP = { ...ppObj }
+  let currentPP = ppObj
   let currentInvoiceNumber = ppObj.InvoiceNumber + 1
   let newPPs = []
   while (today.isAfter(moment(currentPP.EndDay))) {
@@ -39,7 +39,7 @@ async function updateWeeklyPayPeriod(ppObj, x) {
 
 async function updateFirstAndFivePayPeriod(ppObj) {
   let today = moment()
-  let currentPP = { ...ppObj }
+  let currentPP = ppObj
   let currentInvoiceNumber = ppObj.InvoiceNumber + 1
   let newPPs = []
   while (today.isAfter(moment(currentPP.EndDay))) {
@@ -70,7 +70,7 @@ async function updateFirstAndFivePayPeriod(ppObj) {
 
 async function updateMonthlyPayPeriod(ppObj) {
   let today = moment()
-  let currentPP = { ...ppObj }
+  let currentPP = ppObj
   let currentInvoiceNumber = ppObj.InvoiceNumber + 1
   let newPPs = []
   while (today.isAfter(moment(currentPP.EndDay))) {
