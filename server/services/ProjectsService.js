@@ -136,17 +136,18 @@ class ProjectsService {
   async getProjects(user) {
     let projects = await dbContext.Project.find({
       CreatorEmail: user.email
-    });
+    }).populate("InvoiceGroups");
     return projects;
   }
   async getProjectById(id, email) {
     let project = await dbContext.Project.findOne({
       CreatorEmail: email,
       _id: id
-    }).populate("ProjectSettings")
+    }).populate("ProjectSettings").populate("InvoiceGroups")
     if (!project) {
       throw new BadRequest("Invalid Id")
-    } else project = await clearExcessData(project)
+    }
+    project = await clearExcessData(project)
     project = await createProjectSettingsIfNeeded(project)
     return project
   }
@@ -234,153 +235,6 @@ class ProjectsService {
     }
     return projects
   }
-  // async projectsToNewFormat(user) {
-  //   let profile = await dbContext.Profile.findOne({ Email: user.email })
-  //   if (!profile.IsAdmin) {
-  //     throw new BadRequest("Unauthorized: Only admins may perform this action")
-  //   } else {
-  //     let projects = await dbContext.Project.find().populate("ProjectSettings")
-  //     let i = 0
-  //     while (i < projects.length) {
-  //       if (projects[i].PayPeriod != "Milestone") {
-  //         let project = await this.setPayPeriods(projects[i])
-  //         await dbContext.Project.findByIdAndUpdate(project._id, project, { new: true })
-  //       }
-  //       i++
-  //     }
-  //   }
-  //   return "No Errors"
-  // }
-  // async setPayPeriods(project) {
-  //   let PPs = await dbContext.PayPeriod.find({ ProjectId: project._id })
-  //   let i = 0
-  //   let newIGs = []
-  //   while (i < PPs.length) {
-  //     let formattedStart = moment(PPs[i].StartDay).format("MM/DD/YYYY")
-  //     let formattedEnd = moment(PPs[i].EndDay).format("MM/DD/YYYY")
-  //     let ReadableDates = formattedStart + " - " + formattedEnd
-  //     let Weeks = await this.setWeeks(project, PPs[i])
-  //     let PPHours = 0
-  //     let PPPay = 0
-  //     let x = 0
-  //     while (x < Weeks.length) {
-  //       PPHours += Weeks[x].WeekHours
-  //       PPPay += Weeks[x].WeekPay
-  //       x++
-  //     }
-  //     let PPHHMM = await caluclateHHMM(PPHours)
-  //     let newPPObj = await dbContext.PayPeriod.create(
-  //       {
-  //         ReadableDates: ReadableDates,
-  //         PPHours: PPHours,
-  //         PPHHMM: PPHHMM,
-  //         PPPay: PPPay,
-  //         Weeks: Weeks
-  //       }
-  //     )
-  //     newIGs.push(newPPObj._id)
-  //     i++
-  //   }
-  //   project.InvoiceGroups = newIGs
-  //   return project
-  // }
-  // async setWeeks(project, PP) {
-  //   let Weeks = []
-  //   let weekStart = moment(PP.StartDay)
-  //   let PPEnd = moment(PP.EndDay)
-  //   //this loop should go until all of the weeks have been created
-  //   while (moment(weekStart).isSameOrBefore(PPEnd)) {
-  //     let weekEnd = moment(weekStart).add(6, "days")
-  //     let Week = await this.generateWeek(weekStart, weekEnd, PPEnd, project)
-  //     Weeks.push(Week)
-  //     weekStart = moment(weekStart).add(7, "days")
-  //   }
-  //   return Weeks
-  // }
-  // async generateWeek(weekStart, weekEnd, PPEnd, project) {
-  //   let ReadableDates = moment(weekStart).format("MM/DD/YYYY") + " - " + moment(weekEnd).format("MM/DD/YYYY");
-  //   let Days = await this.setDays(weekStart, weekEnd, PPEnd, project)
-  //   let WeekHours = 0
-  //   let i = 0
-  //   while (i < Days.length) {
-  //     WeekHours += Days[i].DayHours
-  //     i++
-  //   }
-  //   let WeekHHMM = await caluclateHHMM(WeekHours)
-
-  //   let WeekPay = 0
-  //   i = 0
-  //   while (i < Days.length) {
-  //     WeekPay += Days[i].DayPay
-  //     i++
-  //   }
-
-  //   let Week = {
-  //     ReadableDates: ReadableDates,
-  //     WeekStart: weekStart,
-  //     WeekEnd: weekEnd,
-  //     Days: Days,
-  //     WeekHours: WeekHours,
-  //     WeekHHMM: WeekHHMM,
-  //     WeekPay: WeekPay
-  //   }
-
-  //   return Week
-  // }
-  // async setDays(weekStart, weekEnd, PPEnd, project) {
-  //   let Days = []
-  //   let currentDay = moment(weekStart)
-  //   while (currentDay.isSameOrBefore(moment(weekEnd)) && currentDay.isSameOrBefore(moment(PPEnd))) {
-  //     let Day = await this.generateDay(currentDay, project)
-  //     Days.push(Day)
-  //     currentDay = moment(currentDay).add(1, "days")
-  //   }
-  //   return Days
-  // }
-  // async generateDay(currentDay, project) {
-  //   let allTCs = await dbContext.TimeClock.find({ ProjectId: project._id })
-  //   let i = 0
-  //   let TCs = []
-  //   while (i < allTCs.length) {
-  //     if (moment(currentDay).isSame(allTCs[i].StartTime, "day")) {
-  //       TCs.push(allTCs[i])
-  //     }
-  //     i++
-  //   }
-
-  //   i = 0
-  //   let DayHours = 0
-  //   while (i < TCs.length) {
-  //     DayHours += TCs[i].TCTotalHours
-  //     i++
-  //   }
-
-  //   let DayHHMM
-
-  //   if (project.ProjectSettings.RoundTime) {
-  //     DayHours = await roundFromHoursHH(DayHours, project.ProjectSettings.RoundTo)
-  //     DayHHMM = await caluclateHHMM(DayHours, project.ProjectSettings.RoundTo)
-  //   } else {
-  //     DayHHMM = await caluclateHHMM(DayHours)
-  //   }
-
-  //   let DayPay = null
-  //   if (project.PayType == "Hourly") {
-  //     DayPay = DayHours * project.Rate
-  //   } else if (project.PayType == "Salary") {
-  //     //!NOTE add functionality for Salary
-  //   }
-
-  //   let Day = {
-  //     ReadableDate: moment(currentDay).format("MM/DD/YYYY"),
-  //     Date: currentDay,
-  //     TimeClocks: TCs,
-  //     DayHours: DayHours,
-  //     DayHHMM: DayHHMM,
-  //     DayPay: DayPay,
-  //   }
-  //   return Day
-  // }
 
 }
 export const projectsService = new ProjectsService();

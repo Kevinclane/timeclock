@@ -88,9 +88,13 @@ async function generateDay(currentDay, project) {
 
   let DayHHMM
 
-  if (project.ProjectSettings.RoundTime) {
-    DayHours = await roundFromHoursHH(DayHours, project.ProjectSettings.RoundTo)
-    DayHHMM = await caluclateHHMM(DayHours, project.ProjectSettings.RoundTo)
+  if (project.ProjectSettings) {
+    if (project.ProjectSettings.RoundTo) {
+      DayHours = await roundFromHoursHH(DayHours, project.ProjectSettings.RoundTo)
+      DayHHMM = await caluclateHHMM(DayHours, project.ProjectSettings.RoundTo)
+    } else {
+      DayHHMM = await caluclateHHMM(DayHours)
+    }
   } else {
     DayHHMM = await caluclateHHMM(DayHours)
   }
@@ -170,21 +174,21 @@ async function setWeeks(project, StartDay, EndDay) {
 }
 
 
-async function updatePayPeriodRouter(ppObj, type) {
+async function updatePayPeriodRouter(ppObj, project) {
   let data
-  if (type == "Weekly") {
-    data = await updateWeeklyPayPeriod(ppObj, 7)
-  } else if (type == "Bi-Weekly") {
-    data = await updateWeeklyPayPeriod(ppObj, 14)
-  } else if (type == "FirstAndFive") {
-    data = await updateFirstAndFivePayPeriod(ppObj)
-  } else if (type == "Monthly") {
-    data = await updateMonthlyPayPeriod(ppObj)
+  if (project.PayPeriod == "Weekly") {
+    data = await updateWeeklyPayPeriod(ppObj, 7, project)
+  } else if (project.PayPeriod == "Bi-Weekly") {
+    data = await updateWeeklyPayPeriod(ppObj, 14, project)
+  } else if (project.PayPeriod == "FirstAndFive") {
+    data = await updateFirstAndFivePayPeriod(ppObj, project)
+  } else if (project.PayPeriod == "Monthly") {
+    data = await updateMonthlyPayPeriod(ppObj, project)
   }
   return data
 }
 
-async function updateWeeklyPayPeriod(ppObj, x) {
+async function updateWeeklyPayPeriod(ppObj, x, project) {
   let today = moment()
   let currentPP = { ...ppObj }
   let currentInvoiceNumber = ppObj.InvoiceNumber + 1
@@ -205,7 +209,7 @@ async function updateWeeklyPayPeriod(ppObj, x) {
   return newPPs
 }
 
-async function updateFirstAndFivePayPeriod(ppObj) {
+async function updateFirstAndFivePayPeriod(ppObj, project) {
   let today = moment()
   let currentPP = { ...ppObj }
   let currentInvoiceNumber = ppObj.InvoiceNumber + 1
@@ -236,7 +240,7 @@ async function updateFirstAndFivePayPeriod(ppObj) {
   return newPPs
 }
 
-async function updateMonthlyPayPeriod(ppObj) {
+async function updateMonthlyPayPeriod(ppObj, project) {
   let today = moment()
   let currentPP = { ...ppObj }
   let currentInvoiceNumber = ppObj.InvoiceNumber + 1
@@ -265,7 +269,7 @@ class PayPeriodsService {
     }).lean()
     let currentCheck = moment().isAfter(moment(data[data.length - 1].EndDay))
     if (currentCheck) {
-      let newPPs = await updatePayPeriodRouter(data[data.length - 1], project.PayPeriod)
+      let newPPs = await updatePayPeriodRouter(data[data.length - 1], project)
       let i = 0
       while (i < newPPs.length) {
         data.push(newPPs[i])
@@ -275,33 +279,54 @@ class PayPeriodsService {
     data[data.length - 1].Current = true
     return data
   }
-  async initializePayPeriods(project) {
+  async createPayPeriod(project, StartDay, EndDay, InvNum) {
     let payPeriodObject = {
       ProjectId: project._id,
       CreatorEmail: project.CreatorEmail,
-      InvoiceNumber: 1,
+      InvoiceNumber: InvNum,
       Weeks: [],
+      StartDay: StartDay,
+      EndDay: EndDay,
       ReadableDates: "",
       PPHours: 0,
       PPPay: 0,
       PPHHMM: ""
     }
 
-    let formattedStart = moment(project.StartDay).format("MM/DD/YYYY")
-    let formattedEnd = moment(project.EndDay).format("MM/DD/YYYY")
-    payPeriodOBject.ReadableDates = formattedStart + " - " + formattedEnd
+    let formattedStart = moment(StartDay).format("MM/DD/YYYY")
+    let formattedEnd = moment(EndDay).format("MM/DD/YYYY")
+    payPeriodObject.ReadableDates = formattedStart + " - " + formattedEnd
+
+    payPeriodObject.Weeks = await setWeeks(project, payPeriodObject.StartDay, payPeriodObject.EndDay)
+
+    let x = 0
+    while (x < payPeriodObject.Weeks.length) {
+      payPeriodObject.PPHours += payPeriodObject.Weeks[x].WeekHours
+      payPeriodObject.PPPay += payPeriodObject.Weeks[x].WeekPay
+      x++
+    }
+
+    payPeriodObject.PPHHMM = await caluclateHHMM(payPeriodObject.PPHours)
+
+    let data = await dbContext.PayPeriod.create(payPeriodObject)
+    return data
+  }
+  async initializePayPeriod(project) {
+
+    let StartDay
+    let EndDay
 
     if (project.PayPeriod == "Weekly" || project.PayPeriod == "Bi-Weekly" || project.PayPeriod == "FirstAndFive") {
-      payPeriodObject.StartDay = project.Start
-      payPeriodObject.EndDay = project.End
+      StartDay = project.Start
+      EndDay = project.End
 
     } else if (project.PayPeriod == "Monthly") {
 
       if (project.InvoiceDay == "Last") {
         let yearMo = moment().format("YYYY-MM")
         let lastDay = moment().daysInMonth()
-        payPeriodObject.StartDay = moment(yearMo + '-01')
-        payPeriodObject.EndDay = moment(yearMo + "-" + lastDay)
+        StartDay = moment(yearMo + '-01')
+        EndDay = moment(yearMo + "-" + lastDay)
 
       } else {
         let today = moment().format("DD")
@@ -311,43 +336,39 @@ class PayPeriodsService {
             day = '0' + day.toString()
           } else day = day.toString()
           let nowYearMo = moment().format('YYYY-MM')
-          payPeriodObject.EndDay = moment(nowYearMo + "-" + day)
+          EndDay = moment(nowYearMo + "-" + day)
           let startYearMo = moment().subtract(1, "month").format('YYYY-MM')
           let day2 = parseInt(day) + 1
           if (day2 < 10) {
             day2 = "0" + day2.toString()
           } else day2 = day2.toString()
-          payPeriodObject.StartDay = moment(startYearMo + "-" + day2)
+          StartDay = moment(startYearMo + "-" + day2)
         } else {
           let day = parseInt(project.InvoiceDay) + 1
           if (day < 10) {
             day = '0' + day.toString()
           } else day = day.toString()
           let nowYearMo = moment().format('YYYY-MM')
-          payPeriodObject.StartDay = moment(nowYearMo + "-" + day)
+          StartDay = moment(nowYearMo + "-" + day)
 
           let day2 = parseInt(project.InvoiceDay)
           if (day2 < 10) {
             day2 = "0" + day2.toString()
           } else day2 = day2.toString()
           let endYearMo = moment().add(1, "month").format('YYYY-MM')
-          payPeriodObject.EndDay = moment(endYearMo + "-" + day2)
+          EndDay = moment(endYearMo + "-" + day2)
         }
       }
     }
-
-    payPeriodObject.Weeks = await setWeeks(project, payPeriodOBject.StartDay, payPeriodOBject.EndDay)
-    let x = 0
-
-    while (x < Weeks.length) {
-      payPeriodObject.PPHours += Weeks[x].WeekHours
-      payPeriodObject.PPPay += Weeks[x].WeekPay
-      x++
-    }
-    payPeriodObject.PPHHMM = await caluclateHHMM(PPHours)
-
-    let data = await dbContext.PayPeriod.create(payPeriodObject)
-    return data
+    let data = await this.createPayPeriod(project, StartDay, EndDay, 1)
+    project.InvoiceGroups = []
+    project.InvoiceGroups.push(data._id)
+    project = await dbContext.Project.findOneAndUpdate(
+      { _id: project._id },
+      project,
+      { new: true }
+    ).populate("InvoiceGroups")
+    return project
   }
   // async createFirstPayPeriod(email, project) {
   //   let payPeriodObject = {
@@ -403,10 +424,6 @@ class PayPeriodsService {
   //   let data = await dbContext.PayPeriod.create(payPeriodObject)
   //   return data
   // }
-
-  async createPayPeriod() {
-
-  }
 
   async deletePayPeriods(email, id) {
     let pps = await dbContext.PayPeriod.find({
