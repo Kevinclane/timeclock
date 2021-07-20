@@ -174,111 +174,109 @@ async function setWeeks(project, StartDay, EndDay) {
 }
 
 
-async function updatePayPeriodRouter(ppObj, project) {
+async function updatePayPeriodRouter(project) {
   let data
   if (project.PayPeriod == "Weekly") {
-    data = await updateWeeklyPayPeriod(ppObj, 7, project)
+    data = await updateWeeklyPayPeriod(7, project)
   } else if (project.PayPeriod == "Bi-Weekly") {
-    data = await updateWeeklyPayPeriod(ppObj, 14, project)
+    data = await updateWeeklyPayPeriod(14, project)
   } else if (project.PayPeriod == "FirstAndFive") {
-    data = await updateFirstAndFivePayPeriod(ppObj, project)
+    data = await updateFirstAndFivePayPeriod(project)
   } else if (project.PayPeriod == "Monthly") {
-    data = await updateMonthlyPayPeriod(ppObj, project)
+    data = await updateMonthlyPayPeriod(project)
   }
   return data
 }
 
-async function updateWeeklyPayPeriod(ppObj, x, project) {
+async function updateWeeklyPayPeriod(x, project) {
   let today = moment()
-  let currentPP = { ...ppObj }
-  let currentInvoiceNumber = ppObj.InvoiceNumber + 1
-  let newPPs = []
+  let currentPP = { ...project.InvoiceGroups[project.InvoiceGroups.length - 1] }
+  let newInvNum = currentPP.InvoiceNumber + 1
   while (today.isAfter(moment(currentPP.EndDay))) {
-    let rawObj = {
-      ProjectId: ppObj.ProjectId,
-      CreatorEmail: ppObj.CreatorEmail,
-      StartDay: moment(currentPP.StartDay).add(x, "days"),
-      EndDay: moment(currentPP.EndDay).add(x, "days"),
-      InvoiceNumber: currentInvoiceNumber
-    }
-    currentInvoiceNumber++
-    let newPP = await dbContext.PayPeriod.create(rawObj)
+    let StartDay = moment(currentPP.StartDay).add(x, "days")
+    let EndDay = moment(currentPP.EndDay).add(x, "days")
+    let newPP = await this.createPayPeriod(project, StartDay, EndDay, newInvNum)
+    newInvNum++
     currentPP = newPP
-    newPPs.push(newPP)
+    project.InvoiceGroups.push(newPP._id)
   }
-  return newPPs
+  project = await dbContext.Project.findOneAndUpdate(
+    { id: project._id },
+    project,
+    { new: true }
+  ).populate("InvoiceGroups").populate("ProjectSettings")
+  return project
 }
 
-async function updateFirstAndFivePayPeriod(ppObj, project) {
+async function updateFirstAndFivePayPeriod(project) {
   let today = moment()
-  let currentPP = { ...ppObj }
-  let currentInvoiceNumber = ppObj.InvoiceNumber + 1
-  let newPPs = []
+  let currentPP = { ...project.InvoiceGroups[project.InvoiceGroups.length - 1] }
+  let newInvNum = currentPP.InvoiceNumber + 1
   while (today.isAfter(moment(currentPP.EndDay))) {
-    let rawObj = {
-      ProjectId: ppObj.ProjectId,
-      CreatorEmail: ppObj.CreatorEmail,
-      InvoiceNumber: currentInvoiceNumber
-    }
-    currentInvoiceNumber++
+    newInvNum++
+    let StartDay
+    let EndDay
     let e = parseInt(moment(currentPP.EndDay).format("DD"))
     if (e >= 28) {
-      let nextYearMo = moment(ppObj.EndDay).add(1, "month").format("YYYY-MM")
-      rawObj.EndDay = moment(nextYearMo + "14")
-      rawObj.StartDay = moment(nextYearMo + "1")
+      let nextYearMo = moment(currentPP.EndDay).add(1, "month").format("YYYY-MM")
+      EndDay = moment(nextYearMo + "14")
+      StartDay = moment(nextYearMo + "1")
     } else {
-      let thisYearMo = moment(ppObj.EndDay).format("YYYY-MM")
-      let lastDay = moment(ppObj.EndDay).endOf("month").format("DD")
-      rawObj.EndDay = moment(thisYearMo + "-" + lastDay)
-      rawObj.StartDay = moment(thisYearMo + "14")
+      let thisYearMo = moment(currentPP.EndDay).format("YYYY-MM")
+      let lastDay = moment(currentPP.EndDay).endOf("month").format("DD")
+      EndDay = moment(thisYearMo + "-" + lastDay)
+      StartDay = moment(thisYearMo + "14")
     }
-
-    let newPP = await dbContext.PayPeriod.create(rawObj)
-    currentPP = newPP
-    newPPs.push(newPP)
+    let newPP = await this.createPayPeriod(project, StartDay, EndDay, newInvNum)
+    // let newPP = await dbContext.PayPeriod.create(rawObj)
+    project.InvoiceGroups.push(newPP._id)
   }
-  return newPPs
+  project = await dbContext.Project.findOneAndUpdate(
+    { id: project._id },
+    project,
+    { new: true }
+  ).populate("InvoiceGroups").populate("ProjectSettings")
+  return project
 }
 
-async function updateMonthlyPayPeriod(ppObj, project) {
+async function updateMonthlyPayPeriod(project) {
   let today = moment()
-  let currentPP = { ...ppObj }
-  let currentInvoiceNumber = ppObj.InvoiceNumber + 1
-  let newPPs = []
+  let currentPP = { ...project.InvoiceGroups[project.InvoiceGroups.length - 1] }
+  let newInvNum = currentPP.InvoiceNumber + 1
   while (today.isAfter(moment(currentPP.EndDay))) {
-    let rawObj = {
-      ProjectId: ppObj.ProjectId,
-      CreatorEmail: ppObj.CreatorEmail,
-      StartDay: moment(currentPP.StartDay).add(1, "month"),
-      EndDay: moment(currentPP.EndDay).add(1, "month"),
-      InvoiceNumber: currentInvoiceNumber
-    }
-    currentInvoiceNumber++
-    let newPP = await dbContext.PayPeriod.create(rawObj)
+    newInvNum++
+    let StartDay = moment(currentPP.StartDay).add(1, "month")
+    let EndDay = moment(currentPP.EndDay).add(1, "month")
+    let newPP = await this.createPayPeriod(project, StartDay, EndDay, newInvNum)
     currentPP = newPP
-    newPPs.push(newPP)
+    project.InvoiceGroups.push(newPP._id)
   }
-  return newPPs
+  project = await dbContext.Project.findOneAndUpdate(
+    { id: project._id },
+    project,
+    { new: true }
+  ).populate("InvoiceGroups").populate("ProjectSettings")
+  return project
 }
 
 class PayPeriodsService {
-  async getPayPeriods(email, project) {
-    let data = await dbContext.PayPeriod.find({
-      CreatorEmail: email,
-      ProjectId: project._id
-    }).lean()
-    let currentCheck = moment().isAfter(moment(data[data.length - 1].EndDay))
-    if (currentCheck) {
-      let newPPs = await updatePayPeriodRouter(data[data.length - 1], project)
-      let i = 0
-      while (i < newPPs.length) {
-        data.push(newPPs[i])
-        i++
-      }
-    }
-    data[data.length - 1].Current = true
-    return data
-  }
+  // async getPayPeriods(email, project) {
+  //   let data = await dbContext.PayPeriod.find({
+  //     CreatorEmail: email,
+  //     ProjectId: project._id
+  //   })
+  //   let currentCheck = moment().isAfter(moment(data[data.length - 1].EndDay))
+  //   if (currentCheck) {
+  //     let newPPs = await updatePayPeriodRouter(data[data.length - 1], project)
+  //     let i = 0
+  //     while (i < newPPs.length) {
+  //       data.push(newPPs[i])
+  //       i++
+  //     }
+  //   }
+  //   data[data.length - 1].Current = true
+  //   return data
+  // }
   async createPayPeriod(project, StartDay, EndDay, InvNum) {
     let payPeriodObject = {
       ProjectId: project._id,
@@ -361,15 +359,16 @@ class PayPeriodsService {
       }
     }
     let data = await this.createPayPeriod(project, StartDay, EndDay, 1)
-    project.InvoiceGroups = []
+    // project.InvoiceGroups = []
     project.InvoiceGroups.push(data._id)
     project = await dbContext.Project.findOneAndUpdate(
-      { _id: project._id },
+      { id: project._id },
       project,
       { new: true }
     ).populate("InvoiceGroups")
     return project
   }
+
   // async createFirstPayPeriod(email, project) {
   //   let payPeriodObject = {
   //     ProjectId: project._id,

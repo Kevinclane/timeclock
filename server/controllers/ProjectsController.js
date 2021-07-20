@@ -48,7 +48,7 @@ export class ProjectsController extends BaseController {
     try {
       req.body.CreatorEmail = req.userInfo.email;
       let project = await projectsService.createProject(req.body)
-      project = await payPeriodsService.initializePayPeriod(project)
+      // project = await payPeriodsService.initializePayPeriod(project)
       // await payPeriodsService.createFirstPayPeriod(req.userInfo.email, project)
       res.send(project);
     } catch (error) {

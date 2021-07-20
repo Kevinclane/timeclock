@@ -1,6 +1,7 @@
 import { dbContext } from "../db/DbContext";
 import { BadRequest } from "../utils/Errors";
 import moment from "moment"
+import { payPeriodsService } from "./PayPeriodsService";
 
 
 // function splitTime(time) {
@@ -149,6 +150,10 @@ class ProjectsService {
     }
     project = await clearExcessData(project)
     project = await createProjectSettingsIfNeeded(project)
+    let needNewPayPeriod = moment().isAfter(moment(project.InvoiceGroups[project.InvoiceGroups.length - 1].EndDay))
+    if (needNewPayPeriod) {
+      project = await payPeriodsService.updatePayPeriodRouter(project)
+    }
     return project
   }
   async createProject(projectData) {
@@ -158,12 +163,12 @@ class ProjectsService {
     // throw new BadRequest("You have created too many projects recently. Please wait a little while before trying again.")
     // } else {
     let projectCount = await dbContext.Project.find({ CreatorEmail: projectData.CreatorEmail }).count()
-    if (profile.Subscription == "Free" && projectCount >= 1) {
+    if (profile.Subscription.SubStatus == "Free" && projectCount >= 1) {
       throw new BadRequest("You must be subscribed to create more projects.")
     } else {
       let project = await clearExcessData(projectData)
       project = await dbContext.Project.create(projectData)
-
+      project = await payPeriodsService.initializePayPeriod(project)
       // createServerCache(project.CreatorEmail, "createProject")
       return project
       // }
