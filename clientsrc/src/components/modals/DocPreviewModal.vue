@@ -430,8 +430,9 @@ export default {
             y++;
           }
           day.time = day.time.toFixed(2);
-          if (ps.RoundTime == "Day") {
-            day.time = this.roundTime(day.time);
+          // debugger;
+          if (ps.RoundTime && ps.RoundFrequency == "Day") {
+            day.time = this.roundTime(day.time, ps.RoundTo);
           }
           week.push(day);
           x++;
@@ -444,45 +445,26 @@ export default {
     //time is a number with or without decimal
     //numbers after decimal are fractions of an hour
     roundTime(time, roundTo) {
+      debugger;
       time = time.toString();
-      let hours;
-      let minutes;
+      let Hours;
+      let Minutes;
       if (time.includes(".")) {
         let split = time.split(".");
-        hours = parseInt(split[0]);
-        if (split[1].length == 1) {
-          split[1] = parseInt(split[1] + "0");
-        }
-        minutes = parseInt(split[1]);
-      } else {
-        hours = parseInt(time);
-        minutes = 0;
+        Hours = split[0];
+        Minutes = parseFloat("." + split[1]);
       }
-      minutes = minutes * 0.6;
-      let i = 0;
-      while (minutes > roundTo) {
-        i++;
-        minutes = minutes - roundTo;
+      Minutes = Math.round((Minutes * 60) / roundTo) * roundTo;
+      if (Minutes == 60) {
+        Minutes = 0;
+        Hours++;
       }
-      if (minutes < roundTo / 2) {
-        minutes = i * roundTo;
-      } else {
-        minutes = (i + 1) * roundTo;
+      Hours = Hours.toString();
+      Minutes = Math.round((Minutes / 60) * 100).toString();
+      if (Minutes.length == 1) {
+        Minutes = Minutes + "0";
       }
-      if (minutes >= 60) {
-        minutes = 0;
-        hours += 1;
-      }
-      hours = hours.toString();
-      minutes = (minutes / 60).toString();
-      if (minutes.includes(".")) {
-        let minSplit = minutes.split(".");
-        minutes = minSplit[1];
-      }
-      if (minutes.length == 1) {
-        minutes = minutes + "0";
-      }
-      time = parseFloat(hours + "." + minutes);
+      time = parseFloat(Hours + "." + Minutes);
       return time;
     },
     roundWeeks() {
