@@ -445,7 +445,6 @@ export default {
     //time is a number with or without decimal
     //numbers after decimal are fractions of an hour
     roundTime(time, roundTo) {
-      debugger;
       time = time.toString();
       let Hours;
       let Minutes;
