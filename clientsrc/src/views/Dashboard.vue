@@ -342,6 +342,7 @@ export default {
     },
     dispatchPic(img) {
       this.$store.dispatch("uploadProfilePicture", img);
+      console.log(img);
       this.selectPhoto();
     },
     fileToDataURL(event, dispatchPic) {

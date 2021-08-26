@@ -1,7 +1,5 @@
 import moment from "moment"
 import swal from "sweetalert"
-// const fs = require("fs")
-import * as fs from "file-saver"
 import Vue from 'vue'
 import Vuex from 'vuex'
 import router from '../router/index'

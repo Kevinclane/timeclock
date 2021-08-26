@@ -85,6 +85,7 @@ export default {
   methods: {
     async login() {
       await this.$auth.loginWithRedirect();
+      debugger;
       this.$store.dispatch("setBearer", this.$auth.bearer);
       await this.$store.dispatch("getProfile");
     },
