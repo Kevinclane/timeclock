@@ -2,72 +2,10 @@ import { dbContext } from "../db/DbContext";
 import { BadRequest } from "../utils/Errors";
 import moment from "moment"
 import { payPeriodsService } from "./PayPeriodsService";
+import { timeCalculator } from "./TimeCalculator"
+import { projectViewModelBuilder } from "./ProjectViewModelBuilder"
 
 
-// function splitTime(time) {
-//   time = time.toString()
-//   let Hours
-//   let Minutes
-//   let hasSplit = false
-//   if (time.includes(".")) {
-//     hasSplit = true
-//     let split = time.split(".")
-//     Hours = parseInt(split[0])
-//     Minutes = parseFloat("." + split[1])
-//   } else {
-//     Hours = parseInt(time)
-//     Minutes = 0
-//   }
-//   let res = {
-//     time: time,
-//     Hours: Hours,
-//     Minutes: Minutes,
-//     hasSplit: hasSplit
-//   }
-//   return res
-// }
-
-// function caluclateHHMM(time, roundTo) {
-//   let timeObj = splitTime(time)
-//   if (timeObj.hasSplit) {
-//     timeObj.Minutes = (Math.round(timeObj.Minutes * 60)).toString();
-//     if (timeObj.Minutes.length == 1) {
-//       timeObj.Minutes = "0" + timeObj.Minutes
-//     }
-//   }
-//   if (roundTo) {
-//     timeObj.Minutes = Math.round(timeObj.Minutes / roundTo) * roundTo
-//     // timeObj.Minutes = timeObj.Minutes * roundTo
-//     if (timeObj.Minutes == 60) {
-//       timeObj.Minutes = 0
-//       timeObj.Hours++
-//     }
-//     timeObj.Minutes = timeObj.Minutes.toString()
-//     if (timeObj.Minutes.length == 1) {
-//       timeObj.Minutes = "0" + timeObj.Minutes;
-//     }
-//   }
-//   let output = timeObj.Hours.toString() + ":" + timeObj.Minutes
-//   return output
-// }
-
-// function roundFromHoursHH(time, roundTo) {
-//   let timeObj = splitTime(time)
-//   // Minutes = (Minutes * 60).toFixed(2);
-//   timeObj.Minutes = Math.round((timeObj.Minutes * 60) / roundTo) * roundTo
-//   // timeObj.Minutes = timeObj.Minutes * roundTo
-//   if (timeObj.Minutes == 60) {
-//     timeObj.Minutes = 0
-//     timeObj.Hours++
-//   }
-//   timeObj.Hours = timeObj.Hours.toString();
-//   timeObj.Minutes = (Math.round((timeObj.Minutes / 60) * 100)).toString();
-//   if (timeObj.Minutes.length == 1) {
-//     timeObj.Minutes = timeObj.Minutes + "0";
-//   }
-//   time = parseFloat(timeObj.Hours + "." + timeObj.Minutes);
-//   return time;
-// }
 
 function clearExcessData(projectData) {
   if (projectData.PayPeriod == "Weekly" || projectData.PayPeriod == "Bi-Weekly" || projectData.PayPeriod == "FirstAndFive") {
@@ -101,37 +39,37 @@ async function createProjectSettingsIfNeeded(project) {
 }
 
 //returns true if there have been too many projects created within time limit
-async function checkServerCache(email, type) {
-  let serverCache = await dbContext.ServerCache.find({
-    CreatorEmail: email,
-    Type: type
-  })
-  let i = 0
-  let now = moment()
-  let res = false
+// async function checkServerCache(email, type) {
+//   let serverCache = await dbContext.ServerCache.find({
+//     CreatorEmail: email,
+//     Type: type
+//   })
+//   let i = 0
+//   let now = moment()
+//   let res = false
 
-  while (i < serverCache.length) {
-    let expired = moment(serverCache[i].Exp).isSameOrBefore(now)
-    if (expired) {
-      await dbContext.ServerCache.findByIdAndDelete(serverCache._id)
-      serverCache.splice(i, 1)
-    } else {
-      i++
-    }
-  }
-  if (serverCache.length > 49) {
-    res = true
-  }
-  return res
-}
+//   while (i < serverCache.length) {
+//     let expired = moment(serverCache[i].Exp).isSameOrBefore(now)
+//     if (expired) {
+//       await dbContext.ServerCache.findByIdAndDelete(serverCache._id)
+//       serverCache.splice(i, 1)
+//     } else {
+//       i++
+//     }
+//   }
+//   if (serverCache.length > 49) {
+//     res = true
+//   }
+//   return res
+// }
 
-async function createServerCache(email, type) {
-  await dbContext.ServerCache.create({
-    CreatorEmail: email,
-    Type: type,
-    Exp: moment().add(2, "hours")
-  })
-}
+// async function createServerCache(email, type) {
+//   await dbContext.ServerCache.create({
+//     CreatorEmail: email,
+//     Type: type,
+//     Exp: moment().add(2, "hours")
+//   })
+// }
 
 class ProjectsService {
   async getProjects(user) {
@@ -148,12 +86,13 @@ class ProjectsService {
     if (!project) {
       throw new BadRequest("Invalid Id")
     }
-    project = await clearExcessData(project)
+    // project = await clearExcessData(project)
     project = await createProjectSettingsIfNeeded(project)
-    let needNewPayPeriod = moment().isAfter(moment(project.InvoiceGroups[project.InvoiceGroups.length - 1].EndDay))
-    if (needNewPayPeriod) {
+    let needsNewPayPeriod = moment().isAfter(moment(project.InvoiceGroups[project.InvoiceGroups.length - 1].EndDay))
+    if (needsNewPayPeriod) {
       project = await payPeriodsService.updatePayPeriodRouter(project)
     }
+    project = await projectViewModelBuilder.generateViewModel(project)
     return project
   }
   async createProject(projectData) {
@@ -227,19 +166,21 @@ class ProjectsService {
   }
 
   async lockProjects(project, user) {
-    let projects = await dbContext.Project.find({ CreatorEmail: user.email })
-    let i = 0
+    let projects = await dbContext.Project.find({ CreatorEmail: user.email });
+    let i = 0;
     while (i < projects.length) {
       if (projects[i]._id != project._id) {
         projects[i] = await dbContext.Project.findByIdAndUpdate(
           projects[i]._id,
           { Active: false }
-        )
-      }
-      i++
+        );
+      };
+      i++;
     }
-    return projects
+    return projects;
   }
+
+
 
 }
 export const projectsService = new ProjectsService();
