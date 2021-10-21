@@ -61,6 +61,7 @@ export default new Vuex.Store({
     totalPPTimes: 0,
     payPeriodSelection: "",
     payPeriodDisplay: [],
+    activePP: {},
     allPlans: [],
     planStatuses: [],
     feedback: [],
@@ -148,6 +149,9 @@ export default new Vuex.Store({
 
     setPPDisplay(state, PPs) {
       state.payPeriodDisplay = PPs
+    },
+    setActivePayPeriod(state, PP) {
+      state.activePP = PP;
     },
     setTimeClockGroups(state, timeClockGroups) {
       state.timeClockGroups = timeClockGroups
@@ -252,9 +256,14 @@ export default new Vuex.Store({
     },
     async getActiveProject({ commit, dispatch }, id) {
       try {
-        let res = await api.get("/projects/" + id)
-        commit("setActiveProject", res.data)
-        dispatch("groupTimeClocks")
+        let res = await api.get("/projects/" + id);
+
+        let currentPP = res.data.InvoiceGroups.find(p => p.Current == true);
+        await dispatch("getActivePayPeriod", currentPP.id);
+        commit("setActiveProject", res.data);
+
+
+        // dispatch("groupTimeClocks")
       } catch (error) {
         console.error(error)
       }
@@ -306,6 +315,15 @@ export default new Vuex.Store({
         await commit("setIGs", res.data)
       } catch (error) {
         console.error(error)
+      }
+    },
+    async getActivePayPeriod({ commit }, PPid) {
+      try {
+        let res = await api.get("/payperiods/" + PPid);
+        commit("setActivePayPeriod", res.data);
+
+      } catch (error) {
+
       }
     },
 
@@ -360,49 +378,49 @@ export default new Vuex.Store({
     },
     //Groups timeclocks of the same day into an array
     //"TimeClockGroups" is an array of these arrays
-    async groupTimeClocks({ commit, dispatch }) {
-      let timeClocks = [...this.state.activeProject.TimeClocks];
-      let finishedArr = [];
-      while (timeClocks.length > 0) {
-        let tempArr = [];
-        let i = 0;
-        tempArr.push(timeClocks[0]);
-        timeClocks.splice(0, 1);
-        while (i < timeClocks.length) {
-          if (
-            moment(tempArr[0].StartTime).isSame(timeClocks[i].StartTime, "day")
-          ) {
-            tempArr.push(timeClocks[i]);
-            timeClocks.splice(i, 1);
-          } else i++;
-        }
-        tempArr.sort((a, b) => moment(a.StartTime).format('HH') - moment(b.StartTime).format('HH'))
-        finishedArr.push(tempArr);
-      }
-      finishedArr.sort((a, b) =>
-        (moment(a[0].StartTime).format("MM")
-          + moment(a[0].StartTime).format("DD"))
-        - (moment(b[0].StartTime).format("MM")
-          + moment(b[0].StartTime).format("DD")))
-      await commit("setTimeClockGroups", finishedArr)
-      dispatch("updatePPSelection", finishedArr)
-    },
+    // async groupTimeClocks({ commit, dispatch }) {
+    //   let timeClocks = [...this.state.activeProject.TimeClocks];
+    //   let finishedArr = [];
+    //   while (timeClocks.length > 0) {
+    //     let tempArr = [];
+    //     let i = 0;
+    //     tempArr.push(timeClocks[0]);
+    //     timeClocks.splice(0, 1);
+    //     while (i < timeClocks.length) {
+    //       if (
+    //         moment(tempArr[0].StartTime).isSame(timeClocks[i].StartTime, "day")
+    //       ) {
+    //         tempArr.push(timeClocks[i]);
+    //         timeClocks.splice(i, 1);
+    //       } else i++;
+    //     }
+    //     tempArr.sort((a, b) => moment(a.StartTime).format('HH') - moment(b.StartTime).format('HH'))
+    //     finishedArr.push(tempArr);
+    //   }
+    //   finishedArr.sort((a, b) =>
+    //     (moment(a[0].StartTime).format("MM")
+    //       + moment(a[0].StartTime).format("DD"))
+    //     - (moment(b[0].StartTime).format("MM")
+    //       + moment(b[0].StartTime).format("DD")))
+    //   await commit("setTimeClockGroups", finishedArr)
+    //   dispatch("updatePPSelection", finishedArr)
+    // },
     //Calculates the total times for the active payperiod
-    totalPPTimes({ commit }) {
-      let tcg = this.state.payPeriodDisplay
-      let i = 0;
-      let total = 0
-      while (i < tcg.length) {
-        let currentDay = tcg[i]
-        let x = 0
-        while (x < currentDay.length && currentDay[x].EndTime) {
-          total += currentDay[x].TCTotalHours
-          x++
-        }
-        i++
-      }
-      commit("setTotalPPTimes", total.toFixed(2))
-    },
+    // totalPPTimes({ commit }) {
+    //   let tcg = this.state.payPeriodDisplay
+    //   let i = 0;
+    //   let total = 0
+    //   while (i < tcg.length) {
+    //     let currentDay = tcg[i]
+    //     let x = 0
+    //     while (x < currentDay.length && currentDay[x].EndTime) {
+    //       total += currentDay[x].TCTotalHours
+    //       x++
+    //     }
+    //     i++ 
+    //   }
+    //   commit("setTotalPPTimes", total.toFixed(2))
+    // },
 
 
     //#endregion -- END TIME CLOCK STUFF --

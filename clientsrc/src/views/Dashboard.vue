@@ -347,6 +347,7 @@ export default {
     },
     fileToDataURL(event, dispatchPic) {
       if (
+        event.target.files[0]["type"] === "image/jpg" ||
         event.target.files[0]["type"] === "image/jpeg" ||
         event.target.files[0]["type"] === "image/png"
       ) {
@@ -361,7 +362,7 @@ export default {
         reader.readAsDataURL(event.target.files[0]);
       } else {
         swal({
-          text: "Selected file must be .jpeg or .png",
+          text: "Selected file must be .jpg, .jpeg, or .png",
         });
       }
     },

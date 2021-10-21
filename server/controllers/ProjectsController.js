@@ -22,13 +22,6 @@ export class ProjectsController extends BaseController {
   async getProjects(req, res, next) {
     try {
       let data = await projectsService.getProjects(req.userInfo);
-      let i = 0
-      // while (i < data.length) {
-      //   data[i].TimeClocks = await timeClocksService.getTimeClocks(req.userInfo.email, data[i]._id)
-      //   data[i].InvoiceGroups = await payPeriodsService.getPayPeriods(req.userInfo.email, data[i])
-      //   i++
-      // }
-
       res.send(data);
     } catch (error) {
       next(error);
@@ -37,8 +30,6 @@ export class ProjectsController extends BaseController {
   async getProjectById(req, res, next) {
     try {
       let data = await projectsService.getProjectById(req.params.id, req.userInfo.email)
-      // data.TimeClocks = await timeClocksService.getTimeClocks(req.userInfo.email, data._id)
-      // data.InvoiceGroups = await payPeriodsService.getPayPeriods(req.userInfo.email, data)
       res.send(data)
     } catch (error) {
       next(error)
@@ -48,8 +39,6 @@ export class ProjectsController extends BaseController {
     try {
       req.body.CreatorEmail = req.userInfo.email;
       let project = await projectsService.createProject(req.body)
-      // project = await payPeriodsService.initializePayPeriod(project)
-      // await payPeriodsService.createFirstPayPeriod(req.userInfo.email, project)
       res.send(project);
     } catch (error) {
       next(error);

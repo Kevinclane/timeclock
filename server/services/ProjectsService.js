@@ -3,7 +3,6 @@ import { BadRequest } from "../utils/Errors";
 import moment from "moment"
 import { payPeriodsService } from "./PayPeriodsService";
 import { timeCalculator } from "./TimeCalculator"
-import { projectViewModelBuilder } from "./ProjectViewModelBuilder"
 
 
 
@@ -33,7 +32,7 @@ async function createProjectSettingsIfNeeded(project) {
       {
         new: true
       }
-    ).populate("ProjectSettings")
+    ).populate("ProjectSettings").populate("InvoiceGroups")
   }
   return project
 }
@@ -73,44 +72,48 @@ async function createProjectSettingsIfNeeded(project) {
 
 class ProjectsService {
   async getProjects(user) {
+
     let projects = await dbContext.Project.find({
       CreatorEmail: user.email
     }).populate("InvoiceGroups");
+
     return projects;
   }
   async getProjectById(id, email) {
+
     let project = await dbContext.Project.findOne({
       CreatorEmail: email,
       _id: id
-    }).populate("ProjectSettings").populate("InvoiceGroups")
+    }).populate("ProjectSettings").populate("InvoiceGroups");
+
     if (!project) {
-      throw new BadRequest("Invalid Id")
+      throw new BadRequest("Invalid Id");
     }
     // project = await clearExcessData(project)
-    project = await createProjectSettingsIfNeeded(project)
-    let needsNewPayPeriod = moment().isAfter(moment(project.InvoiceGroups[project.InvoiceGroups.length - 1].EndDay))
-    if (needsNewPayPeriod) {
-      project = await payPeriodsService.updatePayPeriodRouter(project)
-    }
-    project = await projectViewModelBuilder.generateViewModel(project)
-    return project
+    project = await createProjectSettingsIfNeeded(project);
+    project = await payPeriodsService.createPayPeriodsIfNeeded(project);
+
+    return project;
   }
   async createProject(projectData) {
+
     let profile = await dbContext.Profile.findOne({ Email: projectData.CreatorEmail }).populate("Subscription");
-    // let serverCache = await checkServerCache(projectData.CreatorEmail, "createProject")
-    // if (serverCache) {
-    // throw new BadRequest("You have created too many projects recently. Please wait a little while before trying again.")
-    // } else {
-    let projectCount = await dbContext.Project.find({ CreatorEmail: projectData.CreatorEmail }).count()
+
+    let projectCount = await dbContext.Project.find({ CreatorEmail: projectData.CreatorEmail }).count();
+
     if (profile.Subscription.SubStatus == "Free" && projectCount >= 1) {
       throw new BadRequest("You must be subscribed to create more projects.")
     } else {
-      let project = await clearExcessData(projectData)
-      project = await dbContext.Project.create(projectData)
-      project = await payPeriodsService.initializePayPeriod(project)
+
+      let project = await clearExcessData(projectData);
+
+      project = await dbContext.Project.create(projectData);
+
+      project = await payPeriodsService.initializePayPeriod(project, true);
+
+      // project = await payPeriodsService.createFirstPayPeriod(email, project);
       // createServerCache(project.CreatorEmail, "createProject")
       return project
-      // }
     }
   }
   async editProject(projectData) {

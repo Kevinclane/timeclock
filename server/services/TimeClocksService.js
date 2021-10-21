@@ -136,6 +136,12 @@ class TimeClocksService {
         if (currentCheck.StartTime) {
           throw new BadRequest("You are already clocked in on this project!")
         } else {
+
+          if (rawData.EndTime) {
+            rawData.TCTotalHours = await calculateHH(rawData)
+            rawData.TCTotalHM = await calcualteHHMM(rawData)
+          }
+
           let data = await dbContext.TimeClock.create(rawData)
           createServerCache(rawData.CreatorEmail, "createTC")
           return data
@@ -225,25 +231,6 @@ class TimeClocksService {
       i++
     }
     return delCount
-  }
-  async calculateAllTCTotals(user) {
-    let profile = await dbContext.Profile.findOne({ Email: user.email })
-    if (!profile.IsAdmin) {
-      throw new BadRequest("Unauthorized")
-    } else {
-      let allTCs = await dbContext.TimeClock.find()
-      let i = 0
-      while (i < allTCs.length) {
-        if (allTCs[i].EndTime) {
-          allTCs[i].TCTotalHours = await calculateHH(allTCs[i])
-          allTCs[i].TCTotalHM = await calcualteHHMM(allTCs[i])
-          await dbContext.TimeClock.findByIdAndUpdate(
-            allTCs[i]._id, allTCs[i]
-          )
-        }
-        i++
-      }
-    }
   }
 }
 

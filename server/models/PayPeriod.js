@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
+let ObjectId = Schema.Types.ObjectId;
 
 const PayPeriod = new Schema({
   ProjectId: { type: String, required: true },
@@ -7,14 +8,12 @@ const PayPeriod = new Schema({
   StartDay: { type: Date, required: true },
   EndDay: { type: Date, required: true },
   ReadableDates: { type: String, required: true },
-  PPHours: { type: Number, default: 0 },
-  PPHHMM: { type: String, default: "0:00" },
+  TotalTime: { type: Number, default: 0 },
+  ReadableTime: { type: String, default: "0:00" },
   PPPay: { type: Number, default: 0 },
-  PPHours: { type: Number, default: 0 },
-  PPHHMM: { type: String, default: "0:00" },
-  InvoiceNumber: { type: Number, default: 1 },
+  InvoiceNumber: { type: ObjectId, ref: "InvoiceNumber" },
   Current: { type: Boolean, default: false },
-  Weeks: [{ type: Object, required: true }]
+  Weeks: [{ type: Object }]
 },
   { timestamps: true, toJSON: { virtuals: true } }
 );
