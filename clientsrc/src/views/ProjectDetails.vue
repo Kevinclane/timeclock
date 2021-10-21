@@ -65,6 +65,7 @@
     </div>
     <div class="container-fluid mt-5">
       <div class="row d-flex justify-content-around">
+        <!-- TIME CLOCK DISPLAY BOX -->
         <div class="col-lg-7 col-12 my-2 order-2 order-lg-1">
           <div class="row bg-primary rounded-top text-white box-shadow-245">
             <div
@@ -88,18 +89,9 @@
               -
               {{ milestoneEnd }}
             </div>
-            <div class="col-12 bg-light text-right">
-              <week-component
-                v-for="(week, index) in weeks"
-                :key="`week-${index}`"
-                :week="weeks[index]"
-              />
-              <add-time-component
-                v-if="showAddTimeComp"
-                @closeModal="toggleShowAddTimeComp"
-                :project="activeProject"
-              />
-            </div>
+
+            <pay-period-breakdown />
+
             <div
               class="
                 col-12
@@ -227,7 +219,7 @@
 </template>
 
 <script>
-import WeekComponent from "../components/WeekComponent.vue";
+import PayPeriodBreakdown from "../components/PayPeriodBreakdown.vue";
 import HourlyComponent from "../components/PayCalcComponents/HourlyComponent.vue";
 import SalaryComponent from "../components/PayCalcComponents/SalaryComponent.vue";
 import MilestoneComponent from "../components/PayCalcComponents/MilestoneComponent.vue";
@@ -235,7 +227,6 @@ import EditProjectFormModal from "../components/modals/EditProjectFormModal.vue"
 import ProjectSetupModal from "../components/modals/ProjectSetupModal.vue";
 import PayPeriodComponent from "../components/PayPeriodComponent.vue";
 import ClockInModal from "../components/modals/TimeClockCommentModal.vue";
-import AddTimeComponent from "../components/AddTimeComponent.vue";
 import DocPreviewModal from "../components/modals/DocPreviewModal.vue";
 import swal from "sweetalert";
 import moment from "moment";
@@ -246,7 +237,6 @@ export default {
       showSettingsBox: false,
       showClockOutForm: false,
       editProject: false,
-      showAddTimeComp: false,
       forceShowInvoice: false,
       showDocPreview: false,
       payPeriodSelection: "",
@@ -416,12 +406,11 @@ export default {
     },
   },
   components: {
-    WeekComponent,
+    PayPeriodBreakdown,
     HourlyComponent,
     EditProjectFormModal,
     SalaryComponent,
     MilestoneComponent,
-    AddTimeComponent,
     PayPeriodComponent,
     ClockInModal,
     DocPreviewModal,
