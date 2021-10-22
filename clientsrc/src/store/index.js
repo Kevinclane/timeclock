@@ -259,11 +259,10 @@ export default new Vuex.Store({
         let res = await api.get("/projects/" + id);
 
         let currentPP = res.data.InvoiceGroups.find(p => p.Current == true);
+        await commit("setPPDisplay", res.data.InvoiceGroups);
         await dispatch("getActivePayPeriod", currentPP.id);
         commit("setActiveProject", res.data);
 
-
-        // dispatch("groupTimeClocks")
       } catch (error) {
         console.error(error)
       }
@@ -376,52 +375,6 @@ export default new Vuex.Store({
         console.error(error)
       }
     },
-    //Groups timeclocks of the same day into an array
-    //"TimeClockGroups" is an array of these arrays
-    // async groupTimeClocks({ commit, dispatch }) {
-    //   let timeClocks = [...this.state.activeProject.TimeClocks];
-    //   let finishedArr = [];
-    //   while (timeClocks.length > 0) {
-    //     let tempArr = [];
-    //     let i = 0;
-    //     tempArr.push(timeClocks[0]);
-    //     timeClocks.splice(0, 1);
-    //     while (i < timeClocks.length) {
-    //       if (
-    //         moment(tempArr[0].StartTime).isSame(timeClocks[i].StartTime, "day")
-    //       ) {
-    //         tempArr.push(timeClocks[i]);
-    //         timeClocks.splice(i, 1);
-    //       } else i++;
-    //     }
-    //     tempArr.sort((a, b) => moment(a.StartTime).format('HH') - moment(b.StartTime).format('HH'))
-    //     finishedArr.push(tempArr);
-    //   }
-    //   finishedArr.sort((a, b) =>
-    //     (moment(a[0].StartTime).format("MM")
-    //       + moment(a[0].StartTime).format("DD"))
-    //     - (moment(b[0].StartTime).format("MM")
-    //       + moment(b[0].StartTime).format("DD")))
-    //   await commit("setTimeClockGroups", finishedArr)
-    //   dispatch("updatePPSelection", finishedArr)
-    // },
-    //Calculates the total times for the active payperiod
-    // totalPPTimes({ commit }) {
-    //   let tcg = this.state.payPeriodDisplay
-    //   let i = 0;
-    //   let total = 0
-    //   while (i < tcg.length) {
-    //     let currentDay = tcg[i]
-    //     let x = 0
-    //     while (x < currentDay.length && currentDay[x].EndTime) {
-    //       total += currentDay[x].TCTotalHours
-    //       x++
-    //     }
-    //     i++ 
-    //   }
-    //   commit("setTotalPPTimes", total.toFixed(2))
-    // },
-
 
     //#endregion -- END TIME CLOCK STUFF --
 
@@ -441,147 +394,119 @@ export default new Vuex.Store({
 
 
     //#region  --MISC FUNCTIONS --
-    //Finds and sets all TimeClockGroups based on active PayPeriod selection
-    async updatePPSelection({ commit, dispatch }) {
-      let timeClockGroups = this.state.timeClockGroups
-      if (this.state.payPeriodSelection == "") {
-        let inital = this.state.activeProject.InvoiceGroups.find((x) => x.Current);
-        let start = moment(inital.StartDay).format("MM/DD/YYYY");
-        let end = moment(inital.EndDay).format("MM/DD/YYYY");
-        let newPP = `${start} - ${end}`;
-        await commit("setPPSelection", newPP)
-      }
-      let split = this.state.payPeriodSelection.split("-");
-      let start = moment(split[0])
-      let end = moment(split[1])
-      let i = 0;
-      //loops over every payPeriod object in InvoiceGroups
-      while (i < this.state.activeProject.InvoiceGroups.length) {
-        //current payPeriod object being checked
-        let IG = this.state.activeProject.InvoiceGroups[i];
-        let boolS = moment(IG.StartDay).isSameOrAfter(start);
-        let boolE = moment(IG.EndDay).isSameOrBefore(end);
-        if (boolS && boolE) {
-          //sets correct timeClockGroups within query dates
-          commit("setActiveInvoiceGroup", IG)
-          let PPRender = timeClockGroups.filter(
-            (tcg) =>
-              moment(tcg[0].StartTime).isSameOrAfter(moment(IG.StartDay)) &&
-              moment(tcg[0].EndTime).isBefore(moment(IG.EndDay).add(1, "day"))
-          );
-          i = this.state.activeProject.InvoiceGroups.length;
-          commit("setPPDisplay", PPRender)
-        } else i++;
-      }
-      dispatch("totalPPTimes")
-      dispatch("weeklyTimes")
-    },
-    async changePPSelection({ commit, dispatch }, newPP) {
-      await commit("setPPSelection", newPP)
-      dispatch("updatePPSelection")
-    },
-    weeklyTimes({ commit, dispatch }) {
-      //tcg is an array of all timeclocks within the active payperiod grouped into individual arrays of the same day ie. [ [Day1], [Day2], ect ]
-      //Each day can have multiple Timeclocks
-      let tcg = [...this.state.payPeriodDisplay]
-      let split = this.state.payPeriodSelection.split("-");
-      let start = moment(split[0]);
-      // let end = moment(split[1]);
 
-      //Split into separate weeks
-      let weeks = []
-      let tempStart = start
-      while (tcg.length > 0) {
-        let weekS = moment(tempStart).format("MM/DD/YYYY")
-        let weekE = moment(tempStart).add(6, "days").format("MM/DD/YYYY")
-        let week = weekS + "-" + weekE
-        weekE = moment(tempStart).add(7, "days")
-        let weeklyTcs = []
-        let x = 0
-        let finished = false
-        //this loop should collect all of the day arrays that are withing the current week
-        while (!finished) {
-          //currentDay is an array of Timeclocks of the same day
-          let currentDay = tcg[x]
-          let check = moment(currentDay[0].StartTime)
-          let inWeekCheck = check.isBefore(weekE)
-          //if the day array is within the week, push to the week's array and remove from list
-          if (inWeekCheck) {
-            weeklyTcs.push(currentDay)
-            tcg.splice(x, 1)
-            if (tcg.length == 0) {
-              finished = true;
-            }
-          } else {
-            finished = true;
-          }
-        }
-        let weekObj = {
-          readable: week,
-          timeClocks: weeklyTcs
-        }
-        weeks.push(weekObj)
-        tempStart = moment(tempStart).add(7, "days")
-      }
+    async getActivePayPeriod({ commit }, PPid) {
+      try {
+        let res = await api.get("/payperiods/" + PPid);
+        commit("setActivePayPeriod", res.data);
 
-      let ps = this.state.activeProject.ProjectSettings
+      } catch (error) {
 
-      //calculates times per week
-      let i = 0;
-      //loop through each week
-      while (i < weeks.length) {
-        //total will be the total hours of this week
-        let total = 0;
-        let x = 0
-        //loop through each Time Clock day group
-        while (x < weeks[i].timeClocks.length) {
-          let currentDay = weeks[i].timeClocks[x]
-          let y = 0
-          let tempTotal = 0
-          //loop through each Time Clock within each day group
-          while (y < currentDay.length) {
-            let timeDiff = currentDay[y].TCTotalHours
-            if (ps.RoundTime && ps.RoundFrequency == "TC") {
-              // timeDiff = parseFloat(timeDiff.asHours().toFixed(2));
-              timeDiff = roundTime(timeDiff, ps.RoundTo);
-              tempTotal += timeDiff;
-            } else {
-              tempTotal += timeDiff
-            }
-            y++
-          }
-          if (ps.RoundTime && ps.RoundFrequency == "Day") {
-            tempTotal = tempTotal.toFixed(2)
-            tempTotal = roundTime(tempTotal, ps.RoundTo)
-          }
-          total += tempTotal
-          x++
-        }
-        weeks[i].totalTimes = total.toFixed(2);
-        if (ps.RoundTime && ps.RoundFrequency == "Week") {
-          weeks[i].totalTimes = roundTime(weeks[i].totalTimes, ps.RoundTo)
-        }
-        if (ps.OT && weeks[i].totalTimes > 40) {
-          weeks[i].OTHours = parseFloat((weeks[i].totalTimes - 40).toFixed(2))
-          weeks[i].OTRate = parseFloat((this.state.activeProject.Rate * ps.OTRate).toFixed(2))
-          weeks[i].regHours = 40
-          weeks[i].OTPay = parseFloat(((weeks[i].totalTimes - 40) * (this.state.activeProject.Rate * ps.OTRate)).toFixed(2))
-          let payTotal = 40 * this.state.activeProject.Rate
-          weeks[i].regPay = payTotal.toFixed(2)
-          payTotal += parseFloat((weeks[i].totalTimes - 40) * (this.state.activeProject.Rate * ps.OTRate).toFixed(2))
-          weeks[i].pay = parseFloat(payTotal.toFixed(2))
-        } else {
-          let pay = (weeks[i].totalTimes * this.state.activeProject.Rate).toFixed(2)
-          let split = pay.split(".")
-          if (split[1].length == 1) {
-            pay += "0"
-          }
-          weeks[i].pay = parseFloat(pay)
-        }
-        i++
       }
-      commit("setWeeks", weeks)
     },
+
+    // weeklyTimes({ commit, dispatch }) {
+    //   //tcg is an array of all timeclocks within the active payperiod grouped into individual arrays of the same day ie. [ [Day1], [Day2], ect ]
+    //   //Each day can have multiple Timeclocks
+    //   let tcg = [...this.state.payPeriodDisplay]
+    //   let split = this.state.payPeriodSelection.split("-");
+    //   let start = moment(split[0]);
+    //   // let end = moment(split[1]);
+
+    //   //Split into separate weeks
+    //   let weeks = []
+    //   let tempStart = start
+    //   while (tcg.length > 0) {
+    //     let weekS = moment(tempStart).format("MM/DD/YYYY")
+    //     let weekE = moment(tempStart).add(6, "days").format("MM/DD/YYYY")
+    //     let week = weekS + "-" + weekE
+    //     weekE = moment(tempStart).add(7, "days")
+    //     let weeklyTcs = []
+    //     let x = 0
+    //     let finished = false
+    //     //this loop should collect all of the day arrays that are withing the current week
+    //     while (!finished) {
+    //       //currentDay is an array of Timeclocks of the same day
+    //       let currentDay = tcg[x]
+    //       let check = moment(currentDay[0].StartTime)
+    //       let inWeekCheck = check.isBefore(weekE)
+    //       //if the day array is within the week, push to the week's array and remove from list
+    //       if (inWeekCheck) {
+    //         weeklyTcs.push(currentDay)
+    //         tcg.splice(x, 1)
+    //         if (tcg.length == 0) {
+    //           finished = true;
+    //         }
+    //       } else {
+    //         finished = true;
+    //       }
+    //     }
+    //     let weekObj = {
+    //       readable: week,
+    //       timeClocks: weeklyTcs
+    //     }
+    //     weeks.push(weekObj)
+    //     tempStart = moment(tempStart).add(7, "days")
+    //   }
+
+    //   let ps = this.state.activeProject.ProjectSettings
+
+    //   //calculates times per week
+    //   let i = 0;
+    //   //loop through each week
+    //   while (i < weeks.length) {
+    //     //total will be the total hours of this week
+    //     let total = 0;
+    //     let x = 0
+    //     //loop through each Time Clock day group
+    //     while (x < weeks[i].timeClocks.length) {
+    //       let currentDay = weeks[i].timeClocks[x]
+    //       let y = 0
+    //       let tempTotal = 0
+    //       //loop through each Time Clock within each day group
+    //       while (y < currentDay.length) {
+    //         let timeDiff = currentDay[y].TCTotalHours
+    //         if (ps.RoundTime && ps.RoundFrequency == "TC") {
+    //           // timeDiff = parseFloat(timeDiff.asHours().toFixed(2));
+    //           timeDiff = roundTime(timeDiff, ps.RoundTo);
+    //           tempTotal += timeDiff;
+    //         } else {
+    //           tempTotal += timeDiff
+    //         }
+    //         y++
+    //       }
+    //       if (ps.RoundTime && ps.RoundFrequency == "Day") {
+    //         tempTotal = tempTotal.toFixed(2)
+    //         tempTotal = roundTime(tempTotal, ps.RoundTo)
+    //       }
+    //       total += tempTotal
+    //       x++
+    //     }
+    //     weeks[i].totalTimes = total.toFixed(2);
+    //     if (ps.RoundTime && ps.RoundFrequency == "Week") {
+    //       weeks[i].totalTimes = roundTime(weeks[i].totalTimes, ps.RoundTo)
+    //     }
+    //     if (ps.OT && weeks[i].totalTimes > 40) {
+    //       weeks[i].OTHours = parseFloat((weeks[i].totalTimes - 40).toFixed(2))
+    //       weeks[i].OTRate = parseFloat((this.state.activeProject.Rate * ps.OTRate).toFixed(2))
+    //       weeks[i].regHours = 40
+    //       weeks[i].OTPay = parseFloat(((weeks[i].totalTimes - 40) * (this.state.activeProject.Rate * ps.OTRate)).toFixed(2))
+    //       let payTotal = 40 * this.state.activeProject.Rate
+    //       weeks[i].regPay = payTotal.toFixed(2)
+    //       payTotal += parseFloat((weeks[i].totalTimes - 40) * (this.state.activeProject.Rate * ps.OTRate).toFixed(2))
+    //       weeks[i].pay = parseFloat(payTotal.toFixed(2))
+    //     } else {
+    //       let pay = (weeks[i].totalTimes * this.state.activeProject.Rate).toFixed(2)
+    //       let split = pay.split(".")
+    //       if (split[1].length == 1) {
+    //         pay += "0"
+    //       }
+    //       weeks[i].pay = parseFloat(pay)
+    //     }
+    //     i++
+    //   }
+    //   commit("setWeeks", weeks)
+    // },
     async chooseDowngradeProject({ commit }, project) {
       try {
         let res = await api.post("/projects/lockprojects", project)

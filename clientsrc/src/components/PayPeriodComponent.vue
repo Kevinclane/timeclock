@@ -1,18 +1,9 @@
 <template>
-  <option>{{ Start }} - {{ End }}</option>
+  <option :value="payPeriod.id">{{ payPeriod.ReadableDates }}</option>
 </template>
 <script>
-import moment from "moment";
 export default {
   name: "PayPeriodComponent",
   props: ["payPeriod"],
-  computed: {
-    Start() {
-      return moment(this.payPeriod.StartDay).format("MM/DD/YYYY");
-    },
-    End() {
-      return moment(this.payPeriod.EndDay).format("MM/DD/YYYY");
-    },
-  },
 };
 </script>

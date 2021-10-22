@@ -5,23 +5,16 @@
       :key="`week-${index}`"
       :week="activePP.weeks[index]"
     />
-    <add-time-component
-      v-if="showAddTimeComp"
-      @closeModal="toggleShowAddTimeComp"
-      :project="activeProject"
-    />
   </div>
 </template> 
 
 <script>
 import WeekComponent from "./WeekComponent.vue";
-import AddTimeComponent from "../components/AddTimeComponent.vue";
+
 export default {
-  name: "PayPeriodDisplay",
+  name: "PayPeriodBreakdown",
   data() {
-    return {
-      showAddTimecomp = false
-    };
+    return {};
   },
   computed: {
     activePP() {
@@ -30,7 +23,6 @@ export default {
   },
   components: {
     WeekComponent,
-    AddTimeComponent,
   },
 };
 </script>

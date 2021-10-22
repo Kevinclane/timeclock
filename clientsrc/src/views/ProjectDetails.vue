@@ -73,15 +73,18 @@
               v-if="activeProject.PayPeriod != 'Milestone'"
             >
               <select
-                @change="setPPSelection"
-                v-model="payPeriodSelection"
+                @change="getActivePayPeriod(PP.id)"
+                v-model="activePP.id"
                 class="p-1 my-2"
               >
-                <pay-period-component
-                  v-for="PayPeriod in activeProject.InvoiceGroups"
-                  :key="PayPeriod.id"
-                  :payPeriod="PayPeriod"
-                />
+                <option
+                  v-for="PP in payPeriodDisplay"
+                  :key="PP.id"
+                  :payPeriod="PP"
+                  :value="PP.id"
+                >
+                  {{ PP.ReadableDates }}
+                </option>
               </select>
             </div>
             <div class="col-12 d-flex justify-content-center" v-else>
@@ -91,6 +94,13 @@
             </div>
 
             <pay-period-breakdown />
+            <div class="col-12 bg-light text-right">
+              <add-time-component
+                v-if="showAddTimeComp"
+                @closeModal="toggleShowAddTimeComp"
+                :project="activeProject"
+              />
+            </div>
 
             <div
               class="
@@ -226,6 +236,7 @@ import MilestoneComponent from "../components/PayCalcComponents/MilestoneCompone
 import EditProjectFormModal from "../components/modals/EditProjectFormModal.vue";
 import ProjectSetupModal from "../components/modals/ProjectSetupModal.vue";
 import PayPeriodComponent from "../components/PayPeriodComponent.vue";
+import AddTimeComponent from "../components/AddTimeComponent.vue";
 import ClockInModal from "../components/modals/TimeClockCommentModal.vue";
 import DocPreviewModal from "../components/modals/DocPreviewModal.vue";
 import swal from "sweetalert";
@@ -239,7 +250,7 @@ export default {
       editProject: false,
       forceShowInvoice: false,
       showDocPreview: false,
-      payPeriodSelection: "",
+      showAddTimeComp: false,
       loading: true,
       OTEnabled: true,
       clicked: false,
@@ -251,9 +262,6 @@ export default {
       this.$route.params.projectId
     );
     await this.activeCheck();
-    if (this.activeProject !== {}) {
-      this.setPPSelection();
-    }
     this.loading = false;
   },
   beforeDestroy() {
@@ -321,12 +329,8 @@ export default {
     updatePPSelection() {
       this.$store.dispatch("updatePPSelection");
     },
-    async setPPSelection() {
-      if (this.payPeriodSelection == "") {
-        this.payPeriodSelection = this.$store.state.payPeriodSelection;
-      } else {
-        this.$store.dispatch("changePPSelection", this.payPeriodSelection);
-      }
+    async getActivePayPeriod(PPid) {
+      this.$store.dispatch("getActivePayPeriod", PPid);
     },
     toggleDocPreview() {
       this.showDocPreview = !this.showDocPreview;
@@ -351,6 +355,9 @@ export default {
         (t) => t.Current == true
       );
       return currentClock;
+    },
+    activePP() {
+      return this.$store.state.activePP;
     },
     timeClockGroups() {
       return this.$store.state.timeClockGroups;
@@ -412,6 +419,7 @@ export default {
     SalaryComponent,
     MilestoneComponent,
     PayPeriodComponent,
+    AddTimeComponent,
     ClockInModal,
     DocPreviewModal,
     ProjectSetupModal,
