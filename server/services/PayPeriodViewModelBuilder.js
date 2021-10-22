@@ -28,7 +28,8 @@ class PayPeriodViewModelBuilder {
       weeks: [],
       totalTime: 0,
       readableTime: "0:00",
-      totalPay: 0
+      totalPay: 0,
+      id: PP.id
     };
 
 

@@ -77,14 +77,11 @@
                 v-model="activePP.id"
                 class="p-1 my-2"
               >
-                <option
+                <pay-period-component
                   v-for="PP in payPeriodDisplay"
                   :key="PP.id"
                   :payPeriod="PP"
-                  :value="PP.id"
-                >
-                  {{ PP.ReadableDates }}
-                </option>
+                />
               </select>
             </div>
             <div class="col-12 d-flex justify-content-center" v-else>
@@ -359,12 +356,6 @@ export default {
     activePP() {
       return this.$store.state.activePP;
     },
-    timeClockGroups() {
-      return this.$store.state.timeClockGroups;
-    },
-    totalTimes() {
-      return this.$store.state.totalPPTimes;
-    },
     clockedIn() {
       if (this.activeProject.TimeClocks) {
         let currentClock = this.activeProject.TimeClocks.find(
@@ -397,9 +388,6 @@ export default {
     },
     payPeriodDisplay() {
       return this.$store.state.payPeriodDisplay;
-    },
-    weeks() {
-      return this.$store.state.weeks;
     },
     invoiceReady() {
       if (this.activeProject.PayPeriod == "Milestone") {

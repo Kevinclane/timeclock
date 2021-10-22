@@ -37,39 +37,6 @@ async function createProjectSettingsIfNeeded(project) {
   return project
 }
 
-//returns true if there have been too many projects created within time limit
-// async function checkServerCache(email, type) {
-//   let serverCache = await dbContext.ServerCache.find({
-//     CreatorEmail: email,
-//     Type: type
-//   })
-//   let i = 0
-//   let now = moment()
-//   let res = false
-
-//   while (i < serverCache.length) {
-//     let expired = moment(serverCache[i].Exp).isSameOrBefore(now)
-//     if (expired) {
-//       await dbContext.ServerCache.findByIdAndDelete(serverCache._id)
-//       serverCache.splice(i, 1)
-//     } else {
-//       i++
-//     }
-//   }
-//   if (serverCache.length > 49) {
-//     res = true
-//   }
-//   return res
-// }
-
-// async function createServerCache(email, type) {
-//   await dbContext.ServerCache.create({
-//     CreatorEmail: email,
-//     Type: type,
-//     Exp: moment().add(2, "hours")
-//   })
-// }
-
 class ProjectsService {
   async getProjects(user) {
 
