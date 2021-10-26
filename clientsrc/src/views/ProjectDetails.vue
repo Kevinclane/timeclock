@@ -20,7 +20,6 @@
     <div v-if="showDocPreview" class="backdrop">
       <doc-preview-modal
         class="xxl-modal"
-        :weeks="weeks"
         :project="activeProject"
         @closeModal="toggleDocPreview"
       />

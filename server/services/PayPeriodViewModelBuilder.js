@@ -94,7 +94,7 @@ class PayPeriodViewModelBuilder {
   async generateWeek(projectId, weeksStart, weeksEnd, days) {
 
     let week = {
-      readableDate: weeksStart.format("MM/DD/YYYY") + " - " + weeksEnd.format("MM/DD/YYYY"),
+      readableDates: days[0] + " - " + days[days.length - 1],
       startDay: weeksStart,
       endDay: weeksEnd,
       days: [],
@@ -140,11 +140,13 @@ class PayPeriodViewModelBuilder {
       StartTime: {
         $gte: moment(day).startOf('day'),
         $lt: moment(day).startOf('day').add(1, 'day')
-      }
+      },
+      ProjectId: PS.ProjectId
     });
 
     let totalTime = 0;
     let activeTC;
+    let service = "";
     let i = 0;
     while (i < TCs.length) {
       if (!TCs[i].EndTime) {
@@ -152,6 +154,14 @@ class PayPeriodViewModelBuilder {
       } else {
         totalTime += TCs[i].TCTotalHours;
       }
+
+      if (!service.includes(TCs[i].Comment)) {
+        if (service != "") {
+          service += " / ";
+        }
+        service += TCs[i].Comment;
+      }
+
       i++;
     };
 
@@ -170,7 +180,8 @@ class PayPeriodViewModelBuilder {
       tcs: TCs,
       readableTime: readableTime,
       totalTime: totalTime,
-      activeTC: activeTC
+      activeTC: activeTC,
+      service: service
     };
 
     return dayObj;

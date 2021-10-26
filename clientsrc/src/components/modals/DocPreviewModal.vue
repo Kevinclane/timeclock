@@ -35,7 +35,7 @@
             ></i>
           </div>
           <div v-if="!showEditNumber" class="col-12">
-            Invoice #{{ activeIG.InvoiceNumber }}
+            Invoice #{{ activePP.invoiceNumber }}
             <i
               class="fas fa-edit"
               type="button"
@@ -43,7 +43,7 @@
             ></i>
           </div>
           <div v-else class="col-12">
-            Invoice # <input type="text" v-model="activeIG.InvoiceNumber" />
+            Invoice # <input type="text" v-model="activePP.InvoiceNumber" />
             <i
               class="fa fa-check text-green ml-4"
               aria-hidden="true"
@@ -82,53 +82,61 @@
               @click="toggleShowEditToday()"
             ></i>
           </div>
-          <div class="col-12">Service Period: {{ payPeriodSelection }}</div>
+          <div class="col-12">Service Period: {{ activePP.readableDates }}</div>
         </div>
         <div
           class="row mt-4"
-          v-for="(week, index) in modifiedWeeks"
+          v-for="(week, index) in activePP.weeks"
           :key="`week-${index}`"
         >
-          <div class="col-12">Week of {{ week.readable }}</div>
+          <div class="col-12">Week of {{ week.readableDates }}</div>
           <div class="col-12">
             <div class="row border-bottom-black">
-              <div class="col-3">Date</div>
-              <div class="col-6">Service</div>
-              <div class="col-3">Hours</div>
+              <div class="col-3 bold">Date</div>
+              <div class="col-6 bold">Service</div>
+              <div class="col-3 bold">Hours</div>
             </div>
           </div>
           <div class="col-12 border-bottom-black">
             <div
-              v-for="(day, index) in week.groupedWeek"
+              v-for="(day, index) in week.days"
               :key="`day-${index}`"
               class="row"
             >
-              <div class="col-3">{{ day.date }}</div>
-              <div class="col-6">{{ day.service }}</div>
-              <div class="col-3">{{ day.time }}</div>
+              <div v-if="day.tcs.length > 0" class="col-3">
+                {{ day.readableDate }}
+              </div>
+              <div v-if="day.tcs.length > 0" class="col-6">
+                {{ day.service }}
+              </div>
+              <div v-if="day.tcs.length > 0" class="col-3">
+                {{ day.totalTime }}
+              </div>
             </div>
           </div>
-          <div class="col-3 offset-9">EOW Total: {{ week.totalTimes }}</div>
+          <div class="col-3 offset-9">EOW Total: {{ week.totalTime }}</div>
         </div>
         <div class="row mt-5">
           <div class="col-12">
             <div
               class="row"
-              v-for="(week, index) in weeks"
+              v-for="(week, index) in activePP.weeks"
               :key="`week-${index}`"
             >
-              <div v-if="!week.OTHours" class="col-9 text-right">
-                {{ week.totalTimes }} x ${{ project.Rate }}/hr
+              <div v-if="week.OTTime == 0" class="col-9 text-right">
+                {{ week.totalTime }} x ${{ project.Rate }}/hr
               </div>
-              <div v-if="!week.OTHours" class="col-3">${{ week.pay }}</div>
-              <div v-if="week.OTHours" class="col-9 text-right">
+              <div v-if="week.OTTime == 0" class="col-3">
+                ${{ week.totalPay }}
+              </div>
+              <div v-if="week.OTTime > 0" class="col-9 text-right">
                 {{ week.regHours }} x ${{ project.Rate }}/hr
               </div>
-              <div v-if="week.OTHours" class="col-3">${{ week.regPay }}</div>
-              <div v-if="week.OTHours" class="col-9 text-right">
-                {{ week.OTHours }} x ${{ week.OTRate }}/hr
+              <div v-if="week.OTTime > 0" class="col-3">${{ week.regPay }}</div>
+              <div v-if="week.OTTime > 0" class="col-9 text-right">
+                {{ week.OTTime }} x ${{ week.OTRate }}/hr
               </div>
-              <div v-if="week.OTHours" class="col-3">${{ week.OTPay }}</div>
+              <div v-if="week.OTTime > 0" class="col-3">${{ week.OTPay }}</div>
             </div>
           </div>
         </div>
@@ -136,7 +144,7 @@
           <div class="col-3 offset-9">Balance Due</div>
         </div>
         <div class="row">
-          <div class="col-3 offset-9">${{ totalPay }}</div>
+          <div class="col-3 offset-9">${{ activePP.totalPay }}</div>
         </div>
       </div>
     </div>
@@ -160,7 +168,7 @@ import moment from "moment";
 import { AlignmentType, TabStopPosition, TabStopType } from "docx";
 export default {
   name: "DocPreview",
-  props: ["weeks", "project"],
+  props: ["project"],
   data() {
     return {
       today: moment().format("MM/DD/YYYY"),
@@ -173,26 +181,10 @@ export default {
   },
   async mounted() {
     await this.activeCheck();
-    await this.groupWeeks();
-    if (this.project.ProjectSettings.RoundFrequency == "Week") {
-      await this.roundWeeks();
-    }
   },
   computed: {
     user() {
       return this.$store.state.user;
-    },
-    payPeriodSelection() {
-      return this.$store.state.payPeriodSelection;
-    },
-    totalPay() {
-      let i = 0;
-      let total = 0;
-      while (i < this.weeks.length) {
-        total += this.weeks[i].pay;
-        i++;
-      }
-      return total;
     },
     invoiceBody() {
       let body = [
@@ -207,7 +199,7 @@ export default {
         new docx.Paragraph({
           alignment: docx.AlignmentType.CENTER,
           children: [
-            new docx.TextRun(`Invoice # ${this.activeIG.InvoiceNumber}`),
+            new docx.TextRun(`Invoice # ${this.activePP.InvoiceNumber}`),
           ],
         }),
         new docx.Paragraph({
@@ -217,17 +209,19 @@ export default {
         new docx.Paragraph({
           alignment: docx.AlignmentType.CENTER,
           children: [
-            new docx.TextRun(`Service Period: ${this.payPeriodSelection}`),
+            new docx.TextRun(`Service Period: ${this.activePP.readableDates}`),
           ],
         }),
         new docx.Paragraph({ text: " " }),
       ];
       let i = 0;
-      while (i < this.modifiedWeeks.length) {
-        let currentWeek = this.modifiedWeeks[i];
+      while (i < this.activePP.weeks.length) {
+        let currentWeek = this.activePP.weeks[i];
         body.push(
           new docx.Paragraph({
-            children: [new docx.TextRun(`\tWeek of ${currentWeek.readable}`)],
+            children: [
+              new docx.TextRun(`\tWeek of ${currentWeek.readableDates}`),
+            ],
             tabStops: [
               {
                 type: TabStopType.CENTER,
@@ -239,9 +233,9 @@ export default {
         body.push(
           new docx.Paragraph({
             children: [
-              new docx.TextRun("Date"),
-              new docx.TextRun("\tService"),
-              new docx.TextRun("\t\tHours"),
+              new docx.TextRun({ text: "Date", bold: true }),
+              new docx.TextRun({ text: "\tService", bold: true }),
+              new docx.TextRun({ text: "\t\tHours", bold: true }),
             ],
             tabStops: [
               {
@@ -256,43 +250,15 @@ export default {
           })
         );
         let x = 0;
-        while (x < currentWeek.groupedWeek.length) {
-          let currentDay = currentWeek.groupedWeek[x];
-          if (currentWeek.groupedWeek[x + 1] == undefined) {
+        while (x < currentWeek.days.length) {
+          let currentDay = currentWeek.days[x];
+          if (currentDay.tcs.length > 0) {
             body.push(
               new docx.Paragraph({
                 children: [
-                  new docx.TextRun(`${currentDay.date}`),
+                  new docx.TextRun(`${currentDay.readableDate}`),
                   new docx.TextRun(`\t${currentDay.service}`),
-                  new docx.TextRun(`\t\t${currentDay.time}`),
-                ],
-                tabStops: [
-                  {
-                    type: TabStopType.CENTER,
-                    position: 4513,
-                  },
-                  {
-                    type: TabStopType.RIGHT,
-                    position: 7500,
-                  },
-                ],
-                border: {
-                  bottom: {
-                    color: "auto",
-                    space: 1,
-                    value: "single",
-                    size: 6,
-                  },
-                },
-              })
-            );
-          } else {
-            body.push(
-              new docx.Paragraph({
-                children: [
-                  new docx.TextRun(`${currentDay.date}`),
-                  new docx.TextRun(`\t${currentDay.service}`),
-                  new docx.TextRun(`\t\t${currentDay.time}`),
+                  new docx.TextRun(`\t\t${currentDay.totalTime}`),
                 ],
                 tabStops: [
                   {
@@ -312,8 +278,33 @@ export default {
         body.push(
           new docx.Paragraph({
             children: [
-              new docx.TextRun(`EOW Total: ${currentWeek.totalTimes}`),
+              new docx.TextRun(``),
+              new docx.TextRun(``),
+              new docx.TextRun(``),
             ],
+            tabStops: [
+              {
+                type: TabStopType.CENTER,
+                position: 4513,
+              },
+              {
+                type: TabStopType.RIGHT,
+                position: 7500,
+              },
+            ],
+            border: {
+              bottom: {
+                color: "auto",
+                space: 1,
+                value: "single",
+                size: 6,
+              },
+            },
+          })
+        );
+        body.push(
+          new docx.Paragraph({
+            children: [new docx.TextRun(`EOW Total: ${currentWeek.totalTime}`)],
             alignment: AlignmentType.RIGHT,
           })
         );
@@ -330,16 +321,16 @@ export default {
         })
       );
       i = 0;
-      while (i < this.modifiedWeeks.length) {
+      while (i < this.activePP.weeks.length) {
         body.push(
           new docx.Paragraph({
             children: [
               new docx.TextRun(" "),
               new docx.TextRun(``),
               new docx.TextRun(
-                `\t${this.modifiedWeeks[i].totalTimes} x $${this.project.Rate}/hr`
+                `\t${this.activePP.weeks[i].totalTime} x $${this.project.Rate}/hr`
               ),
-              new docx.TextRun(`\t\t$${this.modifiedWeeks[i].pay}`),
+              new docx.TextRun(`\t\t$${this.activePP.weeks[i].totalPay}`),
             ],
             tabStops: [
               {
@@ -376,14 +367,14 @@ export default {
       );
       body.push(
         new docx.Paragraph({
-          children: [new docx.TextRun(`$${this.totalPay}`)],
+          children: [new docx.TextRun(`$${this.activePP.totalPay}`)],
           alignment: AlignmentType.RIGHT,
         })
       );
       return body;
     },
-    activeIG() {
-      return this.$store.state.activeInvoiceGroup;
+    activePP() {
+      return this.$store.state.activePP;
     },
   },
   methods: {
@@ -393,120 +384,18 @@ export default {
       }
       this.$emit("closeModal");
     },
-    groupWeeks() {
-      let ps = this.project.ProjectSettings;
-      this.modifiedWeeks = [...this.weeks];
-      let i = 0;
-      //loop through weeks
-      while (i < this.modifiedWeeks.length) {
-        let currentWeek = this.modifiedWeeks[i];
-        let x = 0;
-        let week = [];
-        //loop through timeclocks
-        while (x < currentWeek.timeClocks.length) {
-          let currentDay = currentWeek.timeClocks[x];
-          let day = {
-            date: moment(currentDay[0].StartTime).format("MM/DD/YYYY"),
-            time: 0,
-            service: currentDay[0].Comment,
-          };
-          let y = 0;
-          while (y < currentDay.length) {
-            if (!day.service.includes(currentDay[y].Comment)) {
-              day.service += " / " + currentDay[y].Comment;
-            }
-            let timeDiff = moment.duration(
-              moment(currentDay[y].EndTime).diff(
-                moment(currentDay[y].StartTime)
-              )
-            );
-            if (ps.RoundTime && ps.RoundFrequency == "TC") {
-              timeDiff = parseFloat(timeDiff.asHours().toFixed(2));
-              timeDiff = this.roundTime(timeDiff, ps.RoundTo);
-              day.time += timeDiff;
-            } else {
-              day.time += parseFloat(timeDiff.asHours());
-            }
-            y++;
-          }
-          day.time = day.time.toFixed(2);
-          if (ps.RoundTime == "Day") {
-            day.time = this.roundTime(day.time);
-          }
-          week.push(day);
-          x++;
-        }
-        this.modifiedWeeks[i].groupedWeek = week;
-        // groupedWeeks.push(week);
-        i++;
-      }
-    },
-    //time is a number with or without decimal
-    //numbers after decimal are fractions of an hour
-    roundTime(time, roundTo) {
-      time = time.toString();
-      let hours;
-      let minutes;
-      if (time.includes(".")) {
-        let split = time.split(".");
-        hours = parseInt(split[0]);
-        if (split[1].length == 1) {
-          split[1] = parseInt(split[1] + "0");
-        }
-        minutes = parseInt(split[1]);
-      } else {
-        hours = parseInt(time);
-        minutes = 0;
-      }
-      minutes = minutes * 0.6;
-      let i = 0;
-      while (minutes > roundTo) {
-        i++;
-        minutes = minutes - roundTo;
-      }
-      if (minutes < roundTo / 2) {
-        minutes = i * roundTo;
-      } else {
-        minutes = (i + 1) * roundTo;
-      }
-      if (minutes >= 60) {
-        minutes = 0;
-        hours += 1;
-      }
-      hours = hours.toString();
-      minutes = (minutes / 60).toString();
-      if (minutes.includes(".")) {
-        let minSplit = minutes.split(".");
-        minutes = minSplit[1];
-      }
-      if (minutes.length == 1) {
-        minutes = minutes + "0";
-      }
-      time = parseFloat(hours + "." + minutes);
-      return time;
-    },
-    roundWeeks() {
-      debugger;
-      let i = 0;
-      while (i < this.modifiedWeeks.length) {
-        this.modifiedWeeks[i].totalTimes = this.roundTime(
-          this.modifiedWeeks[i].totalTimes,
-          this.project.ProjectSettings.RoundTo
-        );
-        i++;
-      }
-    },
     generateWordDoc() {
       let doc = new docx.Document();
 
       doc.addSection({
         children: this.invoiceBody,
-        // new docx.Paragraph[this.generatedWeeksForInvoice](),
-        // this.generatedWeeksForInvoice,
       });
 
       docx.Packer.toBlob(doc).then((blob) => {
-        fs.saveAs(blob, "Test.docx");
+        fs.saveAs(
+          blob,
+          "Invoice" + this.project.Payee + this.activePP.invoiceNumber + ".docx"
+        );
       });
     },
     toggleShowEditName() {
