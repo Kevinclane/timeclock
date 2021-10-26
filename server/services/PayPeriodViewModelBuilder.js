@@ -17,6 +17,34 @@ function _createDayRange(weeksStart, weeksEnd) {
   return days
 }
 
+function _calculateHourlyPay(week, project) {
+
+  if (week.totalTime > 40 && project.ProjectSettings.OT) {
+    week.regTime = 40;
+    week.OTTime = week.totalTime - 40;
+    week.regPay = project.Rate * 40;
+    week.OTPay = project.Rate * project.ProjectSettings.OTRate * week.OTTime;
+    week.totalPay = week.regPay + week.OTPay;
+  } else {
+    week.totalPay = project.Rate * week.totalTime;
+  }
+
+  return week;
+
+}
+
+function _calculateSalaryPay(week, project) {
+  let fullDays = Math.floor(week.totalTime / 8);
+  if (fullDays > 5) {
+    fullDays = 5
+  }
+  //Rate = yearly pay. 261 is the number of weekdays in a (non-leap) year. Rate / 261 calculates the daily rate;
+  week.totalPay = fullDays * (project.Rate / 261);
+  week.totalPay = weeks.totalPay.toFixed(2);
+
+  return week;
+}
+
 class PayPeriodViewModelBuilder {
   async generatePayPeriod(PP) {
 
@@ -29,7 +57,10 @@ class PayPeriodViewModelBuilder {
       totalTime: 0,
       readableTime: "0:00",
       totalPay: 0,
-      id: PP.id
+      id: PP.id,
+      startDay: PP.StartDay,
+      endDay: PP.EndDay,
+      readableDates: moment(PP.StartDay).format("MM/DD/YYYY") + " : " + moment(PP.EndDay).format("MM/DD/YYYY")
     };
 
 
@@ -44,6 +75,7 @@ class PayPeriodViewModelBuilder {
       payPeriod.weeks.push(week);
 
       payPeriod.totalTime += week.totalTime;
+      payPeriod.totalPay += week.totalPay;
 
       //this just sets up the next week. The loop will check if this is within the bounds of the Pay Period
       currentWeekStart = currentWeekStart.add(7, "days");
@@ -54,14 +86,12 @@ class PayPeriodViewModelBuilder {
       payPeriod.readableTime = await timeCalculator.caluclateHHMM(payPeriod.totalTime);
     }
 
-    // !TODO need to build a calculator to handle this due to hourly/salary pay types
-    // payPeriod.TotalPay = 
 
     return payPeriod;
 
   }
 
-  async generateWeek(id, weeksStart, weeksEnd, days) {
+  async generateWeek(projectId, weeksStart, weeksEnd, days) {
 
     let week = {
       readableDate: weeksStart.format("MM/DD/YYYY") + " - " + weeksEnd.format("MM/DD/YYYY"),
@@ -69,15 +99,20 @@ class PayPeriodViewModelBuilder {
       endDay: weeksEnd,
       days: [],
       readableTime: "0:00",
-      totalTime: 0
+      totalTime: 0,
+      regTime: 0,
+      OTTime: 0,
+      totalPay: 0,
+      regPay: 0,
+      OTPay: 0
     };
 
-    let PS = await dbContext.ProjectSettings.findOne({ ProjectId: id });
+    let project = await dbContext.Project.findById(projectId).populate("ProjectSettings");
 
     let i = 0;
     while (i < days.length) {
 
-      let day = await this.generateDay(days[i], PS);
+      let day = await this.generateDay(days[i], project.ProjectSettings);
       week.days.push(day);
       week.totalTime += day.totalTime;
 
@@ -85,7 +120,15 @@ class PayPeriodViewModelBuilder {
     }
 
     if (week.totalTime > 0) {
-      week.TotalHHMM = await timeCalculator.caluclateHHMM();
+      week.readableTime = await timeCalculator.caluclateHHMM(week.totalTime);
+    }
+
+    if (project.PayType == "Hourly") {
+      week = await _calculateHourlyPay(week, project);
+    } else if (project.PayType == "Salary") {
+      week = await _calculateSalaryPay(week, project);
+    } else if (project.PayType == "Milestone") {
+
     }
 
     return week
@@ -101,11 +144,18 @@ class PayPeriodViewModelBuilder {
     });
 
     let totalTime = 0;
+    let activeTC;
     let i = 0;
     while (i < TCs.length) {
-      totalTime += TCs[i].TCTotalHours
-      i++
+      if (!TCs[i].EndTime) {
+        activeTC = TCs[i];
+      } else {
+        totalTime += TCs[i].TCTotalHours;
+      }
+      i++;
     };
+
+    totalTime = Math.round((totalTime + Number.EPSILON) * 100) / 100;
 
     let readableTime = "0:00";
     if (totalTime > 0) {
@@ -119,7 +169,8 @@ class PayPeriodViewModelBuilder {
       readableDate: day,
       tcs: TCs,
       readableTime: readableTime,
-      totalTime: totalTime
+      totalTime: totalTime,
+      activeTC: activeTC
     };
 
     return dayObj;

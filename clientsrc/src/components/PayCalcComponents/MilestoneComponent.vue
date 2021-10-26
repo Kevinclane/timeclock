@@ -7,7 +7,10 @@
 <script>
 export default {
   name: "MilestoneComponent",
-  props: ["project"],
-  computed: {},
+  computed: {
+    project() {
+      return this.$store.state.activeProject;
+    },
+  },
 };
 </script>

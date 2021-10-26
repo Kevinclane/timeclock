@@ -16,57 +16,50 @@
         aria-hidden="true"
       ></i>
       <div
-        v-for="(week, index) in weeks"
+        v-for="(week, index) in activePP.weeks"
         :key="`week-${index}`"
         class="row text-center"
       >
-        <div v-if="!week.OTHours" class="col-8">
-          {{ week.totalTimes }} x ${{ project.Rate }}/hr
+        <div v-if="week.OTTime == 0" class="col-8">
+          {{ week.totalTime }} x ${{ project.Rate }}/hr
         </div>
-        <div v-if="!week.OTHours" class="col-4 border-left-green">
-          ${{ week.pay }}
+        <div v-if="week.OTTime == 0" class="col-4 border-left-green">
+          ${{ week.totalPay }}
         </div>
 
-        <div v-if="week.OTHours" class="col-8">
+        <div v-if="week.OTTime > 0" class="col-8">
           {{ week.regHours }} x ${{ project.Rate }}/hr
         </div>
-        <div v-if="week.OTHours" class="col-4 border-left-green">
+        <div v-if="week.OTTime > 0" class="col-4 border-left-green">
           ${{ week.regPay }}
         </div>
-        <div v-if="week.OTHours" class="col-8">
-          {{ week.OTHours }} x ${{ week.OTRate }}/hr
+        <div v-if="week.OTTime > 0" class="col-8">
+          {{ week.OTTime }} x ${{ week.OTRate }}/hr
         </div>
-        <div v-if="week.OTHours" class="col-4 border-left-green">
+        <div v-if="week.OTTime > 0" class="col-4 border-left-green">
           ${{ week.OTPay }}
         </div>
       </div>
     </div>
-    <h4 class="col-12 py-2">${{ totalPay }}</h4>
+    <h4 class="col-12 py-2">${{ activePP.totalPay }}</h4>
   </div>
 </template>
 
 <script>
 export default {
   name: "HourlyComponent",
-  props: ["project", "weeks", "OTEnabled"],
   data() {
     return {
-      estimatedPay: 0,
-      OTHours: 0,
-      OTRate: 0,
       showDetails: false,
     };
   },
   mounted() {},
   computed: {
-    totalPay() {
-      let i = 0;
-      let total = 0;
-      while (i < this.weeks.length) {
-        total += this.weeks[i].pay;
-        i++;
-      }
-      return total;
+    activePP() {
+      return this.$store.state.activePP;
+    },
+    project() {
+      return this.$store.state.activeProject;
     },
   },
   methods: {

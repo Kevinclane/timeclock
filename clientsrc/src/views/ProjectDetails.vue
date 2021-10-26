@@ -73,7 +73,7 @@
               v-if="activeProject.PayPeriod != 'Milestone'"
             >
               <select
-                @change="getActivePayPeriod(PP.id)"
+                @change="getActivePayPeriod"
                 v-model="activePP.id"
                 class="p-1 my-2"
               >
@@ -116,7 +116,7 @@
                 Add Time
               </button>
               <button
-                v-if="!clockedIn && !clicked"
+                v-if="!activeTimeClock && !clicked"
                 @click="clockIn"
                 class="btn btn-green m-2"
               >
@@ -142,7 +142,7 @@
                 <div class="col-12 bg-light rounded-bottom">
                   <div class="row bg-secondary text-white border-times m-2">
                     <h5 class="col-12 my-2">
-                      <span>{{ totalTimes }} Hours</span>
+                      <span>{{ activePP.totalTime }} Hours</span>
                     </h5>
                   </div>
                 </div>
@@ -153,27 +153,14 @@
             <!--REGION ESTIMATED PAY-->
             <div class="container my-2 box-shadow-245">
               <div class="row bg-primary text-white rounded-top">
-                <div v-if="activeProject.PayType == 'Hourly'" class="col-12">
-                  Estimated Pay
-                </div>
-                <div v-else class="col-12">Estimated Pay</div>
+                <div class="col-12">Estimated Pay</div>
                 <div class="col-12 bg-light rounded-bottom">
-                  <hourly-component
-                    v-if="activeProject.PayType == 'Hourly'"
-                    :project="activeProject"
-                    :weeks="weeks"
-                    :OTEnabled="OTEnabled"
-                  />
+                  <hourly-component v-if="activeProject.PayType == 'Hourly'" />
                   <salary-component
                     v-else-if="activeProject.PayType == 'Salary'"
-                    :project="activeProject"
-                    :times="totalTimes"
-                    :weeks="weeks"
                   />
                   <milestone-component
                     v-else-if="activeProject.PayPeriod == 'Milestone'"
-                    :project="activeProject"
-                    :times="totalTimes"
                   />
                 </div>
               </div>
@@ -323,11 +310,8 @@ export default {
         }
       });
     },
-    updatePPSelection() {
-      this.$store.dispatch("updatePPSelection");
-    },
-    async getActivePayPeriod(PPid) {
-      this.$store.dispatch("getActivePayPeriod", PPid);
+    async getActivePayPeriod() {
+      this.$store.dispatch("getActivePayPeriod", this.activePP.id);
     },
     toggleDocPreview() {
       this.showDocPreview = !this.showDocPreview;
@@ -348,23 +332,23 @@ export default {
       return proj;
     },
     activeTimeClock() {
-      let currentClock = this.activeProject.TimeClocks.find(
-        (t) => t.Current == true
-      );
-      return currentClock;
+      let i = 0;
+      let activeTC;
+      while (i < this.activePP.weeks.length) {
+        let week = this.activePP.weeks[i];
+        let x = 0;
+        while (x < week.days.length) {
+          if (week.days[x].activeTC) {
+            activeTC = week.days[x].activeTC;
+          }
+          x++;
+        }
+        i++;
+      }
+      return activeTC;
     },
     activePP() {
       return this.$store.state.activePP;
-    },
-    clockedIn() {
-      if (this.activeProject.TimeClocks) {
-        let currentClock = this.activeProject.TimeClocks.find(
-          (t) => t.Current == true
-        );
-        if (currentClock) {
-          return true;
-        } else return false;
-      } else return null;
     },
     milestoneStart() {
       if (this.activeProject.TimeClocks.length > 0) {
@@ -394,9 +378,7 @@ export default {
         return true;
       } else {
         let today = moment();
-        let activePP = this.$store.state.payPeriodSelection;
-        let split = activePP.split("-");
-        return moment(split[1]).isSameOrBefore(today);
+        return moment(this.activePP.endDay).isSameOrBefore(today);
       }
     },
   },

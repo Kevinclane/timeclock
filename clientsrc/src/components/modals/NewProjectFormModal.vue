@@ -9,7 +9,7 @@
                 >Special characters allowed: {{ charsAllowed.chars }}</span
               ></i
             >
-            Invoice Target:
+            Client:
           </div>
           <div class="col-6 d-flex">
             <input
@@ -175,34 +175,6 @@
 
       <!--END RATE-->
 
-      <!--SALARY OPTIONS-->
-
-      <!-- <div
-        v-show="
-          newProjectForm.PayType == 'Salary' &&
-          newProjectForm.PayPeriod != 'Milestone'
-        "
-        class="col-12 my-1"
-      >
-        <div class="row">
-          <div class="col-4 bold d-flex flex-end">Every:</div>
-          <div class="col-6 d-flex justify-content-left align-items-center">
-            <select
-              v-model="newProjectForm.SalaryFrequency"
-              name="SalaryFrequency"
-              id="SalaryFrequency"
-            >
-              <option value="" selected disabled hidden></option>
-              <option value="Daily">Day</option>
-              <option value="Weekly">Week</option>
-              <option value="Monthly">Month</option>
-            </select>
-          </div>
-        </div>
-      </div> -->
-
-      <!--END SALARY OPTIONS-->
-
       <button
         class="btn btn-danger btn-cancel"
         type="button"
@@ -223,13 +195,13 @@ export default {
   data() {
     return {
       newProjectForm: {
-        Payee: "", //req
-        PayPeriod: "", //req
+        Payee: "", //required
+        PayPeriod: "", //required
         PayType: "",
         Start: "",
         End: "",
         InvoiceDay: "",
-        Rate: "", //req
+        Rate: "", //required
         // SalaryFrequency: "",
       },
       charsAllowed: {
@@ -270,12 +242,6 @@ export default {
           abort = true;
         }
       }
-      // if (this.newProjectForm.PayType == "Salary") {
-      //   if (this.newProjectForm.SalaryFrequency == "") {
-      //     emptyFields.push("(Every) ");
-      //     abort = true;
-      //   }
-      // }
       if (this.newProjectForm.Rate == "") {
         emptyFields.push("(Rate) ");
         abort = true;

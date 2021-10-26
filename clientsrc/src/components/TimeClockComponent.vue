@@ -27,6 +27,7 @@
       <span v-if="currentTimer.second < 10" class="mr-neg-4">0</span>
       {{ currentTimer.second }}
     </div>
+
     <div v-if="showEditForm" class="editForm bg-light container order-4">
       <edit-time-clock-form-component
         :timeClock="timeClock"

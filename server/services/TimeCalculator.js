@@ -25,7 +25,7 @@ class TimeCalculator {
     return res
   }
 
-  caluclateHHMM(time, roundTo) {
+  caluclateHHMM(time) {
     let timeObj = this.splitTime(time)
     if (timeObj.hasSplit) {
       timeObj.Minutes = (Math.round(timeObj.Minutes * 60)).toString();
@@ -33,18 +33,6 @@ class TimeCalculator {
         timeObj.Minutes = "0" + timeObj.Minutes
       }
     }
-    // if (roundTo) {
-    //   timeObj.Minutes = Math.round(timeObj.Minutes / roundTo) * roundTo
-    //   // timeObj.Minutes = timeObj.Minutes * roundTo
-    //   if (timeObj.Minutes == 60) {
-    //     timeObj.Minutes = 0
-    //     timeObj.Hours++
-    //   }
-    //   timeObj.Minutes = timeObj.Minutes.toString()
-    //   if (timeObj.Minutes.length == 1) {
-    //     timeObj.Minutes = "0" + timeObj.Minutes;
-    //   }
-    // }
     let output = timeObj.Hours.toString() + ":" + timeObj.Minutes
     return output
   }
@@ -63,6 +51,12 @@ class TimeCalculator {
     }
     time = parseFloat(timeObj.Hours + "." + timeObj.Minutes);
     return time;
+  }
+
+  calculateTimeDiff(tc) {
+    let timeDiff = moment.duration(moment(tc.EndTime).diff(moment(tc.StartTime)))
+    let hours = parseFloat(timeDiff.asHours().toFixed(2))
+    return hours
   }
 
 

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="week.totalTime > 0" class="row">
+  <div class="row">
     <div class="col-12">
       <day-component
         v-for="(day, index) in week.days"
@@ -7,10 +7,10 @@
         :day="week.days[index]"
       />
     </div>
-    <div class="col-12 text-black py-2">
+    <div v-if="week.totalTime > 0" class="col-12 text-black py-2">
       <div class="row m-2">
         <div class="col-12 border-bottom-black">
-          <div>Hours this week: {{ week.readableTime }}</div>
+          <div>Hours this week: {{ week.totalTime }}</div>
         </div>
       </div>
     </div>

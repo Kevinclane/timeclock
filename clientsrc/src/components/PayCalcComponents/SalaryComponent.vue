@@ -4,12 +4,13 @@
     <div class="col-12">
       <i class="fas fa-exclamation-triangle mr-1 coco"
         ><span class="tooltiptext">
-          <div>Day salary requires 8hrs/day</div>
-          <div>Week salary requires 40hrs/week</div>
-          <div>Month salary requires 120hrs/month</div>
-        </span></i
-      >
-      ${{ estimatedPay }}
+          <div>
+            Salary is calculated as 261 working days per year. Leap year will
+            add an additional day's pay per year.
+          </div>
+        </span>
+      </i>
+      ${{ activePP.totalPay }}
     </div>
   </div>
 </template>
@@ -17,51 +18,9 @@
 <script>
 export default {
   name: "SalaryComponent",
-  props: ["project", "times", "weeks"],
   computed: {
-    estimatedPay() {
-      let pay = 0;
-      let i = 0;
-      if (this.project.SalaryFrequency == "Daily") {
-        let i = 0;
-        while (i < this.weeks.length) {
-          let weekPay = 0;
-          let x = 0;
-          let currentWeek = this.weeks[i];
-          while (x < currentWeek.timeClocks.length) {
-            let y = 0;
-            let dayHours = 0;
-            let currentDay = currentWeek.timeClocks[x];
-            while (y < currentDay.length) {
-              let timeDiff = moment.duration(
-                moment(currentDay[y].EndTime).diff(
-                  moment(currentDay[y].StartTime)
-                )
-              );
-              dayHours += timeDiff.asHours();
-              y++;
-            }
-            if (dayHours >= 8) {
-              weekPay += this.project.Rate;
-            }
-            x++;
-          }
-          i++;
-          pay += weekPay;
-        }
-      } else if (this.project.SalaryFrequency == "Weekly") {
-        while (i < this.weeks.length) {
-          if (this.weeks[i].totalTimes >= 40) {
-            pay += this.project.Rate;
-          }
-          i++;
-        }
-      } else if (this.project.SalaryFrequency == "Monthly") {
-        if (this.times >= 120) {
-          pay = this.project.Rate;
-        }
-      }
-      return pay;
+    activePP() {
+      return this.$store.state.activePP;
     },
   },
 };

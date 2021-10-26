@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="day.totalTime > 0"
+    v-if="day.tcs.length > 0"
     class="row border-times bg-secondary text-white m-2"
   >
     <div class="col-12 center-center bg-midnight">
@@ -22,7 +22,7 @@
         border-left-green
       "
     >
-      <div>{{ day.readableTime }} Hours</div>
+      <div>{{ day.totalTime }} Hours</div>
     </div>
   </div>
 </template>
