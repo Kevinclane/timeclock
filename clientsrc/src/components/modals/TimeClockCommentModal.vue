@@ -2,14 +2,15 @@
   <div>
     <div class="row text-black">
       <div class="col-12">
-        <h3>What did you work on today?</h3>
-        <textarea
+        <h4>What did you work on today?</h4>
+        <input
+          type="text"
           class="mx-w-txt"
           name="comments"
           cols="50"
           rows="10"
           v-model="comment"
-        ></textarea>
+        />
       </div>
       <div class="col-12 mt-5 d-flex justify-content-around">
         <button class="btn btn-danger" @click="close">Cancel</button>

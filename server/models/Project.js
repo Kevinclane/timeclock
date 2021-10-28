@@ -16,8 +16,7 @@ const Project = new Schema(
     TimeClocks: [{ type: Object }],
     InvoiceGroups: [{ type: ObjectId, ref: "PayPeriod" }],
     Active: { type: Boolean, default: true },
-    ProjectSettings: { type: ObjectId, ref: "ProjectSettings" },
-    ViewModel: [{ type: Object }]
+    ProjectSettings: { type: ObjectId, ref: "ProjectSettings" }
   },
   { timestamps: true, toJSON: { virtuals: true } }
 );

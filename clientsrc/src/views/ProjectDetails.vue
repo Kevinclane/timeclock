@@ -425,7 +425,7 @@ export default {
 .settings-icon {
   position: absolute;
   top: 0px;
-  right: 0px;
+  right: 1%;
   z-index: 102;
   font-size: 1.5rem;
 }
@@ -463,7 +463,15 @@ li {
   max-width: 80vw;
   /* overflow-y: scroll; */
   overflow-y: auto;
+  box-shadow: 6px 6px 5px black;
 }
+
+@media screen and (min-width: 992px) {
+  .modal-content {
+    width: 30%;
+  }
+}
+
 .xxl-modal {
   position: fixed;
   padding: 2rem;

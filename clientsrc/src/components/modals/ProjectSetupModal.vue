@@ -10,14 +10,12 @@
       <div class="col-12">
         What name do you want to show up in the "from" field on the invoices?
       </div>
-      <select class="col-10" v-model="settings.NameOnInvoice">
-        <option value="Personal">
-          Personal Name: {{ profile.FirstName }} {{ profile.LastName }}
-        </option>
-        <option v-if="profile.BusinessName" value="Business">
-          Business Name: {{ profile.BusinessName }}
-        </option>
-      </select>
+      <input
+        type="text"
+        name="name"
+        id="name"
+        v-model="settings.NameOnInvoice"
+      />
     </div>
     <div class="row my-3 pb-2 d-flex justify-content-center border-bottom">
       <div class="col-12">Do you earn overtime on this project?</div>
@@ -49,11 +47,6 @@
             <option value="30">Nearest 30min</option>
             <option value="60">Nearest hour</option>
           </select>
-          <!-- <div class="col-12">When?</div>
-          <select class="col-12" v-model="settings.RoundFrequency">
-            <option value="Day">End of every day</option>
-            <option value="Week">End of every week</option>
-          </select> -->
         </div>
       </div>
     </div>

@@ -3,8 +3,20 @@ import { BadRequest } from "../utils/Errors";
 import moment from "moment"
 import { payPeriodsService } from "./PayPeriodsService";
 import { timeCalculator } from "./TimeCalculator"
+import { payPeriodViewModelBuilder } from "./PayPeriodViewModelBuilder";
+
+async function findLastDay(project) {
+
+  let latestTC = await dbContext.TimeClock.find({ ProjectId: project.id }).sort({ StartTime: -1 }).limit(1);
+
+  if (latestTC.length == 1) {
+    return moment(latestTC).format("MM/DD/YYYY");
+  } else {
+    return "Not started";
+  }
 
 
+}
 
 function clearExcessData(projectData) {
   if (projectData.PayPeriod == "Weekly" || projectData.PayPeriod == "Bi-Weekly" || projectData.PayPeriod == "FirstAndFive") {
@@ -44,7 +56,27 @@ class ProjectsService {
       CreatorEmail: user.email
     }).populate("InvoiceGroups");
 
-    return projects;
+    //just returns limited data of each project
+    let reducedModels = [];
+    let i = 0;
+    while (i < projects.length) {
+
+      let lastDay = await findLastDay(projects[i]);
+      let lastPP = await payPeriodViewModelBuilder.generatePayPeriod(projects[i].InvoiceGroups[projects[i].InvoiceGroups.length - 1]);
+
+      reducedModels.push({
+        id: projects[i].id,
+        lastDayWorked: lastDay,
+        payee: projects[i].Payee,
+        currentHours: lastPP.totalTime,
+        active: projects[i].Active
+      });
+
+      i++;
+
+    }
+
+    return reducedModels;
   }
   async getProjectById(id, email) {
 

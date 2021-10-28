@@ -116,7 +116,7 @@ a:hover {
   color: black;
 }
 input {
-  border-radius: 5px;
+  border-radius: 5px !important;
 }
 select {
   border-radius: 5px;
@@ -217,5 +217,15 @@ button {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+body {
+  font-size: small;
+}
+
+@media screen and (min-width: 500px) {
+  body {
+    font-size: medium;
+  }
 }
 </style>

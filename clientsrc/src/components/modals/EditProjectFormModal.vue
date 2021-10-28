@@ -1,6 +1,6 @@
 <template>
   <div class="text-black">
-    <form @submit="editProject" class="row pb-4">
+    <form @submit="editProject" class="row">
       <div class="col-12 my-1">
         <div class="row">
           <div class="col-4 bold d-flex flex-end">
@@ -74,23 +74,7 @@
       <div
         v-show="project.PayType == 'Salary' && project.PayPeriod != 'Milestone'"
         class="col-12 my-1"
-      >
-        <div class="row">
-          <div class="col-4 bold d-flex flex-end">Every:</div>
-          <div class="col-6 d-flex justify-content-left align-items-center">
-            <select
-              v-model="project.SalaryFrequency"
-              name="SalaryFrequency"
-              id="SalaryFrequency"
-            >
-              <option value="" selected disabled hidden></option>
-              <option value="Daily">Day</option>
-              <option value="Weekly">Week</option>
-              <option value="Monthly">Month</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      ></div>
 
       <!--END SALARY OPTIONS-->
 
@@ -100,15 +84,12 @@
             What name do you want to show up in the "from" field on the
             invoices?
           </div>
-          <select v-model="project.ProjectSettings.NameOnInvoice">
-            <option
-              :value="name"
-              v-for="(name, index) in nameOptions"
-              :key="`name-${index}`"
-            >
-              {{ name }}
-            </option>
-          </select>
+          <input
+            type="text"
+            name="name"
+            id="name"
+            v-model="project.ProjectSettings.NameOnInvoice"
+          />
         </div>
       </div>
 
