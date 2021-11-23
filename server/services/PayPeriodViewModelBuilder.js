@@ -2,6 +2,7 @@ import { dbContext } from "../db/DbContext";
 import { BadRequest } from "../utils/Errors";
 import moment from "moment";
 import { timeCalculator } from "./TimeCalculator";
+import { payPeriodsService } from "./PayPeriodsService";
 
 function _createDayRange(weeksStart, weeksEnd) {
   let days = []
@@ -21,12 +22,13 @@ function _calculateHourlyPay(week, project) {
 
   if (week.totalTime > 40 && project.ProjectSettings.OT) {
     week.regTime = 40;
-    week.OTTime = week.totalTime - 40;
+    week.overTime = week.totalTime - 40;
     week.regPay = project.Rate * 40;
-    week.OTPay = project.Rate * project.ProjectSettings.OTRate * week.OTTime;
+    week.OTPay = project.Rate * project.ProjectSettings.OTRate * week.overTime;
     week.totalPay = week.regPay + week.OTPay;
   } else {
     week.totalPay = project.Rate * week.totalTime;
+    week.totalPay = Math.round((week.totalPay + Number.EPSILON) * 100) / 100;
   }
 
   return week;
@@ -46,46 +48,38 @@ function _calculateSalaryPay(week, project) {
 }
 
 class PayPeriodViewModelBuilder {
-  async generatePayPeriod(PP) {
+  async generatePayPeriod(payPeriod) {
 
-    let currentWeekStart = moment(PP.StartDay);
-    let currentWeekEnd = moment(PP.StartDay).add(6, "days");
+    //need to reset totals to 0 so the server can recalculate and update correctly
+    payPeriod.TotalPay = 0;
+    payPeriod.TotalTime = 0;
+    payPeriod.ReadableTime = "0:00";
 
-    //"Total" will include rounded amounts as well. Just the added up amount of everything
-    let payPeriod = {
-      weeks: [],
-      totalTime: 0,
-      readableTime: "0:00",
-      totalPay: 0,
-      id: PP.id,
-      startDay: PP.StartDay,
-      endDay: PP.EndDay,
-      readableDates: moment(PP.StartDay).format("MM/DD/YYYY") + " : " + moment(PP.EndDay).format("MM/DD/YYYY")
-    };
-
+    let currentWeekStart = moment(payPeriod.StartDay);
+    let currentWeekEnd = moment(payPeriod.StartDay).add(6, "days");
 
     //this loop will create week objects from the start of the Pay Period to the end
-    while (currentWeekEnd.isSameOrBefore(moment(PP.EndDay))) {
+    while (currentWeekEnd.isSameOrBefore(moment(payPeriod.EndDay))) {
 
-      //days = array of "MM/DD/YYYY" days
+      //days = array of days formatted as "MM/DD/YYYY"
       let days = _createDayRange(currentWeekStart, currentWeekEnd);
 
-      let week = await this.generateWeek(PP.ProjectId, currentWeekStart, currentWeekEnd, days);
+      let week = await this.generateWeek(payPeriod.ProjectId, currentWeekStart, currentWeekEnd, days);
 
-      payPeriod.weeks.push(week);
+      payPeriod.Weeks.push(week);
 
-      payPeriod.totalTime += week.totalTime;
-      payPeriod.totalPay += week.totalPay;
+      payPeriod.TotalTime += week.totalTime;
+      payPeriod.TotalPay += week.totalPay;
 
       //this just sets up the next week. The loop will check if this is within the bounds of the Pay Period
       currentWeekStart = currentWeekStart.add(7, "days");
       currentWeekEnd = currentWeekEnd.add(7, "days");
     }
 
-    if (payPeriod.totalTime > 0) {
-      payPeriod.readableTime = await timeCalculator.caluclateHHMM(payPeriod.totalTime);
+    if (payPeriod.TotalTime > 0) {
+      payPeriod.ReadableTime = await timeCalculator.caluclateHHMM(payPeriod.TotalTime);
+      await payPeriodsService.updatePayPeriodTimes(payPeriod);
     }
-
 
     return payPeriod;
 
@@ -101,7 +95,7 @@ class PayPeriodViewModelBuilder {
       readableTime: "0:00",
       totalTime: 0,
       regTime: 0,
-      OTTime: 0,
+      overTime: 0,
       totalPay: 0,
       regPay: 0,
       OTPay: 0

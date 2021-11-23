@@ -16,32 +16,37 @@
         aria-hidden="true"
       ></i>
       <div
-        v-for="(week, index) in activePP.weeks"
+        v-for="(week, index) in activePP.Weeks"
         :key="`week-${index}`"
         class="row text-center"
       >
-        <div v-if="week.OTTime == 0" class="col-8">
+        <!-- Region No Overtime -->
+        <div v-if="week.overTime == 0" class="col-8">
           {{ week.totalTime }} x ${{ project.Rate }}/hr
         </div>
-        <div v-if="week.OTTime == 0" class="col-4 border-left-green">
+        <div v-if="week.overTime == 0" class="col-4 border-left-green">
           ${{ week.totalPay }}
         </div>
+        <!-- EndRegion No Overtime -->
 
-        <div v-if="week.OTTime > 0" class="col-8">
+        <!-- Region Overtime -->
+        <div v-if="week.overTime > 0" class="col-8">
           {{ week.regHours }} x ${{ project.Rate }}/hr
         </div>
-        <div v-if="week.OTTime > 0" class="col-4 border-left-green">
+        <div v-if="week.overTime > 0" class="col-4 border-left-green">
           ${{ week.regPay }}
         </div>
-        <div v-if="week.OTTime > 0" class="col-8">
-          {{ week.OTTime }} x ${{ week.OTRate }}/hr
+
+        <div v-if="week.overTime > 0" class="col-8">
+          {{ week.overTime }} x ${{ week.OTRate }}/hr
         </div>
-        <div v-if="week.OTTime > 0" class="col-4 border-left-green">
+        <div v-if="week.overTime > 0" class="col-4 border-left-green">
           ${{ week.OTPay }}
         </div>
+        <!-- EndRegion Overtime -->
       </div>
     </div>
-    <h4 class="col-12 py-2">${{ activePP.totalPay }}</h4>
+    <h4 class="col-12 py-2">${{ activePP.TotalPay }}</h4>
   </div>
 </template>
 

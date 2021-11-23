@@ -144,7 +144,6 @@ class PayPeriodsService {
 
     return project
   }
-
   async deletePayPeriods(email, id) {
     let pps = await dbContext.PayPeriod.find({
       CreatorEmail: email,
@@ -164,7 +163,6 @@ class PayPeriodsService {
     }
     return delCount
   }
-
   async updateInvoiceGroups(IGs) {
     let updatedIGs = []
     let i = 0
@@ -179,7 +177,6 @@ class PayPeriodsService {
     }
     return updatedIGs
   }
-
   async updatePayPeriodRouter(project) {
     let data
     if (project.PayPeriod == "Weekly") {
@@ -193,7 +190,6 @@ class PayPeriodsService {
     }
     return data
   }
-
   async updateWeeklyPayPeriod(x, project) {
     let today = moment().startOf("day");
     let currentPPid = project.InvoiceGroups[project.InvoiceGroups.length - 1]._id
@@ -212,7 +208,6 @@ class PayPeriodsService {
     ).populate("InvoiceGroups").populate("ProjectSettings")
     return project
   }
-
   async updateFirstAndFivePayPeriod(project) {
     let today = moment().startOf("day");
     let currentPPid = project.InvoiceGroups[project.InvoiceGroups.length - 1]._id
@@ -242,7 +237,6 @@ class PayPeriodsService {
     ).populate("InvoiceGroups").populate("ProjectSettings")
     return project
   }
-
   async updateMonthlyPayPeriod(project) {
     let today = moment().startOf("day");
     let currentPPid = project.InvoiceGroups[project.InvoiceGroups.length - 1]._id
@@ -260,6 +254,14 @@ class PayPeriodsService {
       { new: true }
     ).populate("InvoiceGroups").populate("ProjectSettings")
     return project
+  }
+
+  async updatePayPeriodTimes(payPeriod) {
+    payPeriod = await dbContext.PayPeriod.findByIdAndUpdate(payPeriod.id, {
+      TotalPay: payPeriod.TotalPay,
+      TotalTime: payPeriod.TotalTime,
+      ReadableTime: payPeriod.ReadableTime
+    });
   }
 
 }

@@ -1,9 +1,9 @@
 <template>
   <div class="col-12 bg-light text-right">
     <week-component
-      v-for="(week, index) in activePP.weeks"
+      v-for="(week, index) in activePP.Weeks"
       :key="`week-${index}`"
-      :week="activePP.weeks[index]"
+      :week="activePP.Weeks[index]"
     />
   </div>
 </template> 

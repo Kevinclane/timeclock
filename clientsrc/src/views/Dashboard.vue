@@ -23,18 +23,6 @@
               />
             </div>
             <!--END PROJECT MODAL-->
-
-            <!-- DOWNGRADE MODAL -->
-
-            <div v-if="showProjectPick" class="backdrop">
-              <downgrade-project-pick-modal
-                class="modal-content"
-                :projects="projects"
-                @projectPicked="closeShowProjectPick"
-              />
-            </div>
-
-            <!-- END DOWNGRADE MODAL -->
           </div>
         </div>
         <div v-if="selectedTab == 'projects'" class="row">

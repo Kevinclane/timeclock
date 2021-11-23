@@ -2,7 +2,6 @@ import { dbContext } from "../db/DbContext";
 import { BadRequest } from "../utils/Errors";
 import moment from "moment"
 import { payPeriodsService } from "./PayPeriodsService";
-import { timeCalculator } from "./TimeCalculator"
 import { payPeriodViewModelBuilder } from "./PayPeriodViewModelBuilder";
 
 async function findLastDay(project) {
@@ -10,12 +9,10 @@ async function findLastDay(project) {
   let latestTC = await dbContext.TimeClock.find({ ProjectId: project.id }).sort({ StartTime: -1 }).limit(1);
 
   if (latestTC.length == 1) {
-    return moment(latestTC).format("MM/DD/YYYY");
+    return moment(latestTC.StartTime).format("MM/DD/YYYY");
   } else {
-    return "Not started";
+    return "Not Started";
   }
-
-
 }
 
 function clearExcessData(projectData) {
@@ -51,24 +48,29 @@ async function createProjectSettingsIfNeeded(project) {
 
 class ProjectsService {
   async getProjects(user) {
+    //just returns limited data of each project for dashboard view
 
     let projects = await dbContext.Project.find({
       CreatorEmail: user.email
     }).populate("InvoiceGroups");
 
-    //just returns limited data of each project
     let reducedModels = [];
     let i = 0;
     while (i < projects.length) {
 
       let lastDay = await findLastDay(projects[i]);
-      let lastPP = await payPeriodViewModelBuilder.generatePayPeriod(projects[i].InvoiceGroups[projects[i].InvoiceGroups.length - 1]);
+      let lastPayPeriod = {};
+      if (lastDay == "Not Started") {
+        lastPayPeriod.totalTime = 0;
+      } else {
+        lastPayPeriod = await payPeriodViewModelBuilder.generatePayPeriod(projects[i].InvoiceGroups[projects[i].InvoiceGroups.length - 1]);
+      }
 
       reducedModels.push({
         id: projects[i].id,
         lastDayWorked: lastDay,
         payee: projects[i].Payee,
-        currentHours: lastPP.totalTime,
+        currentHours: lastPayPeriod.TotalTime,
         active: projects[i].Active
       });
 
@@ -88,7 +90,6 @@ class ProjectsService {
     if (!project) {
       throw new BadRequest("Invalid Id");
     }
-    // project = await clearExcessData(project)
     project = await createProjectSettingsIfNeeded(project);
     project = await payPeriodsService.createPayPeriodsIfNeeded(project);
 
@@ -96,30 +97,13 @@ class ProjectsService {
   }
   async createProject(projectData) {
 
-    let profile = await dbContext.Profile.findOne({ Email: projectData.CreatorEmail }).populate("Subscription");
+    let project = await clearExcessData(projectData);
+    project = await dbContext.Project.create(projectData);
+    project = await payPeriodsService.initializePayPeriod(project, true);
 
-    let projectCount = await dbContext.Project.find({ CreatorEmail: projectData.CreatorEmail }).count();
-
-    if (profile.Subscription.SubStatus == "Free" && projectCount >= 1) {
-      throw new BadRequest("You must be subscribed to create more projects.")
-    } else {
-
-      let project = await clearExcessData(projectData);
-
-      project = await dbContext.Project.create(projectData);
-
-      project = await payPeriodsService.initializePayPeriod(project, true);
-
-      // project = await payPeriodsService.createFirstPayPeriod(email, project);
-      // createServerCache(project.CreatorEmail, "createProject")
-      return project
-    }
+    return project
   }
   async editProject(projectData) {
-    // let serverCache = await checkServerCache(projectData.CreatorEmail, "editProject")
-    // if (serverCache) {
-    // throw new BadRequest("You have edited too many projects recently. Please wait a little while before trying again.")
-    // } else {
     let project = await clearExcessData(projectData)
     project = await dbContext.Project.findOneAndUpdate({
       _id: projectData.id,
@@ -130,9 +114,7 @@ class ProjectsService {
         new: true
       }
     ).populate("ProjectSettings")
-    // createServerCache(project.CreatorEmail, "editProject")
     return project
-    // }
   }
   async deleteProject(email, id) {
     await dbContext.Project.findOneAndDelete({
@@ -166,23 +148,6 @@ class ProjectsService {
     )
     return data
   }
-
-  async lockProjects(project, user) {
-    let projects = await dbContext.Project.find({ CreatorEmail: user.email });
-    let i = 0;
-    while (i < projects.length) {
-      if (projects[i]._id != project._id) {
-        projects[i] = await dbContext.Project.findByIdAndUpdate(
-          projects[i]._id,
-          { Active: false }
-        );
-      };
-      i++;
-    }
-    return projects;
-  }
-
-
 
 }
 export const projectsService = new ProjectsService();

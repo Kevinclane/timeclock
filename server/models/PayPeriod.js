@@ -10,7 +10,7 @@ const PayPeriod = new Schema({
   ReadableDates: { type: String, required: true },
   TotalTime: { type: Number, default: 0 },
   ReadableTime: { type: String, default: "0:00" },
-  PPPay: { type: Number, default: 0 },
+  TotalPay: { type: Number, default: 0 },
   InvoiceNumber: { type: ObjectId, ref: "InvoiceNumber" },
   Current: { type: Boolean, default: false },
   Weeks: [{ type: Object }]

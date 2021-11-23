@@ -20,14 +20,14 @@
     <div v-if="showDocPreview" class="backdrop">
       <doc-preview-modal
         class="xxl-modal"
-        :project="activeProject"
+        :project="project"
         @closeModal="toggleDocPreview"
       />
     </div>
     <!--END DOC PREVIEW MODAL-->
 
     <!-- PROJECT SETUP MODAL -->
-    <div v-if="!activeProject.ProjectSettings.Completed" class="backdrop">
+    <div v-if="!project.ProjectSettings.Completed" class="backdrop">
       <project-setup-modal class="modal-content" />
     </div>
 
@@ -58,7 +58,7 @@
             Delete Project
           </button>
         </div>
-        <div class="dynamic-header">{{ activeProject.Payee }}</div>
+        <div class="dynamic-header">{{ project.Payee }}</div>
       </div>
       <!--END REGION COG DROPDOWN-->
     </div>
@@ -69,7 +69,7 @@
           <div class="row bg-primary rounded-top text-white box-shadow-245">
             <div
               class="col-12 d-flex justify-content-center"
-              v-if="activeProject.PayPeriod != 'Milestone'"
+              v-if="project.PayPeriod != 'Milestone'"
             >
               <select
                 @change="getActivePayPeriod"
@@ -94,7 +94,7 @@
               <add-time-component
                 v-if="showAddTimeComp"
                 @closeModal="toggleShowAddTimeComp"
-                :project="activeProject"
+                :project="project"
               />
             </div>
 
@@ -141,7 +141,7 @@
                 <div class="col-12 bg-light rounded-bottom">
                   <div class="row bg-secondary text-white border-times m-2">
                     <h5 class="col-12 my-2">
-                      <span>{{ activePP.totalTime }} Hours</span>
+                      <span>{{ activePP.TotalTime }} Hours</span>
                     </h5>
                   </div>
                 </div>
@@ -154,12 +154,10 @@
               <div class="row bg-primary text-white rounded-top">
                 <div class="col-12">Estimated Pay</div>
                 <div class="col-12 bg-light rounded-bottom">
-                  <hourly-component v-if="activeProject.PayType == 'Hourly'" />
-                  <salary-component
-                    v-else-if="activeProject.PayType == 'Salary'"
-                  />
+                  <hourly-component v-if="project.PayType == 'Hourly'" />
+                  <salary-component v-else-if="project.PayType == 'Salary'" />
                   <milestone-component
-                    v-else-if="activeProject.PayPeriod == 'Milestone'"
+                    v-else-if="project.PayPeriod == 'Milestone'"
                   />
                 </div>
               </div>
@@ -244,7 +242,6 @@ export default {
       "getActiveProject",
       this.$route.params.projectId
     );
-    await this.activeCheck();
     this.loading = false;
   },
   beforeDestroy() {
@@ -254,18 +251,14 @@ export default {
     async clockIn() {
       this.clicked = true;
       setTimeout((this.clicked = false), 1000);
-      if (this.activeProject.Active) {
-        let timeObj = {
-          ProjectId: this.$route.params.projectId,
-          StartTime: moment(),
-        };
-        await this.$store.dispatch("clockIn", timeObj);
-      } else {
-        this.$router.push({ name: "dashboard" });
-      }
+      let timeObj = {
+        ProjectId: this.$route.params.projectId,
+        StartTime: moment(),
+      };
+      await this.$store.dispatch("clockIn", timeObj);
     },
     clockOut() {
-      if (this.activeProject.Active) {
+      if (this.project.Active) {
         this.toggleClockOutForm();
       } else {
         this.$router.push({ name: "dashboard" });
@@ -281,7 +274,7 @@ export default {
       }
     },
     toggleShowAddTimeComp() {
-      if (this.activeProject.Active) {
+      if (this.project.Active) {
         this.showAddTimeComp = !this.showAddTimeComp;
       } else {
         this.$router.push({ name: "dashboard" });
@@ -315,14 +308,9 @@ export default {
     toggleDocPreview() {
       this.showDocPreview = !this.showDocPreview;
     },
-    activeCheck() {
-      if (!this.activeProject.Active) {
-        this.$router.push({ name: "dashboard" });
-      }
-    },
   },
   computed: {
-    activeProject() {
+    project() {
       let proj = { ...this.$store.state.activeProject };
       if (proj.Start) {
         proj.Start = moment(proj.Start).format("MM/DD/YYYY");
@@ -333,8 +321,8 @@ export default {
     activeTimeClock() {
       let i = 0;
       let activeTC;
-      while (i < this.activePP.weeks.length) {
-        let week = this.activePP.weeks[i];
+      while (i < this.activePP.Weeks.length) {
+        let week = this.activePP.Weeks[i];
         let x = 0;
         while (x < week.days.length) {
           if (week.days[x].activeTC) {
@@ -350,8 +338,8 @@ export default {
       return this.$store.state.activePP;
     },
     milestoneStart() {
-      if (this.activeProject.TimeClocks.length > 0) {
-        return moment(this.activeProject.TimeClocks[0].StartTime).format(
+      if (this.project.TimeClocks.length > 0) {
+        return moment(this.project.TimeClocks[0].StartTime).format(
           "MM/DD/YYYY"
         );
       } else {
@@ -359,11 +347,9 @@ export default {
       }
     },
     milestoneEnd() {
-      if (this.activeProject.TimeClocks.length > 0) {
+      if (this.project.TimeClocks.length > 0) {
         return moment(
-          this.activeProject.TimeClocks[
-            this.activeProject.TimeClocks.length - 1
-          ].StartTime
+          this.project.TimeClocks[this.project.TimeClocks.length - 1].StartTime
         ).format("MM/DD/YYYY");
       } else {
         return moment().format("MM/DD/YYYY");
@@ -373,11 +359,11 @@ export default {
       return this.$store.state.payPeriodDisplay;
     },
     invoiceReady() {
-      if (this.activeProject.PayPeriod == "Milestone") {
+      if (this.project.PayPeriod == "Milestone") {
         return true;
       } else {
         let today = moment();
-        return moment(this.activePP.endDay).isSameOrBefore(today);
+        return moment(this.activePP.EndDay).isSameOrBefore(today);
       }
     },
   },
