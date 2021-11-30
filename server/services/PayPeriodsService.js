@@ -255,13 +255,16 @@ class PayPeriodsService {
     ).populate("InvoiceGroups").populate("ProjectSettings")
     return project
   }
-
   async updatePayPeriodTimes(payPeriod) {
     payPeriod = await dbContext.PayPeriod.findByIdAndUpdate(payPeriod.id, {
       TotalPay: payPeriod.TotalPay,
       TotalTime: payPeriod.TotalTime,
       ReadableTime: payPeriod.ReadableTime
     });
+  }
+  async updatePayPeriod(payPeriod) {
+    let data = await dbContext.PayPeriod.findByIdAndUpdate(payPeriod.id, payPeriod, { new: true });
+    return data;
   }
 
 }

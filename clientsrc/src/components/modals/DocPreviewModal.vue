@@ -35,7 +35,7 @@
             ></i>
           </div>
           <div v-if="!showEditNumber" class="col-12">
-            Invoice #{{ activePP.invoiceNumber }}
+            Invoice #{{ invoiceNumber }}
             <i
               class="fas fa-edit"
               type="button"
@@ -43,7 +43,7 @@
             ></i>
           </div>
           <div v-else class="col-12">
-            Invoice # <input type="text" v-model="activePP.InvoiceNumber" />
+            Invoice # <input type="text" v-model="invoiceNumber" />
             <i
               class="fa fa-check text-green ml-4"
               aria-hidden="true"
@@ -59,7 +59,7 @@
             ></i>
           </div>
           <div v-if="!showEditToday" class="col-12">
-            Invoice Date: {{ today }}
+            Invoice Date: {{ invoiceDate }}
             <i
               class="fas fa-edit"
               type="button"
@@ -67,7 +67,7 @@
             ></i>
           </div>
           <div v-else class="col-12">
-            Invoice Date: <input type="date" v-model="today" />
+            Invoice Date: <input type="date" v-model="invoiceDate" />
             <i
               class="fa fa-check text-green ml-4"
               aria-hidden="true"
@@ -82,11 +82,11 @@
               @click="toggleShowEditToday()"
             ></i>
           </div>
-          <div class="col-12">Service Period: {{ activePP.readableDates }}</div>
+          <div class="col-12">Service Period: {{ activePP.ReadableDates }}</div>
         </div>
         <div
           class="row mt-4"
-          v-for="(week, index) in activePP.weeks"
+          v-for="(week, index) in activePP.Weeks"
           :key="`week-${index}`"
         >
           <div class="col-12">Week of {{ week.readableDates }}</div>
@@ -98,19 +98,21 @@
             </div>
           </div>
           <div class="col-12 border-bottom-black">
-            <div
-              v-for="(day, index) in week.days"
-              :key="`day-${index}`"
-              class="row"
-            >
-              <div v-if="day.tcs.length > 0" class="col-3">
-                {{ day.readableDate }}
-              </div>
-              <div v-if="day.tcs.length > 0" class="col-6">
-                {{ day.service }}
-              </div>
-              <div v-if="day.tcs.length > 0" class="col-3">
-                {{ day.totalTime }}
+            <div v-if="week">
+              <div
+                v-for="(day, index) in week.days"
+                :key="`day-${index}`"
+                class="row"
+              >
+                <div v-if="day.tcs.length > 0" class="col-3">
+                  {{ day.readableDate }}
+                </div>
+                <div v-if="day.tcs.length > 0" class="col-6">
+                  {{ day.service }}
+                </div>
+                <div v-if="day.tcs.length > 0" class="col-3">
+                  {{ day.totalTime }}
+                </div>
               </div>
             </div>
           </div>
@@ -144,7 +146,7 @@
           <div class="col-3 offset-9">Balance Due</div>
         </div>
         <div class="row">
-          <div class="col-3 offset-9">${{ activePP.totalPay }}</div>
+          <div class="col-3 offset-9">${{ activePP.TotalPay }}</div>
         </div>
       </div>
     </div>
@@ -171,7 +173,8 @@ export default {
   props: ["project"],
   data() {
     return {
-      today: moment().format("MM/DD/YYYY"),
+      invoiceDate: moment().format("MM/DD/YYYY"),
+      invoiceNumber: null,
       modifiedWeeks: [],
       showEditName: false,
       showEditNumber: false,
@@ -180,7 +183,12 @@ export default {
     };
   },
   async mounted() {
-    await this.activeCheck();
+    if (this.activePP.InvoiceDate) {
+      this.invoiceDate = moment(this.activePP.InvoiceDate).format("MM/DD/YYYY");
+    } else {
+      this.invoiceDate = moment().format("MM/DD/YYYY");
+    }
+    this.invoiceNumber = this.$store.state.invoiceNumber;
   },
   computed: {
     user() {
@@ -204,19 +212,19 @@ export default {
         }),
         new docx.Paragraph({
           alignment: docx.AlignmentType.CENTER,
-          children: [new docx.TextRun(`Invoice date: ${this.today}`)],
+          children: [new docx.TextRun(`Invoice date: ${this.invoiceDate}`)],
         }),
         new docx.Paragraph({
           alignment: docx.AlignmentType.CENTER,
           children: [
-            new docx.TextRun(`Service Period: ${this.activePP.readableDates}`),
+            new docx.TextRun(`Service Period: ${this.activePP.ReadableDates}`),
           ],
         }),
         new docx.Paragraph({ text: " " }),
       ];
       let i = 0;
-      while (i < this.activePP.weeks.length) {
-        let currentWeek = this.activePP.weeks[i];
+      while (i < this.activePP.Weeks.length) {
+        let currentWeek = this.activePP.Weeks[i];
         body.push(
           new docx.Paragraph({
             children: [
@@ -321,29 +329,82 @@ export default {
         })
       );
       i = 0;
-      while (i < this.activePP.weeks.length) {
-        body.push(
-          new docx.Paragraph({
-            children: [
-              new docx.TextRun(" "),
-              new docx.TextRun(``),
-              new docx.TextRun(
-                `\t${this.activePP.weeks[i].totalTime} x $${this.project.Rate}/hr`
-              ),
-              new docx.TextRun(`\t\t$${this.activePP.weeks[i].totalPay}`),
-            ],
-            tabStops: [
-              {
-                type: TabStopType.CENTER,
-                position: 6500,
-              },
-              {
-                type: TabStopType.RIGHT,
-                position: 7500,
-              },
-            ],
-          })
-        );
+      while (i < this.activePP.Weeks.length) {
+        if (this.activePP.Weeks[i].overTime == 0) {
+          body.push(
+            new docx.Paragraph({
+              children: [
+                new docx.TextRun(" "),
+                new docx.TextRun(``),
+                new docx.TextRun(
+                  `\t${this.activePP.Weeks[i].totalTime} x $${this.project.Rate}/hr`
+                ),
+                new docx.TextRun(`\t\t$${this.activePP.Weeks[i].totalPay}`),
+              ],
+              tabStops: [
+                {
+                  type: TabStopType.CENTER,
+                  position: 6500,
+                },
+                {
+                  type: TabStopType.RIGHT,
+                  position: 7500,
+                },
+              ],
+            })
+          );
+        } else {
+          body.push(
+            new docx.Paragraph({
+              children: [
+                new docx.TextRun(" "),
+                new docx.TextRun(``),
+                new docx.TextRun(
+                  `\t${this.activePP.Weeks[i].regTime} x $${this.project.Rate}/hr`
+                ),
+                new docx.TextRun(`\t\t$${this.activePP.Weeks[i].regPay}`),
+              ],
+              tabStops: [
+                {
+                  type: TabStopType.CENTER,
+                  position: 6500,
+                },
+                {
+                  type: TabStopType.RIGHT,
+                  position: 7500,
+                },
+              ],
+            })
+          );
+          body.push(
+            new docx.Paragraph({
+              children: [
+                new docx.TextRun(" "),
+                new docx.TextRun(``),
+                new docx.TextRun(
+                  `\t${this.activePP.Weeks[i].overTime} x $${
+                    this.project.Rate * 1.5
+                  }/hr`
+                ),
+                new docx.TextRun(
+                  `\t\t$${
+                    this.activePP.Weeks[i].overTime * (this.project.Rate * 1.5)
+                  }`
+                ),
+              ],
+              tabStops: [
+                {
+                  type: TabStopType.CENTER,
+                  position: 6500,
+                },
+                {
+                  type: TabStopType.RIGHT,
+                  position: 7500,
+                },
+              ],
+            })
+          );
+        }
         i++;
       }
       body.push(
@@ -367,7 +428,7 @@ export default {
       );
       body.push(
         new docx.Paragraph({
-          children: [new docx.TextRun(`$${this.activePP.totalPay}`)],
+          children: [new docx.TextRun(`$${this.activePP.TotalPay}`)],
           alignment: AlignmentType.RIGHT,
         })
       );
@@ -397,12 +458,17 @@ export default {
           "Invoice" + this.project.Payee + this.activePP.invoiceNumber + ".docx"
         );
       });
+      this.savePayPeriod(this.activePP);
+    },
+    savePayPeriod(payPeriod) {
+      payPeriod.InvoiceDate = moment();
+      this.$store.dispatch("savePayPeriodInvoiceData", payPeriod);
     },
     toggleShowEditName() {
       this.showEditName = !this.showEditName;
     },
     saveNameChange() {
-      this.project.ProjectSettings.projId = this.$route.params.projectId;
+      this.project.ProjectSettings.projectId = this.$route.params.projectId;
       this.$store.dispatch("saveProjectSettings", this.project.ProjectSettings);
       this.changedData = true;
       this.toggleShowEditName();
@@ -411,7 +477,6 @@ export default {
       this.showEditNumber = !this.showEditNumber;
     },
     saveNumberChange() {
-      this.$store.dispatch("updateInvoiceNumbers", this.activeIG);
       this.changedData = true;
       this.toggleShowEditNumber();
     },
@@ -419,13 +484,8 @@ export default {
       this.showEditToday = !this.showEditToday;
     },
     saveTodayChange() {
-      this.today = moment(this.today).format("MM/DD/YYYY");
+      this.invoiceDate = moment(this.invoiceDate).format("MM/DD/YYYY");
       this.toggleShowEditToday();
-    },
-    activeCheck() {
-      if (!this.project.Active) {
-        this.$router.push({ name: "dashboard" });
-      }
     },
   },
 };

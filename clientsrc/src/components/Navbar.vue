@@ -25,6 +25,7 @@
       >
         <span class="navbar-toggler-icon"></span>
       </button>
+
       <div class="collapse navbar-collapse col-12" id="navbarText">
         <ul class="navbar-nav mr-auto">
           <li

@@ -58,6 +58,7 @@ export default new Vuex.Store({
     activeInvoiceGroup: {},
     payPeriodDisplay: [],
     activePP: {},
+    invoiceNumber: 0,
     allPlans: [],
     planStatuses: [],
     feedback: [],
@@ -177,6 +178,9 @@ export default new Vuex.Store({
     setPromoCodes(state, promoCodes) {
       state.promoCodes = promoCodes
     },
+    setInvoiceNumber(state, invoiceNumber) {
+      state.invoiceNumber = invoiceNumber;
+    }
 
   },
 
@@ -376,19 +380,29 @@ export default new Vuex.Store({
 
     //#region  --MISC FUNCTIONS --
 
-    async getActivePayPeriod({ commit }, PPid) {
+    async getActivePayPeriod({ commit, dispatch }, PPid) {
       try {
         let res = await api.get("/payperiods/" + PPid);
+        if (res.data.InvoiceNumber == 0) {
+          dispatch("getInvoiceNumber");
+        } else {
+          commit("setInvoiceNumber", res.data.InvoiceNumber);
+        }
         commit("setActivePayPeriod", res.data);
 
       } catch (error) {
-
+        console.error(error);
       }
     },
-    async chooseDowngradeProject({ commit }, project) {
+    async getInvoiceNumber({ commit }) {
+      let userId = this.state.user.id;
+      let res = await api.get("/invoices/" + userId);
+      commit("setInvoiceNumber", res.data.Number);
+    },
+    async savePayPeriodInvoiceData({ }, payPeriod) {
       try {
-        let res = await api.post("/projects/lockprojects", project)
-        commit("setProjects", res.data)
+        payPeriod.Weeks = {};
+        await api.put("/payperiods/" + payPeriod.id, payPeriod);
       } catch (error) {
         console.error(error)
       }

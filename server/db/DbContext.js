@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { mongo } from "mongoose";
 import ProfileSchema from "../models/Profile";
 import ProjectSchema from "../models/Project";
 import TimeClockSchema from "../models/TimeClock"
@@ -11,6 +11,7 @@ import ServerCacheSchema from "../models/ServerCache"
 import FeedbackSchema from "../models/Feedback"
 import ExtraSchema from "../models/Extra"
 import PromoCodeSchema from "../models/PromoCode"
+import InvoiceNumberSchema from "../models/InvoiceNumber"
 
 class DbContext {
   Profile = mongoose.model("Profile", ProfileSchema);
@@ -25,6 +26,7 @@ class DbContext {
   Feedback = mongoose.model("FeedbackSchema", FeedbackSchema)
   Extra = mongoose.model("ExtraSchema", ExtraSchema)
   PromoCode = mongoose.model("PromoCodeSchema", PromoCodeSchema)
+  InvoiceNumber = mongoose.model("InvoiceNumberSchema", InvoiceNumberSchema)
 }
 
 export const dbContext = new DbContext();

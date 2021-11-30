@@ -323,12 +323,14 @@ export default {
       let activeTC;
       while (i < this.activePP.Weeks.length) {
         let week = this.activePP.Weeks[i];
-        let x = 0;
-        while (x < week.days.length) {
-          if (week.days[x].activeTC) {
-            activeTC = week.days[x].activeTC;
+        if (week.days) {
+          let x = 0;
+          while (x < week.days.length) {
+            if (week.days[x].activeTC) {
+              activeTC = week.days[x].activeTC;
+            }
+            x++;
           }
-          x++;
         }
         i++;
       }
