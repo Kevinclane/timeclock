@@ -404,7 +404,7 @@ export default new Vuex.Store({
         payPeriod.Weeks = {};
         await api.put("/payperiods/" + payPeriod.id, payPeriod);
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
     },
     //#endregion MISC

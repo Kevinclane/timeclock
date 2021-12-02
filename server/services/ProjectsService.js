@@ -61,17 +61,26 @@ class ProjectsService {
       let lastDay = await findLastDay(projects[i]);
       let lastPayPeriod = {};
       if (lastDay == "Not Started") {
-        lastPayPeriod.totalTime = 0;
+        lastPayPeriod.TotalTime = 0;
       } else {
-        lastPayPeriod = await payPeriodViewModelBuilder.generatePayPeriod(projects[i].InvoiceGroups[projects[i].InvoiceGroups.length - 1]);
-      }
+
+        //need to generate PP if today is within the 
+        lastPayPeriod = projects[i].InvoiceGroups[projects[i].InvoiceGroups.length - 1];
+        let today = moment();
+
+        if (today.isAfter(moment(lastPayPeriod.StartTime)) && today.isBefore(moment(lastPayPeriod.EndTime))) {
+          lastPayPeriod = await payPeriodViewModelBuilder.generatePayPeriod(lastPayPeriod);
+        } else {
+          lastPayPeriod.TotalTime = 0;
+        }
+
+      };
 
       reducedModels.push({
         id: projects[i].id,
         lastDayWorked: lastDay,
         payee: projects[i].Payee,
-        currentHours: lastPayPeriod.TotalTime,
-        active: projects[i].Active
+        currentHours: lastPayPeriod.TotalTime
       });
 
       i++;
@@ -101,7 +110,14 @@ class ProjectsService {
     project = await dbContext.Project.create(projectData);
     project = await payPeriodsService.initializePayPeriod(project, true);
 
-    return project
+    let reducedModel = {
+      id: project.id,
+      lastDayWorked: "Not Started",
+      payee: project.Payee,
+      currentHours: 0
+    };
+
+    return reducedModel;
   }
   async editProject(projectData) {
     let project = await clearExcessData(projectData)

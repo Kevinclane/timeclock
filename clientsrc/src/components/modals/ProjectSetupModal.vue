@@ -120,15 +120,6 @@ export default {
         ProjectId: this.$route.params.projectId,
       };
 
-      if (this.settings.NameOnInvoice == "Personal") {
-        settingsObj.NameOnInvoice =
-          this.profile.FirstName + " " + this.profile.LastName;
-      } else if (this.settings.NameOnInvoice == "Business") {
-        settingsObj.NameOnInvoice = this.profile.BusinessName;
-      } else if (this.settings.NameOnInvoice == "Other") {
-        settingsObj.NameOnInvoice = this.settings.OtherName;
-      }
-
       if (this.settings.OT == "Yes") {
         settingsObj.OT = true;
         settingsObj.OTRate = parseFloat(this.settings.OTRate);
@@ -141,6 +132,7 @@ export default {
         settingsObj.RoundTo = parseInt(this.settings.RoundTo);
         settingsObj.RoundFrequency = this.settings.RoundFrequency;
       }
+      settingsObj.NameOnInvoice = this.settings.NameOnInvoice;
       this.$store.dispatch("saveProjectSettings", settingsObj);
     },
     cancel() {

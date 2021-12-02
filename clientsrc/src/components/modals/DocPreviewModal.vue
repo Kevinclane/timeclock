@@ -167,6 +167,7 @@
 import * as docx from "docx";
 import * as fs from "file-saver";
 import moment from "moment";
+import { docBuilder } from "../../helperFiles/documentBuilder.js";
 import { AlignmentType, TabStopPosition, TabStopType } from "docx";
 export default {
   name: "DocPreview",
@@ -196,19 +197,20 @@ export default {
     },
     invoiceBody() {
       let body = [
+        // new docx.Paragraph({
+        //   alignment: docx.AlignmentType.CENTER,
+        //   children: [
+        //     new docx.TextRun(
+        //       `Invoice for work performed by ${this.project.ProjectSettings.NameOnInvoice} to ${this.project.Payee}`
+        //     ),
+        //   ],
+        // }),
+        docBuilder.buildCenteredLine(
+          `Invoice for work performed by ${this.project.ProjectSettings.NameOnInvoice} to ${this.project.Payee}`
+        ),
         new docx.Paragraph({
           alignment: docx.AlignmentType.CENTER,
-          children: [
-            new docx.TextRun(
-              `Invoice for work performed by ${this.project.ProjectSettings.NameOnInvoice} to ${this.project.Payee}`
-            ),
-          ],
-        }),
-        new docx.Paragraph({
-          alignment: docx.AlignmentType.CENTER,
-          children: [
-            new docx.TextRun(`Invoice # ${this.activePP.InvoiceNumber}`),
-          ],
+          children: [new docx.TextRun(`Invoice # ${this.invoiceNumber}`)],
         }),
         new docx.Paragraph({
           alignment: docx.AlignmentType.CENTER,
@@ -451,11 +453,10 @@ export default {
       doc.addSection({
         children: this.invoiceBody,
       });
-
       docx.Packer.toBlob(doc).then((blob) => {
         fs.saveAs(
           blob,
-          "Invoice" + this.project.Payee + this.activePP.invoiceNumber + ".docx"
+          "Invoice" + this.project.Payee + this.invoiceNumber + ".docx"
         );
       });
       this.savePayPeriod(this.activePP);
