@@ -149,7 +149,7 @@ class PayPeriodViewModelBuilder {
         totalTime += TCs[i].TCTotalHours;
       }
 
-      if (!service.includes(TCs[i].Comment)) {
+      if (!service.includes(TCs[i].Comment) && activeTC != TCs[i]) {
         if (service != "") {
           service += " / ";
         }

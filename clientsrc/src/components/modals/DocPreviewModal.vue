@@ -72,7 +72,7 @@
               class="fa fa-check text-green ml-4"
               aria-hidden="true"
               type="button"
-              @click="saveTodayChange()"
+              @click="saveInvoiceDay()"
             >
             </i>
             <i
@@ -89,16 +89,19 @@
           v-for="(week, index) in activePP.Weeks"
           :key="`week-${index}`"
         >
-          <div class="col-12">Week of {{ week.readableDates }}</div>
-          <div class="col-12">
-            <div class="row border-bottom-black">
-              <div class="col-3 bold">Date</div>
-              <div class="col-6 bold">Service</div>
-              <div class="col-3 bold">Hours</div>
+          <div
+            v-if="Object.keys(week).length !== 0 && week.totalTime > 0"
+            class="w-100"
+          >
+            <div class="col-12">Week of {{ week.readableDates }}</div>
+            <div class="col-12">
+              <div class="row border-bottom-black">
+                <div class="col-3 bold">Date</div>
+                <div class="col-6 bold">Service</div>
+                <div class="col-3 bold">Hours</div>
+              </div>
             </div>
-          </div>
-          <div class="col-12 border-bottom-black">
-            <div v-if="week">
+            <div class="col-12 border-bottom-black">
               <div
                 v-for="(day, index) in week.days"
                 :key="`day-${index}`"
@@ -115,31 +118,18 @@
                 </div>
               </div>
             </div>
+            <div class="col-3 offset-9">EOW Total: {{ week.totalTime }}</div>
           </div>
-          <div class="col-3 offset-9">EOW Total: {{ week.totalTime }}</div>
         </div>
         <div class="row mt-5">
           <div class="col-12">
-            <div
+            <week-totals
               class="row"
-              v-for="(week, index) in activePP.weeks"
+              v-for="(week, index) in activePP.Weeks"
               :key="`week-${index}`"
-            >
-              <div v-if="week.OTTime == 0" class="col-9 text-right">
-                {{ week.totalTime }} x ${{ project.Rate }}/hr
-              </div>
-              <div v-if="week.OTTime == 0" class="col-3">
-                ${{ week.totalPay }}
-              </div>
-              <div v-if="week.OTTime > 0" class="col-9 text-right">
-                {{ week.regHours }} x ${{ project.Rate }}/hr
-              </div>
-              <div v-if="week.OTTime > 0" class="col-3">${{ week.regPay }}</div>
-              <div v-if="week.OTTime > 0" class="col-9 text-right">
-                {{ week.OTTime }} x ${{ week.OTRate }}/hr
-              </div>
-              <div v-if="week.OTTime > 0" class="col-3">${{ week.OTPay }}</div>
-            </div>
+              :Week="week"
+              :Project="project"
+            ></week-totals>
           </div>
         </div>
         <div class="row mt-3 border-bottom-black">
@@ -168,7 +158,8 @@ import * as docx from "docx";
 import * as fs from "file-saver";
 import moment from "moment";
 import { docBuilder } from "../../helperFiles/documentBuilder.js";
-import { AlignmentType, TabStopPosition, TabStopType } from "docx";
+import { AlignmentType, TabStopType } from "docx";
+import WeekTotals from "../DocPreviewComponents/WeekTotals.vue";
 export default {
   name: "DocPreview",
   props: ["project"],
@@ -197,139 +188,56 @@ export default {
     },
     invoiceBody() {
       let body = [
-        // new docx.Paragraph({
-        //   alignment: docx.AlignmentType.CENTER,
-        //   children: [
-        //     new docx.TextRun(
-        //       `Invoice for work performed by ${this.project.ProjectSettings.NameOnInvoice} to ${this.project.Payee}`
-        //     ),
-        //   ],
-        // }),
         docBuilder.buildCenteredLine(
           `Invoice for work performed by ${this.project.ProjectSettings.NameOnInvoice} to ${this.project.Payee}`
         ),
-        new docx.Paragraph({
-          alignment: docx.AlignmentType.CENTER,
-          children: [new docx.TextRun(`Invoice # ${this.invoiceNumber}`)],
-        }),
-        new docx.Paragraph({
-          alignment: docx.AlignmentType.CENTER,
-          children: [new docx.TextRun(`Invoice date: ${this.invoiceDate}`)],
-        }),
-        new docx.Paragraph({
-          alignment: docx.AlignmentType.CENTER,
-          children: [
-            new docx.TextRun(`Service Period: ${this.activePP.ReadableDates}`),
-          ],
-        }),
-        new docx.Paragraph({ text: " " }),
+        docBuilder.buildCenteredLine(`Invoice # ${this.invoiceNumber}`),
+        docBuilder.buildCenteredLine(`Invoice date: ${this.invoiceDate}`),
+        docBuilder.buildCenteredLine(
+          `Service Period: ${this.activePP.ReadableDates}`
+        ),
+        docBuilder.newLine(),
       ];
+
+      // let body = [];
       let i = 0;
       while (i < this.activePP.Weeks.length) {
         let currentWeek = this.activePP.Weeks[i];
-        body.push(
-          new docx.Paragraph({
-            children: [
-              new docx.TextRun(`\tWeek of ${currentWeek.readableDates}`),
-            ],
-            tabStops: [
-              {
-                type: TabStopType.CENTER,
-                position: 4513,
-              },
-            ],
-          })
-        );
-        body.push(
-          new docx.Paragraph({
-            children: [
-              new docx.TextRun({ text: "Date", bold: true }),
-              new docx.TextRun({ text: "\tService", bold: true }),
-              new docx.TextRun({ text: "\t\tHours", bold: true }),
-            ],
-            tabStops: [
-              {
-                type: TabStopType.CENTER,
-                position: 4513,
-              },
-              {
-                type: TabStopType.RIGHT,
-                position: 7500,
-              },
-            ],
-          })
-        );
-        let x = 0;
-        while (x < currentWeek.days.length) {
-          let currentDay = currentWeek.days[x];
-          if (currentDay.tcs.length > 0) {
-            body.push(
-              new docx.Paragraph({
-                children: [
-                  new docx.TextRun(`${currentDay.readableDate}`),
-                  new docx.TextRun(`\t${currentDay.service}`),
-                  new docx.TextRun(`\t\t${currentDay.totalTime}`),
-                ],
-                tabStops: [
-                  {
-                    type: TabStopType.CENTER,
-                    position: 4513,
-                  },
-                  {
-                    type: TabStopType.RIGHT,
-                    position: 7500,
-                  },
-                ],
-              })
-            );
+
+        //Build each week
+        if (
+          Object.keys(currentWeek).length !== 0 &&
+          currentWeek.totalTime > 0
+        ) {
+          body.push(
+            docBuilder.buildWeekOfTitle(
+              `\tWeek of ${currentWeek.readableDates}`
+            )
+          );
+          body.push(docBuilder.buildServiceTitleLine());
+
+          //Build each line to show services/hours per day
+          let x = 0;
+          while (x < currentWeek.days.length) {
+            let currentDay = currentWeek.days[x];
+            if (currentDay.tcs.length > 0) {
+              body.push(
+                docBuilder.buildServiceLine(
+                  currentDay.readableDate,
+                  currentDay.service,
+                  currentDay.totalTime
+                )
+              );
+            }
+            x++;
           }
-          x++;
+          body.push(docBuilder.newLineWithBottomBorder());
+          body.push(docBuilder.buildEOWLine(currentWeek.totalTime));
         }
-        body.push(
-          new docx.Paragraph({
-            children: [
-              new docx.TextRun(``),
-              new docx.TextRun(``),
-              new docx.TextRun(``),
-            ],
-            tabStops: [
-              {
-                type: TabStopType.CENTER,
-                position: 4513,
-              },
-              {
-                type: TabStopType.RIGHT,
-                position: 7500,
-              },
-            ],
-            border: {
-              bottom: {
-                color: "auto",
-                space: 1,
-                value: "single",
-                size: 6,
-              },
-            },
-          })
-        );
-        body.push(
-          new docx.Paragraph({
-            children: [new docx.TextRun(`EOW Total: ${currentWeek.totalTime}`)],
-            alignment: AlignmentType.RIGHT,
-          })
-        );
         i++;
       }
-      body.push(
-        new docx.Paragraph({
-          children: [new docx.TextRun(" ")],
-        })
-      );
-      body.push(
-        new docx.Paragraph({
-          children: [new docx.TextRun(" ")],
-        })
-      );
+      body.push(docBuilder.newLine(), docBuilder.newLine());
+
       i = 0;
       while (i < this.activePP.Weeks.length) {
         if (this.activePP.Weeks[i].overTime == 0) {
@@ -462,8 +370,8 @@ export default {
       this.savePayPeriod(this.activePP);
     },
     savePayPeriod(payPeriod) {
-      payPeriod.InvoiceDate = moment();
-      this.$store.dispatch("savePayPeriodInvoiceData", payPeriod);
+      payPeriod.InvoiceDate = this.invoiceDate;
+      this.$store.dispatch("savePayPeriodInvoiceData", { ...payPeriod });
     },
     toggleShowEditName() {
       this.showEditName = !this.showEditName;
@@ -484,10 +392,13 @@ export default {
     toggleShowEditToday() {
       this.showEditToday = !this.showEditToday;
     },
-    saveTodayChange() {
+    saveInvoiceDay() {
       this.invoiceDate = moment(this.invoiceDate).format("MM/DD/YYYY");
       this.toggleShowEditToday();
     },
+  },
+  components: {
+    WeekTotals,
   },
 };
 </script>

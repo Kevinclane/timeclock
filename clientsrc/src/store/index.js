@@ -401,7 +401,7 @@ export default new Vuex.Store({
     },
     async savePayPeriodInvoiceData({ }, payPeriod) {
       try {
-        payPeriod.Weeks = {};
+        payPeriod.Weeks = [];
         await api.put("/payperiods/" + payPeriod.id, payPeriod);
       } catch (error) {
         console.error(error);
